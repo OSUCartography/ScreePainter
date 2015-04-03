@@ -632,6 +632,8 @@ public class ScreeWindow extends MainWindow {
         winHelpMenuItem = new javax.swing.JMenuItem();
         infoMenuItem = new javax.swing.JMenuItem();
         macHelpMenu = new javax.swing.JMenu();
+        macInfoMenuItem = new javax.swing.JMenuItem();
+        javax.swing.JPopupMenu.Separator jSeparator3 = new javax.swing.JPopupMenu.Separator();
         macHelpMenuItem = new javax.swing.JMenuItem();
 
         viewScreeCheckBoxMenuItem.setSelected(true);
@@ -1173,6 +1175,15 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
     macHelpMenu.setText("Help");
 
+    macInfoMenuItem.setText("Info");
+    macInfoMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            macInfoMenuItemActionPerformed(evt);
+        }
+    });
+    macHelpMenu.add(macInfoMenuItem);
+    macHelpMenu.add(jSeparator3);
+
     macHelpMenuItem.setText("Scree Painter Online Help");
     macHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1568,6 +1579,10 @@ private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent 
     this.mapComponent.zoomOnRectangle(this.areaOfInterest.getBounds2D(GeoObject.UNDEFINED_SCALE));
 }//GEN-LAST:event_zoomOnUpdateAreaMenuItemActionPerformed
 
+    private void macInfoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_macInfoMenuItemActionPerformed
+        ika.gui.ProgramInfoPanel.showApplicationInfo();
+    }//GEN-LAST:event_macInfoMenuItemActionPerformed
+
     /**
      * A property change listener for the root pane that adjusts the enabled
      * state of the save menu depending on the windowModified property attached
@@ -1626,6 +1641,7 @@ private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent 
     private javax.swing.JMenuItem loadSettingsMenuItem;
     private javax.swing.JMenu macHelpMenu;
     private javax.swing.JMenuItem macHelpMenuItem;
+    private javax.swing.JMenuItem macInfoMenuItem;
     private ika.gui.MapComponent mapComponent;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem minimizeMenuItem;

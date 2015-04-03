@@ -84,6 +84,12 @@
         <zip destfile="win/ScreePainterWin32.zip">
             <fileset dir="win/" includes="ScreePainter32Bit.exe"/>
         </zip>
+        
+        
+        <!-- zip the jar file -->
+        <zip destfile="dist/ScreePainterJar.zip" level="9">
+            <fileset dir="dist/" includes="ScreePainter.jar"/>
+        </zip>
 
     </target>
 
