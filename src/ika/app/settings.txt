@@ -1,0 +1,43 @@
+Scree Painter Format 1.1
+Stones: Minimum Distance Fraction
+0.31
+Stones: Minimum Distance Fraction to Obstructing Elements
+0.32
+Stones: Maximum Diameter
+4
+Stones: Relative Minimum Diameter
+0.65
+Stones: Radius Variability
+18
+Stones: Angular Variability
+28
+Stones: Maximum Scale for Large Stones
+1.8
+Stones: Minimum Corners
+4
+Stones: Maximum Corners
+5
+Stones: Maximum Position Jitter Fraction
+0.43
+Stones: Gradation 1
+0.0 0.0 0.15686275 0.011764705 0.24313726 0.58431375 0.41568628 0.7529412 1.0 0.8784314
+Stones: Gradation 2
+0.0 0.0 0.2784314 0.0 0.4627451 0.44313723 0.61960787 0.7764706 1.0 0.8784314
+Lines: Gradation
+0.0 0.0 0.6039216 0.0 1.0 1.0
+Lines: Distance Fraction between Stones on Lines
+0.38
+Lines: Top Stone Size Scale
+1.12
+Lines: Bottom Stone Size Scale
+1.4
+Lines: Distance between Stones on Lines and other Stones
+0.32
+Lines: Minimum Distance between Lines
+50
+Lines: Minimum Slope [Degree]
+5
+Lines: Minimum Length of Lines
+150
+Lines: Minimum Curvature
+0.001
