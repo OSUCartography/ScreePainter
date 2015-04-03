@@ -37,8 +37,8 @@ import javax.swing.KeyStroke;
  */
 public class ScreeDataPanel extends javax.swing.JPanel {
 
-    private ScreeDataFilePaths screeInputData;
-    private ScreeData screeData;
+    private final ScreeDataFilePaths screeInputData;
+    private final ScreeData screeData;
     private boolean okButtonPressed = false;
     private static String lastPathSelected = ScreeDataFilePaths.getDirPath();
 
@@ -62,11 +62,13 @@ public class ScreeDataPanel extends javax.swing.JPanel {
                 screeDataPanel.screeDataDialog.setVisible(false);
             }
         });
+        screeDataPanel.screeDataDialog.setLocationRelativeTo(owner.getRootPane());
         screeDataPanel.screeDataDialog.setVisible(true);
         return screeDataPanel.okButtonPressed;
 
     }
-    private GeoSet backgroundGeoSet,  foregroundGeoSet;
+    private final GeoSet backgroundGeoSet;
+    private final GeoSet foregroundGeoSet;
     private static final String REF_IMAGE_NAME = "refmap";
     private static final String OBSTACLES_IMAGE_NAME = "obstacles";
     private static final String LARGE_STONE_IMAGE_NAME = "largeStonesMask";
@@ -78,7 +80,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     /**
      * store the owner of the dialog: a hack to pass the owner to initComponents()
      */
-    private JFrame owner;
+    private final JFrame owner;
 
     /** Creates new form ScreeDataPanel */
     private ScreeDataPanel(JFrame owner,

@@ -125,8 +125,9 @@ public abstract class MainWindow extends javax.swing.JFrame
                 = ika.utils.PropertiesLoader.loadProperties("ika.app.Application");
         String className = props.getProperty("MainWindow");
         MainWindow window = (MainWindow)Class.forName(className).newInstance();
-        if (window == null)
+        if (window == null) {
             return null;
+        }
         
         if (callIInit) {
             if (!window.init()) {
