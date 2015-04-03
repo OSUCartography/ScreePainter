@@ -1,5 +1,6 @@
 *.class
 /win/
+/mac/
 /build/
 SwissGridTest.java
 
