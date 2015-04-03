@@ -62,7 +62,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
                 screeDataPanel.screeDataDialog.setVisible(false);
             }
         });
-        screeDataPanel.screeDataDialog.setLocationRelativeTo(owner.getRootPane());
+        screeDataPanel.screeDataDialog.setLocationRelativeTo(owner);
         screeDataPanel.screeDataDialog.setVisible(true);
         return screeDataPanel.okButtonPressed;
 
@@ -529,14 +529,14 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         screeDataDialog = new javax.swing.JDialog(this.owner);
-        jPanel7 = new javax.swing.JPanel();
-        jLabel33 = new javax.swing.JLabel();
-        jPanel8 = new javax.swing.JPanel();
-        jPanel6 = new javax.swing.JPanel();
+        javax.swing.JPanel jPanel7 = new javax.swing.JPanel();
+        javax.swing.JLabel jLabel33 = new javax.swing.JLabel();
+        javax.swing.JPanel jPanel8 = new javax.swing.JPanel();
+        javax.swing.JPanel jPanel6 = new javax.swing.JPanel();
         selectFolderButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        javax.swing.JTabbedPane jTabbedPane1 = new javax.swing.JTabbedPane();
         javax.swing.JPanel requiredDataPanel = new ika.gui.TransparentMacPanel();
         javax.swing.JPanel jPanel2 = new ika.gui.TransparentMacPanel();
         javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
@@ -551,10 +551,10 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         demFilePathLabel = new javax.swing.JLabel();
         polygonsFilePathLabel = new javax.swing.JLabel();
         obstaclesFilePathLabel = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel5 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel13 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel14 = new javax.swing.JLabel();
         reloadShadingButton = new javax.swing.JButton();
         reloadDEMButton = new javax.swing.JButton();
         reloadScreePolygonButton = new javax.swing.JButton();
@@ -569,23 +569,23 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         selectLargeStonesMaskButton = new javax.swing.JButton();
         reloadLargeStonesMaskButton = new javax.swing.JButton();
         largeStonesFilePathLabel = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
         javax.swing.JLabel jLabel12 = new javax.swing.JLabel();
         selectGradationMaskButton = new javax.swing.JButton();
         reloadGradationMaskButton = new javax.swing.JButton();
         gradationMaskFilePathLabel = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
         javax.swing.JLabel jLabel15 = new javax.swing.JLabel();
         screeLinesButton = new javax.swing.JButton();
         reloadScreeLinesButton = new javax.swing.JButton();
         clearScreeLinesButton = new javax.swing.JButton();
         screeLinesFilePathLabel = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel16 = new javax.swing.JLabel();
         javax.swing.JLabel jLabel11 = new javax.swing.JLabel();
         selectReferenceImageButton = new javax.swing.JButton();
         reloadReferenceButton = new javax.swing.JButton();
         referenceImageFilePathLabel = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
         clearReferenceImageButton = new javax.swing.JButton();
         clearGradationMaskButton = new javax.swing.JButton();
         clearLargeStonesMaskButton = new javax.swing.JButton();
@@ -732,7 +732,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
         jPanel2.add(selectObstaclesButton, gridBagConstraints);
 
-        shadingFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        shadingFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         shadingFilePathLabel.setText("-");
         shadingFilePathLabel.setEnabled(false);
         shadingFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
@@ -745,7 +745,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel2.add(shadingFilePathLabel, gridBagConstraints);
 
-        demFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        demFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         demFilePathLabel.setText("-");
         demFilePathLabel.setEnabled(false);
         demFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
@@ -758,7 +758,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel2.add(demFilePathLabel, gridBagConstraints);
 
-        polygonsFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        polygonsFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         polygonsFilePathLabel.setText("-");
         polygonsFilePathLabel.setEnabled(false);
         polygonsFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
@@ -771,7 +771,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel2.add(polygonsFilePathLabel, gridBagConstraints);
 
-        obstaclesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        obstaclesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         obstaclesFilePathLabel.setText("-");
         obstaclesFilePathLabel.setEnabled(false);
         obstaclesFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
@@ -784,7 +784,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel2.add(obstaclesFilePathLabel, gridBagConstraints);
 
-        jLabel4.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel4.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel4.setText("<html>Scree stones are not placed where this image is black.<br>Format: TIFF, PNG, or JPEG grayscale image.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -795,7 +795,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 20, 0);
         jPanel2.add(jLabel4, gridBagConstraints);
 
-        jLabel5.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel5.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel5.setText("<html>The polygons to fill with scree stones.<br>Format: ESRI Shape file (polygons).</small></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -806,7 +806,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 20, 0);
         jPanel2.add(jLabel5, gridBagConstraints);
 
-        jLabel13.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel13.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel13.setText("<html>The digital elevation model is used to find gully lines.<br>Format: ESRI ASCII Grid</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -817,7 +817,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 20, 0);
         jPanel2.add(jLabel13, gridBagConstraints);
 
-        jLabel14.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel14.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel14.setText("<html>Where this shaded relief image is dark, more and larger stones are placed.<br>Format: TIFF, PNG, or JPEG grayscale image.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -950,7 +950,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel1.add(reloadLargeStonesMaskButton, gridBagConstraints);
 
-        largeStonesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        largeStonesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         largeStonesFilePathLabel.setText("-");
         largeStonesFilePathLabel.setEnabled(false);
         largeStonesFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
@@ -963,7 +963,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel1.add(largeStonesFilePathLabel, gridBagConstraints);
 
-        jLabel3.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel3.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel3.setText("<html><small>Larger scree stones are placed where this image is not white.<br>Format: TIFF, PNG, or JPEG grayscale image.</small></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1006,7 +1006,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel1.add(reloadGradationMaskButton, gridBagConstraints);
 
-        gradationMaskFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        gradationMaskFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         gradationMaskFilePathLabel.setText("-");
         gradationMaskFilePathLabel.setEnabled(false);
         gradationMaskFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
@@ -1019,7 +1019,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel1.add(gradationMaskFilePathLabel, gridBagConstraints);
 
-        jLabel2.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel2.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel2.setText("<html>An alternative gradation curve is applied to the shaded relief image where this image is dark.<br>Format: TIFF, PNG, or JPEG grayscale image.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1076,7 +1076,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel1.add(clearScreeLinesButton, gridBagConstraints);
 
-        screeLinesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        screeLinesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         screeLinesFilePathLabel.setText("-");
         screeLinesFilePathLabel.setEnabled(false);
         screeLinesFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
@@ -1089,7 +1089,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel1.add(screeLinesFilePathLabel, gridBagConstraints);
 
-        jLabel16.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel16.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel16.setText("<html>Gully lines used instead of gully lines generated from the elevation model.<br>Format: ESRI Shape file (polylines).</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1132,7 +1132,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel1.add(reloadReferenceButton, gridBagConstraints);
 
-        referenceImageFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        referenceImageFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         referenceImageFilePathLabel.setText("-");
         referenceImageFilePathLabel.setEnabled(false);
         referenceImageFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
@@ -1145,7 +1145,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel1.add(referenceImageFilePathLabel, gridBagConstraints);
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel1.setText("<html>An optional image to display in the background.<br>Format: TIFF, PNG, or JPEG image.</small></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1459,19 +1459,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     private javax.swing.JLabel gradationMaskCheckMark;
     private javax.swing.JLabel gradationMaskFilePathLabel;
     private javax.swing.JLabel gullyLinesCheckMark;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel33;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel largeStonesFilePathLabel;
     private javax.swing.JLabel largeStonesMaskCheckMark;
     private javax.swing.JLabel obstaclesCheckMark;

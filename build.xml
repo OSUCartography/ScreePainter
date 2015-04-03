@@ -44,6 +44,11 @@
         :${launch4j.dir}/lib/xstream.jar" />
         <launch4j configFile="win/ScreePainter_64bit.xml" />
         
+        <!-- Zip the generated exe file -->
+        <zip destfile="win/ScreePainterWin64.zip">
+            <fileset dir="win/" includes="ScreePainter64Bit.exe"/>
+        </zip>
+        
         <!-- Create a Windows exe file for Windows 32 bit, that can use a 
         maximum of 1200 mb ram. Using launch4j. -->
         <property name="launch4j.dir" location="win/launch4j" />
@@ -51,7 +56,12 @@
                  classname="net.sf.launch4j.ant.Launch4jTask"
                  classpath="${launch4j.dir}/launch4j.jar
         :${launch4j.dir}/lib/xstream.jar" />
-        <launch4j configFile="win/ScreePainter.xml" />
+        <launch4j configFile="win/ScreePainter_32bit.xml" />
+        
+        <!-- Zip the generated exe file -->
+        <zip destfile="win/ScreePainterWin32.zip">
+            <fileset dir="win/" includes="ScreePainter32Bit.exe"/>
+        </zip>
 
     </target>
 
