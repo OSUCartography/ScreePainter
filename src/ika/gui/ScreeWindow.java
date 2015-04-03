@@ -451,7 +451,6 @@ public class ScreeWindow extends MainWindow {
                 viewScreeCheckBoxMenuItem.setSelected(true);
                 screeGenerator.screeData.screeStones.setVisible(true);
                 mapComponent.getGeoSet().add(screeGenerator.screeData.screeStones);
-                mapComponent.getGeoSet().add(screeGenerator.screeData.screeStones);
             } finally {
                 // enable map events again
                 trigger.inform();

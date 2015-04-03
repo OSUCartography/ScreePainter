@@ -11,21 +11,43 @@
     <description>Builds, tests, and runs the project ScreePainter.</description>
     <import file="nbproject/build-impl.xml"/>
     
-    <target name="-post-jar">
+    <taskdef name="macbundleapp"
+             classname="com.oracle.appbundler.AppBundlerTask"   
+             classpath="mac/appbundler-1.0.jar" />
 
-        <!-- Create a Mac OS X program: copy the jar file into the app bundle. -->
-        <copy overwrite="true" 
-              file="./dist/ScreePainter.jar"
-              tofile="./mac/Scree Painter.app/Contents/Resources/Java/ScreePainter.jar"/>
-        <copydir src="./lib"
-                 dest="./mac/Scree Painter.app/Contents/Resources/Java/lib/"/>
+    <target name="run.macappbundler">
+        <macbundleapp outputdirectory="mac/"
+                      name="Scree Painter"
+                      displayname="Scree Painter"
+                      identifier="${main.class}"
+                      mainclassname="${main.class}"
+                      icon="mac/icon.icns"
+                      shortversion="1.1.11"
+                      copyright="© Bernhard Jenny 2009–2015"
+                      applicationCategory="public.app-category.graphics-design">
+            
+            <option value="-Dapple.laf.useScreenMenuBar=true"/>
+            <option value="-Dcom.apple.macos.useScreenMenuBar=true"/>
+            <option value="-Dapple.awt.application.name=Scree Painter"/>
+            <option value="-Xms64m"/>
+            <option value="-Xmx3500m"/>
+            
+            <classpath file="${dist.jar}" />
+            <classpath file="./lib/itextpdf-5.4.0.jar"/>
+            <classpath file="./lib/jai_imageio.jar"/>
+            <classpath file="./lib/MRJAdapter.jar"/>
+           
+        </macbundleapp>
+        <zip destfile="mac/ScreePainterMac.zip" level="9">
+            <zipfileset filemode="755" dir="mac/Scree Painter.app" prefix="Scree Painter.app" />
+        </zip>
+    </target>
         
-        <!-- change the modification date of the Mac OS X app bundle. This does
-        not change the creation data unfortunately-->
-        <touch>
-            <fileset dir="./mac/Scree Painter.app/" casesensitive="yes"/>
-        </touch>
+    <target name="-post-jar">
         
+        <!-- create a Mac application -->
+        <antcall target="run.macappbundler"/>
+       
         <!-- Combine JAR files needed for Windows version into a single jar. -->
         <jar compress="true" destfile="${dist.jar}" update="true">
             <zipfileset src="lib/itextpdf-5.4.0.jar"/>
@@ -66,9 +88,12 @@
     </target>
 
     <target name="-post-clean">
-        <delete file="win/ScreePainter.exe"/>
+        <delete file="win/ScreePainter32Bit.exe"/>
         <delete file="win/ScreePainter64Bit.exe"/>
-        <delete file="./mac/Scree Painter.app/Contents/Resources/Java/ScreePainter.jar"/>
+        <delete file="win/ScreePainterWin32.zip"/>
+        <delete file="win/ScreePainterWin64.zip"/>
+        <delete dir="./mac/Scree Painter.app"/>
+        <delete file="./mac/ScreePainterMac.zip"/>
     </target>
     
 </project>
