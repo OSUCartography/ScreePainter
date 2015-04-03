@@ -6,6 +6,9 @@
 package ika.gui;
 
 import java.awt.event.ActionListener;
+import javax.swing.Action;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 /**
  * SwingProgressIndicator displays a progress dialog for lengthy operations.
@@ -21,15 +24,43 @@ public class ProgressPanel extends javax.swing.JPanel {
     public static final String DIALOG_NAME = ProgressPanel.class.toString();
 
     /**
-     * Creates new form SwingProgressIndicator.
+     * Creates a new ProgressPanel.
      * Must be called from the Swing Event Dispatch Thread!
      */
-    public ProgressPanel(String message, ActionListener cancelActionListener) {
+    public ProgressPanel() {
+        assert (SwingUtilities.isEventDispatchThread());
         this.initComponents();
-        cancelButton.addActionListener(cancelActionListener);
-        this.setMessage(message);
     }
 
+    /**
+     * @param cancelAction A callback handler that is called when the
+     * user presses the cancel button or the escape key.
+     */
+    public void setCancelAction(Action cancelAction) {
+        assert (SwingUtilities.isEventDispatchThread());
+        cancelButton.addActionListener(cancelAction);
+        cancelButton.getInputMap().put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE,
+                0, true), "EscapeKey");
+        cancelButton.getActionMap().put("EscapeKey", cancelAction);
+    }
+    
+    /**
+     * removeActionListeners() must be called when the panel is no longer needed and the
+     * parent dialog is disposed. This is to avoid a memory leak that may fill
+     * up heap space when listeners are not removed (which make garbage
+     * collecting a Frame impossible). Must be called from the Swing Event
+     * Dispatch Thread.
+     */
+    public void removeActionListeners() {
+        assert (SwingUtilities.isEventDispatchThread());
+        ActionListener[] als = cancelButton.getActionListeners();
+        for (ActionListener al : als) {
+            cancelButton.removeActionListener(al);
+        }
+        cancelButton.getInputMap().clear();
+        cancelButton.getActionMap().clear();
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -76,29 +107,35 @@ public class ProgressPanel extends javax.swing.JPanel {
      * start action. Setup the dialog and remember the current time.
      */
     public void start() {
+        assert (SwingUtilities.isEventDispatchThread());
         progressBar.setValue(0);
         cancelButton.setEnabled(true);
         progressBar.setIndeterminate(false);
     }
 
     public void updateProgressGUI(final int percentage) {
+        assert (SwingUtilities.isEventDispatchThread());
         progressBar.setIndeterminate(false);
         progressBar.setValue(percentage);
     }
 
     public void disableCancel() {
+        assert (SwingUtilities.isEventDispatchThread());
         cancelButton.setEnabled(false);
     }
 
     public void enableCancel() {
+        assert (SwingUtilities.isEventDispatchThread());
         cancelButton.setEnabled(true);
     }
 
     public void setMessage(final String msg) {
+        assert (SwingUtilities.isEventDispatchThread());
         messageLabel.setText(msg);
     }
 
     public void setIndeterminate(boolean indeterminate) {
+        assert (SwingUtilities.isEventDispatchThread());
         progressBar.setIndeterminate(indeterminate);
 
     }

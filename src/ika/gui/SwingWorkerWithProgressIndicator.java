@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -21,7 +23,8 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
      */
     protected ProgressPanel progressPanel;
     /**
-     * The dialog to display the progressPanel. Must be accessed by the Swing thread only.
+     * The dialog to display the progressPanel. Must be accessed by the Swing
+     * thread only.
      */
     protected JDialog dialog;
     /**
@@ -29,7 +32,8 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
      */
     protected Frame owner;
     /**
-     * aborted is true after abort() is called. Access to aborted must be synchronized.
+     * aborted is true after abort() is called. Access to aborted must be
+     * synchronized.
      */
     private boolean aborted = false;
     /**
@@ -56,6 +60,7 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
 
     /**
      * Must be called in the Event Dispatching Thread.
+     *
      * @param owner
      * @param dialogTitle
      * @param message
@@ -86,13 +91,15 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
         dialog.setModal(blockOwner);
         dialog.setResizable(false);
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        ActionListener cancelActionListener = new java.awt.event.ActionListener() {
-
+        Action cancelAction = new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 abort();
             }
         };
-        progressPanel = new ProgressPanel(message, cancelActionListener);
+        progressPanel = new ProgressPanel();
+        progressPanel.setMessage(message);
+        progressPanel.setCancelAction(cancelAction);
         dialog.setContentPane(progressPanel);
         dialog.pack();
         dialog.setLocationRelativeTo(owner);
@@ -137,6 +144,7 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
 
             public void run() {
                 dialog.setVisible(false);
+                progressPanel.removeActionListeners();
             }
         });
     }
@@ -181,8 +189,8 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
     }
 
     /**
-     * Invoked when the task's progress property changes. Update the value displayed
-     * by the progress dialog and inform the task if the user presses
+     * Invoked when the task's progress property changes. Update the value
+     * displayed by the progress dialog and inform the task if the user presses
      * the cancel button. This is called in the event dispatching thread.
      */
     public void propertyChange(PropertyChangeEvent evt) {
@@ -190,7 +198,7 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
         if ("progress".equals(evt.getPropertyName())) {
             int progress = ((Integer) evt.getNewValue()).intValue();
             progress = progress / totalTasksCount + (currentTask - 1) * 100 / totalTasksCount;
-            
+
             // make the dialog visible if necessary
             synchronized (this) {
                 if (aborted == false) {
@@ -217,9 +225,10 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
         }
     }
 
-    /** ShowDialogTask is a timer that makes sure the progress dialog
-     * is shown if progress() is not called for a long time. In this case, the
-     * dialog would never become visible.
+    /**
+     * ShowDialogTask is a timer that makes sure the progress dialog is shown if
+     * progress() is not called for a long time. In this case, the dialog would
+     * never become visible.
      */
     private class ShowDialogTask implements ActionListener {
 
@@ -278,9 +287,10 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
     }
 
     /**
-     * Sets the number of tasks. Each task has a progress between 0 and 100.
-     * If the number of tasks is larger than 1, progress of task 1 will be
-     * rescaled to 0..50.
+     * Sets the number of tasks. Each task has a progress between 0 and 100. If
+     * the number of tasks is larger than 1, progress of task 1 will be rescaled
+     * to 0..50.
+     *
      * @param tasksCount The total number of tasks.
      */
     public void setTotalTasksCount(int tasksCount) {
@@ -291,6 +301,7 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
 
     /**
      * Returns the total numbers of tasks for this progress indicator.
+     *
      * @return The total numbers of tasks.
      */
     public int getTotalTasksCount() {
@@ -318,6 +329,7 @@ public abstract class SwingWorkerWithProgressIndicator<T, V> extends SwingWorker
 
     /**
      * Returns the ID of the current task. The first task has ID 1 (and not 0).
+     *
      * @return The ID of the current task.
      */
     public int currentTask() {
