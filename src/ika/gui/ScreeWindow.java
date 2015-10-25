@@ -1084,7 +1084,7 @@ zoomOutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
     zoomOnUpdateAreaMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z,
         java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-zoomOnUpdateAreaMenuItem.setText("Zoom On Updatea Area");
+zoomOnUpdateAreaMenuItem.setText("Zoom On Update Area");
 zoomOnUpdateAreaMenuItem.setEnabled(false);
 zoomOnUpdateAreaMenuItem.addActionListener(new java.awt.event.ActionListener() {
     public void actionPerformed(java.awt.event.ActionEvent evt) {

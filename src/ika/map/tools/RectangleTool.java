@@ -10,7 +10,6 @@ import ika.geo.RenderParams;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
-import ika.utils.*;
 import ika.gui.MapComponent;
 
 /**

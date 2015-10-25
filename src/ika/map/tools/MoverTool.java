@@ -11,9 +11,6 @@ import ika.utils.FocusUtils;
 import java.awt.geom.*;
 import java.awt.event.*;
 import ika.gui.MapComponent;
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.event.*;
 
 /**
  * MoverTool - a tool to move GeoObjects by dragging them with the mouse, or

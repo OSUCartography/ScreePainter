@@ -10,7 +10,6 @@ package ika.map.tools;
 import ika.geo.*;
 import ika.gui.MapComponent;
 import ika.gui.SelectionBox;
-import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 
@@ -25,7 +24,7 @@ import java.awt.event.*;
 abstract public class SelectionEditingTool extends DoubleBufferedTool {
     
     /**
-     * The box surounding all selected objects before dragging starts.
+     * The box surrounding all selected objects before dragging starts.
      */
     protected Rectangle2D initialSelectionBox = null;
         
@@ -36,11 +35,13 @@ abstract public class SelectionEditingTool extends DoubleBufferedTool {
      */
     protected Point2D.Double startPoint;
    
-    /** Creates a new instance of SelectionEditingTool */
+    /** Creates a new instance of SelectionEditingTool
+     * @param mapComponent */
     public SelectionEditingTool(MapComponent mapComponent) {
         super(mapComponent);
     }
     
+    @Override
     public boolean isDragging() {
         return initialSelectionBox != null;
     }
@@ -48,6 +49,8 @@ abstract public class SelectionEditingTool extends DoubleBufferedTool {
     /**
      * Returns whether the passed point differs from the point where the 
      * user clicked to start the dragging.
+     * @param point
+     * @return 
      */
     protected boolean differentFromStartPoint(Point2D point) {
         if (this.startPoint == null)
@@ -58,15 +61,18 @@ abstract public class SelectionEditingTool extends DoubleBufferedTool {
     /**
      * Returns an affine transformation that is applied on selected objects 
      * before drawing them during a dragging process.
+     * @param point
+     * @param evt
+     * @return 
      */
     abstract protected AffineTransform computeTransform(Point2D.Double point, 
             MouseEvent evt);
        
     /**
      * The mouse location changed during a drag, while this MapTool was the active one.
-     * @param pointThe location of the mouse in world coordinates.
      * @param evt The original event.
      */
+    @Override
     public void updateDrag(Point2D.Double point, MouseEvent evt) {
         if (!this.isDragging())
             return;
@@ -95,7 +101,9 @@ abstract public class SelectionEditingTool extends DoubleBufferedTool {
     
     /**
      * Draws the selected GeoObjects
+     * @param rp
      */
+    @Override
     public void draw(RenderParams rp) {
         if (!this.isDragging())
             return;
@@ -120,6 +128,7 @@ abstract public class SelectionEditingTool extends DoubleBufferedTool {
      * @param keyEvent The new key event.
      * @return True if the key event has been consumed, false otherwise.
      */
+    @Override
     public boolean keyEvent(KeyEvent keyEvent) {
         
         if (keyEvent.getKeyCode() != KeyEvent.VK_ESCAPE)
@@ -132,6 +141,7 @@ abstract public class SelectionEditingTool extends DoubleBufferedTool {
         return true;
     }
     
+    @Override
     protected String getCursorName() {
         return "arrow";
     }

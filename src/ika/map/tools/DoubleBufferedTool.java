@@ -9,7 +9,6 @@ package ika.map.tools;
 import java.awt.image.*;
 import java.awt.*;
 import ika.utils.ImageUtils;
-import java.awt.geom.*;
 import ika.gui.MapComponent;
 
 /**

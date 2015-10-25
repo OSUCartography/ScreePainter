@@ -22,7 +22,7 @@
                       identifier="${main.class}"
                       mainclassname="${main.class}"
                       icon="mac/icon.icns"
-                      shortversion="1.1.11"
+                      shortversion="1.2"
                       copyright="© Bernhard Jenny 2009–2015"
                       applicationCategory="public.app-category.graphics-design">
             
@@ -57,32 +57,17 @@
             </manifest>
         </jar>
         
-        <!-- Create a Windows exe file for Windows 64 bit, that can use more than
-        1200 mb ram. Using launch4j. -->
+        <!-- Create a Windows exe file for Windows using launch4j. -->
         <property name="launch4j.dir" location="win/launch4j" />
         <taskdef name="launch4j"
                  classname="net.sf.launch4j.ant.Launch4jTask"
                  classpath="${launch4j.dir}/launch4j.jar
         :${launch4j.dir}/lib/xstream.jar" />
-        <launch4j configFile="win/ScreePainter_64bit.xml" />
+        <launch4j configFile="win/ScreePainter.xml" />
         
         <!-- Zip the generated exe file -->
-        <zip destfile="win/ScreePainterWin64.zip">
-            <fileset dir="win/" includes="ScreePainter64Bit.exe"/>
-        </zip>
-        
-        <!-- Create a Windows exe file for Windows 32 bit, that can use a 
-        maximum of 1200 mb ram. Using launch4j. -->
-        <property name="launch4j.dir" location="win/launch4j" />
-        <taskdef name="launch4j"
-                 classname="net.sf.launch4j.ant.Launch4jTask"
-                 classpath="${launch4j.dir}/launch4j.jar
-        :${launch4j.dir}/lib/xstream.jar" />
-        <launch4j configFile="win/ScreePainter_32bit.xml" />
-        
-        <!-- Zip the generated exe file -->
-        <zip destfile="win/ScreePainterWin32.zip">
-            <fileset dir="win/" includes="ScreePainter32Bit.exe"/>
+        <zip destfile="win/ScreePainterWin.zip">
+            <fileset dir="win/" includes="ScreePainter.exe"/>
         </zip>
         
         
@@ -94,10 +79,8 @@
     </target>
 
     <target name="-post-clean">
-        <delete file="win/ScreePainter32Bit.exe"/>
-        <delete file="win/ScreePainter64Bit.exe"/>
-        <delete file="win/ScreePainterWin32.zip"/>
-        <delete file="win/ScreePainterWin64.zip"/>
+        <delete file="win/ScreePainter.exe"/>
+        <delete file="win/ScreePainterWin.zip"/>
         <delete dir="./mac/Scree Painter.app"/>
         <delete file="./mac/ScreePainterMac.zip"/>
     </target>

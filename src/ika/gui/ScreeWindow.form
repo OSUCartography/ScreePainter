@@ -285,7 +285,7 @@
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z,&#xa;    java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask())" type="code"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Zoom On Updatea Area"/>
+                <Property name="text" type="java.lang.String" value="Zoom On Update Area"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
