@@ -63,6 +63,9 @@ public class ScreeDataPanel extends javax.swing.JPanel {
             public void windowClosing(WindowEvent e) {
                 screeDataPanel.okButtonPressed = screeDataPanel.okButton.isEnabled();
                 screeDataPanel.screeDataDialog.setVisible(false);
+                if (screeDataPanel.okButtonPressed) {
+                    data.writePathsToPreferences();
+                }
             }
         });
         screeDataPanel.screeDataDialog.setLocationRelativeTo(owner);

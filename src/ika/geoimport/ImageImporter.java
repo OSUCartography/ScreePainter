@@ -72,7 +72,7 @@ public class ImageImporter extends GeoImporter {
         }
 
         // create the GeoImage
-        GeoImage geoImage = new GeoImage/*Pyramid*/(bufferedImage, url);
+        GeoImage geoImage = new GeoImage(bufferedImage, url);
         geoImage.setName(ika.utils.FileUtils.getFileNameWithoutExtension(url.getPath()));
 
         // search and read an associated world file containing georeferencing

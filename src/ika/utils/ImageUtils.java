@@ -99,7 +99,7 @@ public class ImageUtils {
             // draw the passed image into the optimized image
             optimized.getGraphics().drawImage(image, 0, 0, null);
             return optimized;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // return the original image if an exception occured.
             return image;
         }

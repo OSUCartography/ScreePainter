@@ -17,11 +17,14 @@ public class ScreeDataFilePaths implements Cloneable{
     public static final String DEF_SCREE_PATH = "scree.shp";
     public static final String DEF_GULLY_LINES_PATH = "lines.shp";
 
+    private static Preferences getPreferences() {
+        return Preferences.userNodeForPackage(ScreeDataFilePaths.class);
+    }
+    
     private static String dirPath;
     static {
         // load path to last folder from preferences
-        Preferences prefs = Preferences.userNodeForPackage(ScreeDataFilePaths.class);
-        dirPath = prefs.get("directory", "");
+        dirPath = getPreferences().get("directory", "");
     }
 
     public static String getDirPath() {
@@ -32,8 +35,7 @@ public class ScreeDataFilePaths implements Cloneable{
         dirPath = directory;
 
         // save selected folder in preferences
-        Preferences prefs = Preferences.userNodeForPackage(ScreeDataFilePaths.class);
-        prefs.put("directory", dirPath);
+        getPreferences().put("directory", dirPath);
     }
 
     public String screePolygonsFilePath,
@@ -54,6 +56,18 @@ public class ScreeDataFilePaths implements Cloneable{
         return clone;
     }
 
+    public void writePathsToPreferences() {
+        Preferences prefs = getPreferences();
+        prefs.put("screePolygonsFilePath", screePolygonsFilePath);
+        prefs.put("demFilePath", demFilePath);
+        prefs.put("shadingFilePath", shadingFilePath);
+        prefs.put("gradationMaskFilePath", gradationMaskFilePath);
+        prefs.put("obstaclesFilePath", obstaclesFilePath);
+        prefs.put("largeStoneFilePath", largeStoneFilePath);
+        prefs.put("referenceFilePath", referenceFilePath);
+        prefs.put("gullyLinesFilePath", gullyLinesFilePath);
+    }
+    
     public String screePolygonsFilePath() {
         return screePolygonsFilePath == null ? dirPath + DEF_SCREE_PATH : screePolygonsFilePath;
     }
