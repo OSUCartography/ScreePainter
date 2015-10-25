@@ -25,6 +25,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -78,11 +81,14 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     private static final String POLYGONS_NAME = "polygons";
 
     /**
-     * store the owner of the dialog: a hack to pass the owner to initComponents()
+     * store the owner of the dialog: a hack to pass the owner to
+     * initComponents()
      */
     private final JFrame owner;
 
-    /** Creates new form ScreeDataPanel */
+    /**
+     * Creates new form ScreeDataPanel
+     */
     private ScreeDataPanel(JFrame owner,
             ScreeDataFilePaths screeInputData,
             ScreeData screeData,
@@ -218,123 +224,122 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         SwingWorkerWithProgressIndicator worker = new SwingWorkerWithProgressIndicator(
                 frame, "Scree Painter Data Import", "", true) {
 
-            @Override
-            public void done() {
-                MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
-                try {
-                    writeToGUI();
+                    String errorMsg = "The file could not be imported.";
+                    String errorTitle = "Scree Painter Error";
 
-                    warnOfSmallCellSize(screeData.dem);
+                    @Override
+                    protected void done() {
+                        MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
+                        try {
+                            get(); // exceptions that occured in the backround tasks are thrown here
 
-                    backgroundGeoSet.replaceGeoObject(screeData.shadingImage, SHADING_IMAGE_NAME);
-                    warnOfSmallCellSize(screeData.shadingImage);
+                            writeToGUI();
 
-                    backgroundGeoSet.replaceGeoObject(screeData.largeStoneMaskImage, LARGE_STONE_IMAGE_NAME);
-                    warnOfSmallCellSize(screeData.largeStoneMaskImage);
+                            warnOfSmallCellSize(screeData.dem);
 
-                    backgroundGeoSet.replaceGeoObject(screeData.shadingGradationMaskImage, GRADATION_MASK_IMAGE_NAME);
-                    warnOfSmallCellSize(screeData.shadingGradationMaskImage);
+                            backgroundGeoSet.replaceGeoObject(screeData.shadingImage, SHADING_IMAGE_NAME);
+                            warnOfSmallCellSize(screeData.shadingImage);
 
-                    backgroundGeoSet.replaceGeoObject(screeData.obstaclesMaskImage, OBSTACLES_IMAGE_NAME);
-                    warnOfSmallCellSize(screeData.obstaclesMaskImage);
+                            backgroundGeoSet.replaceGeoObject(screeData.largeStoneMaskImage, LARGE_STONE_IMAGE_NAME);
+                            warnOfSmallCellSize(screeData.largeStoneMaskImage);
 
-                    backgroundGeoSet.replaceGeoObject(screeData.referenceImage, REF_IMAGE_NAME);
-                    warnOfSmallCellSize(screeData.referenceImage);
+                            backgroundGeoSet.replaceGeoObject(screeData.shadingGradationMaskImage, GRADATION_MASK_IMAGE_NAME);
+                            warnOfSmallCellSize(screeData.shadingGradationMaskImage);
 
-                    foregroundGeoSet.add(screeData.screePolygons);
+                            backgroundGeoSet.replaceGeoObject(screeData.obstaclesMaskImage, OBSTACLES_IMAGE_NAME);
+                            warnOfSmallCellSize(screeData.obstaclesMaskImage);
 
-                    foregroundGeoSet.add(screeData.gullyLines);
-                } finally {
-                    trigger.inform();
-                }
-            }
+                            backgroundGeoSet.replaceGeoObject(screeData.referenceImage, REF_IMAGE_NAME);
+                            warnOfSmallCellSize(screeData.referenceImage);
 
-            @Override
-            protected Object doInBackground() throws Exception {
+                            foregroundGeoSet.add(screeData.screePolygons);
 
-                MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
-                try {
-                    
-                    if (loadShading) {
-                        this.nextTask();
-                        loadShading(this);
-                        if (isAborted()) {
-                            return null;
+                            foregroundGeoSet.add(screeData.gullyLines);
+                        } catch (ExecutionException ex) {
+                            ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex.getCause(), dialog);
+                        } catch (Throwable ex) {
+                            ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex, dialog);
+                        } finally {
+                            trigger.inform();
                         }
                     }
 
-                    if (loadLargeStoneMask) {
-                        this.nextTask();
-                        loadLargeStonesMask(this);
-                        if (isAborted()) {
-                            return null;
-                        }
-                    }
+                    @Override
+                    protected Object doInBackground() throws Exception {
 
-                    if (loadGradationMask) {
-                        this.nextTask();
-                        loadGradationMask(this);
-                        if (isAborted()) {
-                            return null;
-                        }
-                    }
+                        MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
+                        try {
 
-                    if (loadObstaclesMask) {
-                        this.nextTask();
-                        loadObstaclesMask(this);
-                        if (isAborted()) {
-                            return null;
-                        }
-                    }
-
-                    if (loadRefImage) {
-                        this.nextTask();
-                        loadReferenceImage(this);
-                        if (isAborted()) {
-                            return null;
-                        }
-                    }
-
-                    try {
-                        if (loadDem) {
-                            loadDEM(this);
-                            if (isAborted()) {
-                                return null;
+                            if (loadShading) {
+                                this.nextTask();
+                                loadShading(this);
+                                if (isAborted()) {
+                                    return null;
+                                }
                             }
-                        }
 
-                        if (loadScreePolygons) {
-                            this.nextTask();
-                            loadScreePolygons(this);
-                            if (isAborted()) {
-                                return null;
+                            if (loadLargeStoneMask) {
+                                this.nextTask();
+                                loadLargeStonesMask(this);
+                                if (isAborted()) {
+                                    return null;
+                                }
                             }
-                        }
 
-                        if (loadGullyLines) {
-                            this.nextTask();
-                            loadGullyLines(this);
-                            if (isAborted()) {
-                                return null;
+                            if (loadGradationMask) {
+                                this.nextTask();
+                                loadGradationMask(this);
+                                if (isAborted()) {
+                                    return null;
+                                }
                             }
-                        }
 
-                    } catch (Exception exc) {
-                        ika.utils.ErrorDialog.showErrorDialog("The data could not be imported.", "", null, frame);
-                        throw exc;
+                            if (loadObstaclesMask) {
+                                this.nextTask();
+                                loadObstaclesMask(this);
+                                if (isAborted()) {
+                                    return null;
+                                }
+                            }
+
+                            if (loadRefImage) {
+                                this.nextTask();
+                                loadReferenceImage(this);
+                                if (isAborted()) {
+                                    return null;
+                                }
+                            }
+
+                            if (loadDem) {
+                                loadDEM(this);
+                                if (isAborted()) {
+                                    return null;
+                                }
+                            }
+
+                            if (loadScreePolygons) {
+                                this.nextTask();
+                                loadScreePolygons(this);
+                                if (isAborted()) {
+                                    return null;
+                                }
+                            }
+
+                            if (loadGullyLines) {
+                                this.nextTask();
+                                loadGullyLines(this);
+                                if (isAborted()) {
+                                    return null;
+                                }
+                            }
+
+                        } finally {
+                            this.complete();
+                            trigger.abort();
+                        }
+                        return null;
                     }
-                    
-
-                } catch (Throwable exc) {
-                    // the default DataReceiver displays a dialog for images to inform the user.
-                } finally {
-                    this.complete();
-                    trigger.abort();
-                    return null;
-                }
-
-            }
-        };
+                };
         worker.setTotalTasksCount(tasks);
         worker.setMaxTimeWithoutDialog(1);
         worker.execute();
@@ -342,12 +347,12 @@ public class ScreeDataPanel extends javax.swing.JPanel {
 
     private void warnOfSmallCellSize(ika.geo.AbstractRaster raster) {
         if (raster != null && raster.getCellSize() < 0.1) {
-            String msg = "<html> \"" +
-                    raster.getName() +
-                    "\" has very small cells.<br>" +
-                    "It is either in geographic \"unprojected\" coordinates,<br> " +
-                    "or it is extremely detailed. The data should be<br> " +
-                    "reprojected or resampled before generating scree.</html>";
+            String msg = "<html> \""
+                    + raster.getName()
+                    + "\" has very small cells.<br>"
+                    + "It is either in geographic \"unprojected\" coordinates,<br> "
+                    + "or it is extremely detailed. The data should be<br> "
+                    + "reprojected or resampled before generating scree.</html>";
             String title = raster.getName() + ": Small Cell Size";
             ika.utils.ErrorDialog.showErrorDialog(msg, title, null, this);
         }
@@ -438,7 +443,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         GeoObject geoObject = importer.read(filePath);
         final GeoSet newScreePolygons;
         if (geoObject instanceof GeoSet) {
-            newScreePolygons = (GeoSet)geoObject;
+            newScreePolygons = (GeoSet) geoObject;
         } else {
             // single paths are not returned in a GeoSet
             newScreePolygons = new GeoSet();
@@ -459,7 +464,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         GeoObject geoObject = importer.read(filePath);
         final GeoSet newGullyLines;
         if (geoObject instanceof GeoSet) {
-            newGullyLines = (GeoSet)geoObject;
+            newGullyLines = (GeoSet) geoObject;
         } else {
             // single paths are not returned in a GeoSet
             newGullyLines = new GeoSet();
@@ -518,10 +523,10 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         this.okButton.setEnabled(enableOK);
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -653,7 +658,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         setLayout(new java.awt.BorderLayout());
 
         requiredDataPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 15, 1, 1));
-        requiredDataPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 20, 20));
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
@@ -735,7 +739,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         shadingFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         shadingFilePathLabel.setText("-");
         shadingFilePathLabel.setEnabled(false);
-        shadingFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
+        shadingFilePathLabel.setPreferredSize(new java.awt.Dimension(700, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -748,7 +752,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         demFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         demFilePathLabel.setText("-");
         demFilePathLabel.setEnabled(false);
-        demFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
+        demFilePathLabel.setPreferredSize(new java.awt.Dimension(700, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -761,7 +765,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         polygonsFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         polygonsFilePathLabel.setText("-");
         polygonsFilePathLabel.setEnabled(false);
-        polygonsFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
+        polygonsFilePathLabel.setPreferredSize(new java.awt.Dimension(700, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
@@ -774,7 +778,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         obstaclesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         obstaclesFilePathLabel.setText("-");
         obstaclesFilePathLabel.setEnabled(false);
-        obstaclesFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
+        obstaclesFilePathLabel.setPreferredSize(new java.awt.Dimension(700, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 11;
@@ -807,7 +811,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel2.add(jLabel5, gridBagConstraints);
 
         jLabel13.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        jLabel13.setText("<html>The digital elevation model is used to find gully lines.<br>Format: ESRI ASCII Grid</html>");
+        jLabel13.setText("<html>The digital elevation model is used to vary scree dots and find gully lines.<br>Format: ESRI ASCII Grid</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -1387,7 +1391,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
                 return;
             }
             lastPathSelected = directory;
-            
+
             // delete old data
             this.removeAllData();
             this.writeToGUI();
