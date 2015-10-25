@@ -26,8 +26,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -58,6 +56,8 @@ public class ScreeDataPanel extends javax.swing.JPanel {
                 foregroundGeoSet,
                 showCancel);
 
+        // add event handler that is called when the user closes the dialog
+        // by clicking on the dialog's close button (not the OK button)
         screeDataPanel.screeDataDialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -481,6 +481,14 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         screeData.fixedScreeLines = true;
     }
 
+    private boolean fileExists(String path) {
+        if (path == null) {
+            return false;
+        }
+        File file = new File(path);
+        return file.exists() && file.isFile();
+    }
+    
     private void writeToGUI() {
 
         // file paths
@@ -494,14 +502,14 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         this.referenceImageFilePathLabel.setText(screeInputData.referenceFilePathOrName());
 
         // reload buttons
-        this.reloadShadingButton.setEnabled(this.screeData.hasShading());
-        this.reloadGradationMaskButton.setEnabled(this.screeData.hasShadingGradationMask());
-        this.reloadLargeStonesMaskButton.setEnabled(this.screeData.hasLargeStoneMask());
-        this.reloadObstaclesButton.setEnabled(this.screeData.hasObstaclesMask());
-        this.reloadReferenceButton.setEnabled(this.screeData.hasReferenceImage());
-        this.reloadScreeLinesButton.setEnabled(this.screeData.fixedScreeLines);
-        this.reloadScreePolygonButton.setEnabled(this.screeData.hasScreePolygons());
-        this.reloadDEMButton.setEnabled(this.screeData.hasDEM());
+        this.reloadShadingButton.setEnabled(fileExists(screeInputData.shadingFilePath));
+        this.reloadGradationMaskButton.setEnabled(fileExists(screeInputData.gradationMaskFilePath));
+        this.reloadLargeStonesMaskButton.setEnabled(fileExists(screeInputData.largeStoneFilePath));
+        this.reloadObstaclesButton.setEnabled(fileExists(screeInputData.obstaclesFilePath));
+        this.reloadReferenceButton.setEnabled(fileExists(screeInputData.referenceFilePath));
+        this.reloadScreeLinesButton.setEnabled(fileExists(screeInputData.gullyLinesFilePath));
+        this.reloadScreePolygonButton.setEnabled(fileExists(screeInputData.screePolygonsFilePath));
+        this.reloadDEMButton.setEnabled(fileExists(screeInputData.demFilePath));
 
         // clear buttons
         this.clearGradationMaskButton.setEnabled(this.screeData.hasShadingGradationMask());
@@ -792,7 +800,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel2.add(obstaclesFilePathLabel, gridBagConstraints);
 
         jLabel4.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        jLabel4.setText("<html>Scree stones are not placed where this image is black.<br>Format: TIFF, PNG, or JPEG grayscale image.</html>");
+        jLabel4.setText("<html>Scree stones are not placed where this image is black.<br>Format: TIFF, PNG, or JPEG grayscale image with a georeferencing world file.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 12;
@@ -825,7 +833,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel2.add(jLabel13, gridBagConstraints);
 
         jLabel14.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        jLabel14.setText("<html>Where this shaded relief image is dark, more and larger stones are placed.<br>Format: TIFF, PNG, or JPEG grayscale image.</html>");
+        jLabel14.setText("<html>Where this shaded relief image is dark, more and larger stones are placed.<br>Format: TIFF, PNG, or JPEG grayscale image with a georeferencing world file.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -836,7 +844,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel2.add(jLabel14, gridBagConstraints);
 
         reloadShadingButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ika/icons/reload.png"))); // NOI18N
-        reloadShadingButton.setEnabled(false);
         reloadShadingButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reloadShadingButtonActionPerformed(evt);
@@ -849,7 +856,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel2.add(reloadShadingButton, gridBagConstraints);
 
         reloadDEMButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ika/icons/reload.png"))); // NOI18N
-        reloadDEMButton.setEnabled(false);
         reloadDEMButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reloadDEMButtonActionPerformed(evt);
@@ -862,7 +868,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel2.add(reloadDEMButton, gridBagConstraints);
 
         reloadScreePolygonButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ika/icons/reload.png"))); // NOI18N
-        reloadScreePolygonButton.setEnabled(false);
         reloadScreePolygonButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reloadScreePolygonButtonActionPerformed(evt);
@@ -875,7 +880,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel2.add(reloadScreePolygonButton, gridBagConstraints);
 
         reloadObstaclesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ika/icons/reload.png"))); // NOI18N
-        reloadObstaclesButton.setEnabled(false);
         reloadObstaclesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reloadObstaclesButtonActionPerformed(evt);
@@ -945,7 +949,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel1.add(selectLargeStonesMaskButton, gridBagConstraints);
 
         reloadLargeStonesMaskButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ika/icons/reload.png"))); // NOI18N
-        reloadLargeStonesMaskButton.setEnabled(false);
         reloadLargeStonesMaskButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reloadLargeStonesMaskButtonActionPerformed(evt);
@@ -960,7 +963,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         largeStonesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         largeStonesFilePathLabel.setText("-");
         largeStonesFilePathLabel.setEnabled(false);
-        largeStonesFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
+        largeStonesFilePathLabel.setPreferredSize(new java.awt.Dimension(700, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 14;
@@ -971,7 +974,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel1.add(largeStonesFilePathLabel, gridBagConstraints);
 
         jLabel3.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        jLabel3.setText("<html><small>Larger scree stones are placed where this image is not white.<br>Format: TIFF, PNG, or JPEG grayscale image.</small></html>");
+        jLabel3.setText("<html><small>Larger scree stones are placed where this image is not white.<br>Format: TIFF, PNG, or JPEG grayscale image with a georeferencing world file.</small></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 15;
@@ -1001,7 +1004,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel1.add(selectGradationMaskButton, gridBagConstraints);
 
         reloadGradationMaskButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ika/icons/reload.png"))); // NOI18N
-        reloadGradationMaskButton.setEnabled(false);
         reloadGradationMaskButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reloadGradationMaskButtonActionPerformed(evt);
@@ -1016,7 +1018,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         gradationMaskFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         gradationMaskFilePathLabel.setText("-");
         gradationMaskFilePathLabel.setEnabled(false);
-        gradationMaskFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
+        gradationMaskFilePathLabel.setPreferredSize(new java.awt.Dimension(700, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 17;
@@ -1027,7 +1029,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel1.add(gradationMaskFilePathLabel, gridBagConstraints);
 
         jLabel2.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        jLabel2.setText("<html>An alternative gradation curve is applied to the shaded relief image where this image is dark.<br>Format: TIFF, PNG, or JPEG grayscale image.</html>");
+        jLabel2.setText("<html>An alternative gradation curve is applied to the shaded relief image where this image is dark.<br>Format: TIFF, PNG, or JPEG grayscale image with a georeferencing world file.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 18;
@@ -1057,7 +1059,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel1.add(screeLinesButton, gridBagConstraints);
 
         reloadScreeLinesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ika/icons/reload.png"))); // NOI18N
-        reloadScreeLinesButton.setEnabled(false);
         reloadScreeLinesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reloadScreeLinesButtonActionPerformed(evt);
@@ -1086,7 +1087,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         screeLinesFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         screeLinesFilePathLabel.setText("-");
         screeLinesFilePathLabel.setEnabled(false);
-        screeLinesFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
+        screeLinesFilePathLabel.setPreferredSize(new java.awt.Dimension(700, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 20;
@@ -1127,7 +1128,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel1.add(selectReferenceImageButton, gridBagConstraints);
 
         reloadReferenceButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ika/icons/reload.png"))); // NOI18N
-        reloadReferenceButton.setEnabled(false);
         reloadReferenceButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reloadReferenceButtonActionPerformed(evt);
@@ -1142,7 +1142,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         referenceImageFilePathLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         referenceImageFilePathLabel.setText("-");
         referenceImageFilePathLabel.setEnabled(false);
-        referenceImageFilePathLabel.setPreferredSize(new java.awt.Dimension(550, 16));
+        referenceImageFilePathLabel.setPreferredSize(new java.awt.Dimension(700, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 23;
@@ -1153,7 +1153,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         jPanel1.add(referenceImageFilePathLabel, gridBagConstraints);
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        jLabel1.setText("<html>An optional image to display in the background.<br>Format: TIFF, PNG, or JPEG image.</small></html>");
+        jLabel1.setText("<html>An optional image to display in the background.<br>Format: TIFF, PNG, or JPEG image with a georeferencing world file.</small></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 24;
@@ -1378,6 +1378,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         this.okButtonPressed = true;
         this.screeDataDialog.setVisible(false);
+        screeInputData.writePathsToPreferences();        
 }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
@@ -1451,6 +1452,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
                     loadScreePolygons, loadScreeLines);
 
         } catch (IOException ex) {
+            // FIXME
             ex.printStackTrace();
         }
     }//GEN-LAST:event_selectFolderButtonActionPerformed

@@ -1,5 +1,9 @@
 package ika.app;
 
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
@@ -7,7 +11,8 @@ import java.util.prefs.Preferences;
  *
  * @author Bernhard Jenny, Institute of Cartography, ETH Zurich.
  */
-public class ScreeDataFilePaths implements Cloneable{
+public class ScreeDataFilePaths implements Cloneable {
+
     public static final String DEF_LARGE_STONES_MASK_PATH = "large stones mask.tif";
     public static final String DEF_GRADATION_MASK_PATH = "gradation mask.tif";
     public static final String DEF_OBSTACLES_PATH = "obstacles mask.tif";
@@ -20,8 +25,29 @@ public class ScreeDataFilePaths implements Cloneable{
     private static Preferences getPreferences() {
         return Preferences.userNodeForPackage(ScreeDataFilePaths.class);
     }
-    
+
+    private static void writeFilePathToPreferences(String key, String path) {
+        if (key != null && path != null) {
+            File file = new File(path);
+            if (file.exists() && file.isFile()) {
+                getPreferences().put(key, path);
+            }
+        }
+    }
+
+    private static String readFilePathFromPreferences(String key) {
+        String path = getPreferences().get(key, null);
+        if (path != null) {
+            File file = new File(path);
+            if (file.exists() == false || file.isFile() == false) {
+                path = null;
+            }
+        }
+        return path;
+    }
+
     private static String dirPath;
+
     static {
         // load path to last folder from preferences
         dirPath = getPreferences().get("directory", "");
@@ -47,27 +73,39 @@ public class ScreeDataFilePaths implements Cloneable{
             referenceFilePath,
             gullyLinesFilePath;
 
-    public ScreeDataFilePaths(){
+    public ScreeDataFilePaths() {
+        screePolygonsFilePath = readFilePathFromPreferences("screePolygonsFilePath");
+        demFilePath = readFilePathFromPreferences("demFilePath");
+        shadingFilePath = readFilePathFromPreferences("shadingFilePath");
+        gradationMaskFilePath = readFilePathFromPreferences("gradationMaskFilePath");
+        obstaclesFilePath = readFilePathFromPreferences("obstaclesFilePath");
+        largeStoneFilePath = readFilePathFromPreferences("largeStoneFilePath");
+        referenceFilePath = readFilePathFromPreferences("referenceFilePath");
+        gullyLinesFilePath = readFilePathFromPreferences("gullyLinesFilePath");
     }
 
     @Override
     public ScreeDataFilePaths clone() throws CloneNotSupportedException {
-        ScreeDataFilePaths clone=(ScreeDataFilePaths)super.clone();
+        ScreeDataFilePaths clone = (ScreeDataFilePaths) super.clone();
         return clone;
     }
 
     public void writePathsToPreferences() {
-        Preferences prefs = getPreferences();
-        prefs.put("screePolygonsFilePath", screePolygonsFilePath);
-        prefs.put("demFilePath", demFilePath);
-        prefs.put("shadingFilePath", shadingFilePath);
-        prefs.put("gradationMaskFilePath", gradationMaskFilePath);
-        prefs.put("obstaclesFilePath", obstaclesFilePath);
-        prefs.put("largeStoneFilePath", largeStoneFilePath);
-        prefs.put("referenceFilePath", referenceFilePath);
-        prefs.put("gullyLinesFilePath", gullyLinesFilePath);
+        writeFilePathToPreferences("screePolygonsFilePath", screePolygonsFilePath);
+        writeFilePathToPreferences("demFilePath", demFilePath);
+        writeFilePathToPreferences("shadingFilePath", shadingFilePath);
+        writeFilePathToPreferences("gradationMaskFilePath", gradationMaskFilePath);
+        writeFilePathToPreferences("obstaclesFilePath", obstaclesFilePath);
+        writeFilePathToPreferences("largeStoneFilePath", largeStoneFilePath);
+        writeFilePathToPreferences("referenceFilePath", referenceFilePath);
+        writeFilePathToPreferences("gullyLinesFilePath", gullyLinesFilePath);
+        try {
+            getPreferences().flush();
+        } catch (BackingStoreException ex) {
+            Logger.getLogger(ScreeDataFilePaths.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    
+
     public String screePolygonsFilePath() {
         return screePolygonsFilePath == null ? dirPath + DEF_SCREE_PATH : screePolygonsFilePath;
     }
@@ -123,8 +161,8 @@ public class ScreeDataFilePaths implements Cloneable{
     public String gullyLinesFilePathOrName() {
         String defaultPath = DEF_GULLY_LINES_PATH;
         String path = gullyLinesFilePath;
-        return path == null ? "No file selected, gullies are computed from " +
-                "the elevation model. Default file name is: " + defaultPath : path;
+        return path == null ? "No file selected, gullies are computed from "
+                + "the elevation model. Default file name is: " + defaultPath : path;
     }
 
     public String obstaclesFilePathOrName() {
