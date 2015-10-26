@@ -24,11 +24,15 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 /**
  * Scree Painter main window.
- * @author  Bernhard Jenny, Institute of Cartography, ETH Zurich.
+ *
+ * @author Bernhard Jenny, Institute of Cartography, ETH Zurich.
  */
 public class ScreeWindow extends MainWindow {
 
@@ -67,7 +71,7 @@ public class ScreeWindow extends MainWindow {
      * A string reporting on the last scree generation.
      */
     private String screeGenerationReport = null;
-    
+
     /**
      * Creates new form
      */
@@ -198,7 +202,6 @@ public class ScreeWindow extends MainWindow {
 
         centerAreaOfInterest();
 
-
         this.mapComponent.addMouseMotionListener(new MapToolMouseMotionListener() {
 
             final DecimalFormat format = new DecimalFormat("0.#\u00B0");
@@ -207,7 +210,7 @@ public class ScreeWindow extends MainWindow {
             public void mouseMoved(Double point, MapComponent mapComponent) {
                 if (point != null && screeGenerator != null
                         && screeGenerator.screeData != null) {
-                
+
                     // update highlighted value in the histograms
                     if (screeGenerator.screeData.shadingImage != null) {
                         GeoImage shading = screeGenerator.screeData.shadingImage;
@@ -225,7 +228,7 @@ public class ScreeWindow extends MainWindow {
                         }
                         screeParametersPanel.setHistogramHighlight(shadingVal, mask);
                     }
-                    
+
                     // update slope display
                     if (screeGenerator.screeData.hasDEM()) {
                         final GeoGrid dem = screeGenerator.screeData.dem;
@@ -274,7 +277,6 @@ public class ScreeWindow extends MainWindow {
 
     }
 
-
     @Override
     protected String getWindowTitle(int windowNumber) {
         return ika.app.ApplicationInfo.getApplicationName() + " " + windowNumber;
@@ -283,8 +285,8 @@ public class ScreeWindow extends MainWindow {
     @Override
     protected boolean canDocumentBeClosed() {
 
-        String msg = "<html>Do you want to save the changes you made" +
-                "<br>to the current settings?</html>";
+        String msg = "<html>Do you want to save the changes you made"
+                + "<br>to the current settings?</html>";
         switch (SaveFilePanel.showSaveDialog(this, msg)) {
             case DONTSAVE:
                 // document has possibly been edited but user does not want to save it
@@ -319,6 +321,7 @@ public class ScreeWindow extends MainWindow {
             mapComponent.addGeoObject(areaOfInterest, false);
         }
     }
+
     private boolean showScreeDataDialog(boolean showCancelButton) {
 
         if (!ScreeDataPanel.showDialog(this,
@@ -335,7 +338,7 @@ public class ScreeWindow extends MainWindow {
 
         // remove existing scree
         screeGenerator.screeData.screeStones.removeAllGeoObjects();
-        
+
         // remove existing gully lines
         if (!screeGenerator.screeData.fixedScreeLines) {
             screeGenerator.screeData.gullyLines.removeAllGeoObjects();
@@ -354,7 +357,7 @@ public class ScreeWindow extends MainWindow {
             histo = null;
         }
         screeParametersPanel.setGradationMaskHistogram(histo);
-        
+
         // update the enabled state of the items in the view menu
         synchronizeBackgroundImageWithMenu();
         // synchronize visibility of gully lines and scree polygons with view menu
@@ -362,10 +365,9 @@ public class ScreeWindow extends MainWindow {
         screeGenerator.screeData.gullyLines.setVisible(viewGullies);
         boolean viewPolygons = viewPolygonsCheckBoxMenuItem.isSelected();
         screeGenerator.screeData.screePolygons.setVisible(viewPolygons);
-        
+
         // update enable state of gully lines controls
         this.screeParametersPanel.writeGUI();
-
 
         // show all visible data
         mapComponent.showAll();
@@ -373,7 +375,7 @@ public class ScreeWindow extends MainWindow {
 
     }
 
-       private class ScreeWorker extends ika.gui.SwingWorkerWithProgressIndicator {
+    private class ScreeWorker extends ika.gui.SwingWorkerWithProgressIndicator {
 
         private Rectangle2D screeBB = null;
         private boolean generateScreeStones = true;
@@ -390,15 +392,6 @@ public class ScreeWindow extends MainWindow {
             screeGenerationReport = null;
             try {
                 manager.generateScree(screeGenerator, screeBB, this, generateScreeStones);
-            } catch (Throwable exc) {
-                String msg = "Scree could not be generated completely.";
-                if (exc instanceof java.lang.OutOfMemoryError) {
-                    msg += "\nThere is not enough memory available.";
-                    msg += "\nTry using a smaller Update Area.";
-                }
-                String title = "Scree Painter Error";
-                ika.utils.ErrorDialog.showErrorDialog(msg, title, exc, owner);
-                exc.printStackTrace();
             } finally {
                 screeGenerationReport = manager.getHTMLReportForLastGeneration();
                 this.complete();
@@ -434,13 +427,13 @@ public class ScreeWindow extends MainWindow {
 
             // block map events
             trigger = new MapEventTrigger(mapComponent.getGeoSet());
-            
+
             // remove features created last time
             mapComponent.getGeoSet().remove(screeGenerator.screeData.screeStones);
             if (!screeGenerator.screeData.fixedScreeLines) {
                 screeGenerator.screeData.gullyLines.removeAllGeoObjects(); // FIXME
             }
-            
+
             // create new features
             this.execute();
         }
@@ -448,9 +441,19 @@ public class ScreeWindow extends MainWindow {
         @Override
         protected void done() {
             try {
+                get(); // get exceptions
                 viewScreeCheckBoxMenuItem.setSelected(true);
                 screeGenerator.screeData.screeStones.setVisible(true);
                 mapComponent.getGeoSet().add(screeGenerator.screeData.screeStones);
+            } catch (Throwable ex) {
+                String msg = "Scree could not be generated completely.";
+                if (ex instanceof java.lang.OutOfMemoryError) {
+                    msg += "\nThere is not enough memory available.";
+                    msg += "\nTry using a smaller update area.";
+                }
+                String title = "Scree Painter Error";
+                ika.utils.ErrorDialog.showErrorDialog(msg, title, ex, owner);
+                ex.printStackTrace();
             } finally {
                 // enable map events again
                 trigger.inform();
@@ -481,6 +484,7 @@ public class ScreeWindow extends MainWindow {
 
     /**
      * Return a GeoMap that can be stored in an external file.
+     *
      * @return The document content.
      */
     @Override
@@ -495,6 +499,7 @@ public class ScreeWindow extends MainWindow {
 
     /**
      * Restore the document content from a passed GeoMap.
+     *
      * @param screeDataFilePaths The document content.
      */
     @Override
@@ -552,10 +557,10 @@ public class ScreeWindow extends MainWindow {
         this.toggleViewMenuItem.setEnabled(true);
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1215,7 +1220,7 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
             ex.printStackTrace();
             ika.utils.ErrorDialog.showErrorDialog("The settings could not be loaded.", ex);
         }
-        
+
 }//GEN-LAST:event_loadSettingsMenuItemActionPerformed
 
     private void closeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeMenuItemActionPerformed
@@ -1307,7 +1312,7 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
         }
         geospatialPDFExporter.setLonLatCornerPoints(corners);
     }
-        
+
     private void exportScreeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportScreeMenuItemActionPerformed
 
         GeoSetExporter exporter = GeoExportGUI.askExporter(this);
@@ -1329,18 +1334,17 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
         }
 
         exporter.setDisplayMapScale(this.screeGenerator.p.mapScale);
-        
-        
+
         if (exporter instanceof ShapeExporter) {
-            ((ShapeExporter)exporter).setShapeType(ShapeGeometryExporter.POLYGON_SHAPE_TYPE);
+            ((ShapeExporter) exporter).setShapeType(ShapeGeometryExporter.POLYGON_SHAPE_TYPE);
         }
-        
+
         // for Swiss LV95 coordinate system only
         if (exporter instanceof GeospatialPDFExporter) {
-            GeospatialPDFExporter geospatialPDFExporter = (GeospatialPDFExporter)exporter;
+            GeospatialPDFExporter geospatialPDFExporter = (GeospatialPDFExporter) exporter;
             initGeospatialPDFExporter(geospatialPDFExporter, pageFormat);
         }
-        
+
         // screeGenerator.screeData.screeStones contains ScreeGenerator.Stone,
         // a class that derives from GeoObject but is not usually supported by
         // exporters. The stones could be converted to GeoPaths using
@@ -1348,7 +1352,6 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
         // required to store the graphics. The exporters have therefore each
         // been hacked to call stone.toGeoPath and then using the standard
         // export routines for GeoPaths.
-        
         GeoExportGUI.export(exporter,
                 screeGenerator.screeData.screeStones,
                 this.getTitle(),
@@ -1401,7 +1404,7 @@ private void viewPolygonsCheckBoxMenuItemActionPerformed(java.awt.event.ActionEv
         if (obj != null) {
             obj.setVisible(viewGradationMaskCheckBoxMenuItem.isSelected());
         }
-        
+
         obj = screeGenerator.screeData.largeStoneMaskImage;
         this.viewLargeStonesMaskCheckBoxMenuItem.setEnabled(obj != null);
         if (obj != null) {
@@ -1473,7 +1476,7 @@ private void toggleViewMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 
     // adjust background image to new selection
     synchronizeBackgroundImageWithMenu();
-  
+
 }//GEN-LAST:event_toggleViewMenuItemActionPerformed
 
 private void viewGullyLinesCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewGullyLinesCheckBoxMenuItemActionPerformed
@@ -1505,8 +1508,8 @@ private void areaToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//
 private void exportGullyLinesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGullyLinesMenuItemActionPerformed
 
     if (screeGenerator.screeData.gullyLines.getNumberOfChildren() == 0) {
-        String msg = "<html>There are currently no scree lines." +
-                "<br>Do you want to generate scree lines for all polygons first?</html>";
+        String msg = "<html>There are currently no scree lines."
+                + "<br>Do you want to generate scree lines for all polygons first?</html>";
         String title = "Export Scree Lines";
         int res = JOptionPane.showConfirmDialog(mapComponent, msg, title, JOptionPane.YES_NO_OPTION);
         if (res == JOptionPane.YES_OPTION) {
@@ -1555,8 +1558,8 @@ private void reportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
 }//GEN-LAST:event_reportMenuItemActionPerformed
 
 private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
-    Properties props =
-            ika.utils.PropertiesLoader.loadProperties("ika.app.Application.properties");
+    Properties props
+            = ika.utils.PropertiesLoader.loadProperties("ika.app.Application.properties");
     String url = props.getProperty("HelpWebPage");
     ika.utils.BrowserLauncherWrapper.openURL(url);
 }//GEN-LAST:event_helpMenuItemActionPerformed
@@ -1566,7 +1569,7 @@ private void adjustUpdateAreaScreeMenuItemActionPerformed(java.awt.event.ActionE
     double dh = visArea.getWidth() * 0.02;
     double dv = visArea.getHeight() * 0.02;
     visArea.setRect(visArea.getX() + dh, visArea.getY() + dv,
-                visArea.getWidth()- 2 * dh, visArea.getHeight() - 2 * dv);
+            visArea.getWidth() - 2 * dh, visArea.getHeight() - 2 * dv);
     areaOfInterest.reset();
     areaOfInterest.append(visArea, false);
     areaOfInterest.setVisible(true);
@@ -1598,8 +1601,8 @@ private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent 
         // retrieve the value of the windowModified property
         Boolean windowModified = null;
         if (saveSettingsMenuItem != null && this.getRootPane() != null) {
-            windowModified =
-                    (Boolean) this.getRootPane().getClientProperty("windowModified");
+            windowModified
+                    = (Boolean) this.getRootPane().getClientProperty("windowModified");
         }
 
         // enable or disable the saveMenu accordingly

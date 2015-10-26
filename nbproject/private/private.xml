@@ -4,14 +4,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/geo/MapEventTrigger.java</file>
-            <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/geo/GeoSetBroadcaster.java</file>
             <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/gui/ScreeDataPanel.java</file>
+            <file>file:/Users/jennyb/Documents/Java/ScreePainter/build.xml</file>
             <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/app/ScreeDataFilePaths.java</file>
-            <file>file:/Users/jennyb/Documents/Java/ScreePainter/nbproject/build-impl.xml</file>
-            <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/gui/SwingWorkerWithProgressIndicator.java</file>
-            <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/utils/ErrorDialog.java</file>
-            <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/geoimport/ImageImporter.java</file>
+            <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/app/ScreeGeneratorManager.java</file>
+            <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/gui/ScreeWindow.java</file>
+            <file>file:/Users/jennyb/Documents/Java/ScreePainter/src/ika/app/ScreeData.java</file>
         </group>
     </open-files>
 </project-private>

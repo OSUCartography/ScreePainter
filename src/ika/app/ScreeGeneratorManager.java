@@ -15,21 +15,18 @@ import java.util.ArrayList;
 
 /**
  * Distributes the generation of scree to multiple threads.
+ *
  * @author jenny
  */
 public class ScreeGeneratorManager implements Runnable {
 
     /**
-     * A pool of threads.
-     */
-    private Thread threads[];
-    /**
      * The id of the next polygon to fill with scree
      */
     private int polygonID;
     /**
-     * The polygons to fill with scree. This can be a selecction of all
-     * GeoSets: only polygons in the update area are filled with scree.
+     * The polygons to fill with scree. This can be a selecction of all GeoSets:
+     * only polygons in the update area are filled with scree.
      */
     private ArrayList<GeoPath> tempPolygonsToFill;
     /**
@@ -63,11 +60,9 @@ public class ScreeGeneratorManager implements Runnable {
 
     private GeoGridShort tempShadingGridToDither;
     private GeoGridShort tempLinesDensityGridToDither1, tempLinesDensityGridToDither2;
-    
 
     public ScreeGeneratorManager() {
         final int nrOfProcessors = Runtime.getRuntime().availableProcessors();
-        this.threads = new Thread[nrOfProcessors];
     }
 
     public String getHTMLReportForLastGeneration() {
@@ -86,32 +81,10 @@ public class ScreeGeneratorManager implements Runnable {
         return sb.toString();
     }
 
-    /**
-     * Thread group that interrupts all its threads if any throws an uncaught exception.
-     */
-    public class InterruptingThreadGroup extends ThreadGroup {
-
-        public Throwable e;
-
-        public InterruptingThreadGroup(String name) {
-            super(name);
-        }
-
-        @Override
-        public void uncaughtException(Thread t, Throwable e) {
-            this.interrupt();
-            synchronized (this) {
-                if (!(e instanceof InterruptedException)) {
-                    this.e = e;
-                }
-            }
-        }
-    }
-
     public void generateScree(ScreeGenerator screeGenerator,
             Rectangle2D screeBB,
             ProgressIndicator progress,
-            boolean generateScreeStones) throws Throwable {
+            boolean generateScreeStones) throws InterruptedException {
 
         this.polygonID = 0;
         this.screeGenerator = screeGenerator;
@@ -127,7 +100,7 @@ public class ScreeGeneratorManager implements Runnable {
             progress.start();
 
             // find all polygons that intersect with screeBB
-            tempPolygonsToFill = new ArrayList<GeoPath>();
+            tempPolygonsToFill = new ArrayList<>();
             int nPolygons = screeGenerator.screeData.screePolygons.getNumberOfChildren();
             for (int i = 0; i < nPolygons; i++) {
                 GeoObject polygon = screeGenerator.screeData.screePolygons.getGeoObject(i);
@@ -135,9 +108,8 @@ public class ScreeGeneratorManager implements Runnable {
                 if (screeBB != null && !GeometryUtils.rectanglesIntersect(screeBB, bounds)) {
                     continue;
                 }
-                tempPolygonsToFill.add((GeoPath)polygon);
+                tempPolygonsToFill.add((GeoPath) polygon);
             }
-
 
             // remove existing scree lines
             if (!screeGenerator.screeData.fixedScreeLines) {
@@ -157,7 +129,7 @@ public class ScreeGeneratorManager implements Runnable {
                     BufferedImage.TYPE_BYTE_GRAY);
             // convert from image to grid
             tempResampledShadingGrid = new ImageToGridOperator().operateToShort(resampledShading);
-            
+
             // apply gradation curve
             if (screeGenerator.screeData.shadingGradationMaskImage != null) {
                 applyGradationCurves(screeGenerator.p);
@@ -181,17 +153,28 @@ public class ScreeGeneratorManager implements Runnable {
 
             progress.enableCancel();
 
-            InterruptingThreadGroup threadGroup = new InterruptingThreadGroup("scree generator threads");
-            for (int i = 0; i < threads.length; i++) {
-                threads[i] = new Thread(threadGroup, this, Integer.toString(i));
-                threads[i].start();
+            int nThreads = Runtime.getRuntime().availableProcessors();
+            ArrayList<Thread> threads = new ArrayList(nThreads);
+            
+            // interruption exception handler for all threads
+            Thread.UncaughtExceptionHandler h = (Thread th, Throwable ex) -> {
+                threads.stream().forEach((t) -> {
+                    if (t != th) {
+                        t.interrupt();
+                    }
+                });
+            };
+            
+            for (int i = 0; i < nThreads; i++) {
+                Thread t = new Thread(this);
+                t.setName("Scree Generator" + " " + i);
+                threads.add(t);
+                t.setUncaughtExceptionHandler(h);
+                t.start();
             }
 
-            for (int i = 0; i < threads.length; i++) {
-                try {
-                    threads[i].join();
-                } catch (InterruptedException ex) {
-                }
+            for (Thread t : threads) {
+                t.join();
             }
 
             // release memory, which is for example needed to export the scree
@@ -200,10 +183,6 @@ public class ScreeGeneratorManager implements Runnable {
             tempShadingGridToDither = null;
             tempLinesDensityGridToDither1 = null;
             tempLinesDensityGridToDither2 = null;
-
-            if (threadGroup.e != null) {
-                throw threadGroup.e;
-            }
 
             long endTime = System.currentTimeMillis();
             milliSecondsToGenerateStones = endTime - startTime;
@@ -214,11 +193,11 @@ public class ScreeGeneratorManager implements Runnable {
 
     }
 
-
     /**
      * apply the two gradations curves on tempResampledShadingGrid. The two
      * gradation curves are mixed based on the values stored in
      * screeGenerator.screeData.shadingGradationMaskImage
+     *
      * @param p
      */
     private void applyGradationCurves(ScreeParameters p) {
