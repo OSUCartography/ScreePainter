@@ -19,11 +19,15 @@ public class StringUtils {
     /**
      * Replace substring by other string.
      * http://javaalmanac.com/egs/java.lang/ReplaceString.html
+     * @param str
+     * @param pattern
+     * @param replace
+     * @return 
      */
     static public String replace(String str, String pattern, String replace) {
         int s = 0;
-        int e = 0;
-        StringBuffer result = new StringBuffer();
+        int e;
+        StringBuilder result = new StringBuilder();
 
         while ((e = str.indexOf(pattern, s)) >= 0) {
             result.append(str.substring(s, e));
@@ -117,8 +121,8 @@ public class StringUtils {
      * be converted with the specified character set, the default character set
      * is used.
      * @param bytes The raw bytes containing the string, one byte per character.
-     * @maxLength Don't convert more bytes than maxLength.
-     * @charsetName The name of the encoding of the character set.
+     * @param maxLength Don't convert more bytes than maxLength.
+     * @param charsetName The name of the encoding of the character set.
      * @return A new String.
      */
     public static String bytesToString(byte[] bytes, int maxLength,

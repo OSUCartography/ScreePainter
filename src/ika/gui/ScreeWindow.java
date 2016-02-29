@@ -19,6 +19,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.event.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -534,6 +536,7 @@ public class ScreeWindow extends MainWindow {
         this.loadSettingsMenuItem.setEnabled(true);
         this.exportScreeMenuItem.setEnabled(screeGenerator.screeData.hasScreeStones());
         this.exportGullyLinesMenuItem.setEnabled(screeGenerator.screeData.hasGullyLines());
+        this.exportCommandLineArgumentsMenuItem.setEnabled(true);
     }
 
     private void updateScreeMenu() {
@@ -610,6 +613,8 @@ public class ScreeWindow extends MainWindow {
         jSeparator1 = new javax.swing.JSeparator();
         exportScreeMenuItem = new javax.swing.JMenuItem();
         exportGullyLinesMenuItem = new javax.swing.JMenuItem();
+        jSeparator6 = new javax.swing.JPopupMenu.Separator();
+        exportCommandLineArgumentsMenuItem = new javax.swing.JMenuItem();
         exitMenuSeparator = new javax.swing.JSeparator();
         exitMenuItem = new javax.swing.JMenuItem();
         screeMenu = new javax.swing.JMenu();
@@ -993,6 +998,16 @@ loadSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
         }
     });
     fileMenu.add(exportGullyLinesMenuItem);
+    fileMenu.add(jSeparator6);
+
+    exportCommandLineArgumentsMenuItem.setText("Export Command Line Arguments…");
+    exportCommandLineArgumentsMenuItem.setEnabled(false);
+    exportCommandLineArgumentsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            exportCommandLineArgumentsMenuItemActionPerformed(evt);
+        }
+    });
+    fileMenu.add(exportCommandLineArgumentsMenuItem);
     fileMenu.add(exitMenuSeparator);
 
     exitMenuItem.setText("Exit");
@@ -1586,6 +1601,41 @@ private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent 
         ika.gui.ProgramInfoPanel.showApplicationInfo();
     }//GEN-LAST:event_macInfoMenuItemActionPerformed
 
+    private void exportCommandLineArgumentsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCommandLineArgumentsMenuItemActionPerformed
+        
+        // build string with command lines arguments
+        String fileParameters = screeDataFilePaths.toCommandLineArguments();
+        String nl = System.getProperty("line.separator");
+        String args = "--parameters \"*** replace with path to settings file ***\"";
+        args += nl;
+        args += fileParameters;
+        args += "--output_file \"*** replace with path to output file ***\"";
+
+        // ask for file
+        Frame frame = ika.gui.GUIUtil.getOwnerFrame(this);
+        String filePath = FileUtils.askFile(frame, "Command Line Arguments",
+                "Scree Painter Cmd Line Args.txt", false, "txt");
+        if (filePath == null) {
+            return;
+        }
+        
+        // write command line arguments to file
+        BufferedWriter out = null;
+        try {
+            out = new BufferedWriter(new FileWriter(filePath));
+            out.write(args);
+        } catch (IOException e) {
+            ika.utils.ErrorDialog.showErrorDialog("The command line arguements could not be written to a file.", e);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                }
+            }
+        }
+    }//GEN-LAST:event_exportCommandLineArgumentsMenuItemActionPerformed
+
     /**
      * A property change listener for the root pane that adjusts the enabled
      * state of the save menu depending on the windowModified property attached
@@ -1620,6 +1670,7 @@ private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent 
     private javax.swing.JToggleButton distanceToggleButton;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JSeparator exitMenuSeparator;
+    private javax.swing.JMenuItem exportCommandLineArgumentsMenuItem;
     private javax.swing.JMenuItem exportGullyLinesMenuItem;
     private javax.swing.JMenuItem exportScreeMenuItem;
     private javax.swing.JMenu fileMenu;
@@ -1638,6 +1689,7 @@ private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent 
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JPopupMenu.Separator jSeparator6;
     private javax.swing.JSeparator jSeparator8;
     private javax.swing.JPanel leftPanel;
     private javax.swing.JMenuItem loadInputDataMenuItem;

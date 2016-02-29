@@ -177,4 +177,18 @@ public class ScreeDataFilePaths implements Cloneable {
         return filePathOrInfo(DEF_REF_PATH, referenceFilePath);
     }
 
+    public String toCommandLineArguments() {
+        String nl = System.getProperty("line.separator");
+        StringBuilder sb = new StringBuilder();
+        sb.append("--shading ").append("\"").append(shadingFilePath()).append("\"").append(nl);
+        sb.append("--dem ").append("\"").append(demFilePath()).append("\"").append(nl);
+        sb.append("--scree_polygons ").append("\"").append(screePolygonsFilePath()).append("\"").append(nl);
+        sb.append("--obstacles_mask ").append("\"").append(obstaclesFilePath()).append("\"").append(nl);
+        sb.append("--large_stones_mask ").append("\"").append(largeStonesFilePath()).append("\"").append(nl);
+        sb.append("--gradation_mask ").append("\"").append(gradationMaskFilePath()).append("\"").append(nl);
+        sb.append("--gully_lines ").append("\"").append(gullyLinesFilePath()).append("\"").append(nl);
+        sb.append("--reference_image ").append("\"").append(referenceFilePath()).append("\"").append(nl);
+        return sb.toString();
+    }
+
 }
