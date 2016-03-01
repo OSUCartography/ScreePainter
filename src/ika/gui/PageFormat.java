@@ -62,7 +62,7 @@ public class PageFormat implements Cloneable, Serializable {
     private boolean unitPixels = true;
     
     /**
-     * If true, the page format is automatically ajusted to include the complete
+     * If true, the page format is automatically adjusted to include the complete
      * map. This is only a flag that indicates that an external object has to 
      * update.
      */

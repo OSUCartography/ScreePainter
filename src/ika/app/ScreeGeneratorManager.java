@@ -6,6 +6,7 @@ import ika.geo.GeoObject;
 import ika.geo.GeoPath;
 import ika.geo.grid.ImageToGridOperator;
 import ika.gui.ProgressIndicator;
+import ika.gui.SwingWorkerWithProgressIndicator;
 import ika.utils.GeometryUtils;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
@@ -18,14 +19,14 @@ import java.util.ArrayList;
  *
  * @author jenny
  */
-public class ScreeGeneratorManager implements Runnable {
+public class ScreeGeneratorManager /*implements Runnable*/ {
 
     /**
      * The id of the next polygon to fill with scree
      */
     private int polygonID;
     /**
-     * The polygons to fill with scree. This can be a selecction of all GeoSets:
+     * The polygons to fill with scree. This can be a selection of all GeoSets:
      * only polygons in the update area are filled with scree.
      */
     private ArrayList<GeoPath> tempPolygonsToFill;
@@ -62,7 +63,6 @@ public class ScreeGeneratorManager implements Runnable {
     private GeoGridShort tempLinesDensityGridToDither1, tempLinesDensityGridToDither2;
 
     public ScreeGeneratorManager() {
-        final int nrOfProcessors = Runtime.getRuntime().availableProcessors();
     }
 
     public String getHTMLReportForLastGeneration() {
@@ -83,7 +83,7 @@ public class ScreeGeneratorManager implements Runnable {
 
     public void generateScree(ScreeGenerator screeGenerator,
             Rectangle2D screeBB,
-            ProgressIndicator progress,
+            SwingWorkerWithProgressIndicator progress,
             boolean generateScreeStones) throws InterruptedException {
 
         this.polygonID = 0;
@@ -153,9 +153,10 @@ public class ScreeGeneratorManager implements Runnable {
 
             progress.enableCancel();
 
+            /*
             int nThreads = Runtime.getRuntime().availableProcessors();
             ArrayList<Thread> threads = new ArrayList(nThreads);
-            
+
             // interruption exception handler for all threads
             Thread.UncaughtExceptionHandler h = (Thread th, Throwable ex) -> {
                 threads.stream().forEach((t) -> {
@@ -164,7 +165,7 @@ public class ScreeGeneratorManager implements Runnable {
                     }
                 });
             };
-            
+
             for (int i = 0; i < nThreads; i++) {
                 Thread t = new Thread(this);
                 t.setName("Scree Generator" + " " + i);
@@ -175,7 +176,8 @@ public class ScreeGeneratorManager implements Runnable {
 
             for (Thread t : threads) {
                 t.join();
-            }
+            }*/
+            run();
 
             // release memory, which is for example needed to export the scree
             tempPolygonsToFill = null;
@@ -234,22 +236,23 @@ public class ScreeGeneratorManager implements Runnable {
         }
     }
 
-    private synchronized GeoPath getNextPolygon() {
+    private /*synchronized*/ GeoPath getNextPolygon() {
         if (polygonID >= tempPolygonsToFill.size()) {
             return null;
         }
         return tempPolygonsToFill.get(polygonID++);
     }
 
-    private synchronized void increaseCounter(int newStones) {
-        this.stonesCounter += newStones;
+    private /*synchronized*/int increaseCounter(int newStones) {
+        stonesCounter += newStones;
+        return stonesCounter;
     }
 
-    @Override
+    //@Override
     public void run() {
 
         final int nPolygons = tempPolygonsToFill.size();
-        final double cellSize = this.tempResampledShadingGrid.getCellSize() / 2;
+        final double cellSize = tempResampledShadingGrid.getCellSize() / 2;
         final DecimalFormat f = new DecimalFormat("#,###");
 
         StringBuilder sb = new StringBuilder();
@@ -260,7 +263,7 @@ public class ScreeGeneratorManager implements Runnable {
         sb.append(" generated: ");
         final String msgPart = sb.toString();
         GeoPath polygon;
-        while ((polygon = this.getNextPolygon()) != null) {
+        while ((polygon = getNextPolygon()) != null) {
 
             int nItems = screeGenerator.generateScree(screeBB,
                     polygon,
@@ -272,20 +275,20 @@ public class ScreeGeneratorManager implements Runnable {
                     tempLinesDensityGridToDither2,
                     generateScreeStones);
 
-            // update progress
-            if (progress.isAborted()) {
-                return;
-            }
-            this.increaseCounter(nItems);
-            progress.progress(100 * polygonID / nPolygons);
+            //synchronized (progress) {
+                // update progress
+                sb.delete(0, sb.length());
+                sb.append("<html>Filling polygon ");
+                sb.append(polygonID);
+                sb.append(msgPart);
+                sb.append(f.format(increaseCounter(nItems)));
+                sb.append("</html>");
 
-            sb.delete(0, sb.length());
-            sb.append("<html>Filling polygon ");
-            sb.append(polygonID);
-            sb.append(msgPart);
-            sb.append(f.format(stonesCounter));
-            sb.append("</html>");
-            progress.setMessage(sb.toString());
+                if (progress.progress(100 * polygonID / nPolygons) == false) {
+                    return;
+                }
+                progress.setMessage(sb.toString());
+            //}
         }
     }
 }

@@ -17,7 +17,7 @@ import ika.geoimport.ESRIASCIIGridReader;
 import ika.geoimport.GeoImporter;
 import ika.geoimport.ImageImporter;
 import java.awt.BorderLayout;
-import java.awt.Frame;
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -42,6 +42,47 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     private final ScreeData screeData;
     private boolean okButtonPressed = false;
     private static String lastPathSelected = ScreeDataFilePaths.getDirPath();
+
+    public static void showRobotDialog(ScreeWindow owner,
+            ScreeDataFilePaths data,
+            ScreeData screeData,
+            GeoSet backgroundGeoSet,
+            GeoSet foregroundGeoSet,
+            boolean showCancel) {
+
+        final ScreeDataPanel screeDataPanel = new ScreeDataPanel(owner, data,
+                screeData,
+                backgroundGeoSet,
+                foregroundGeoSet,
+                showCancel);
+
+        // add event handler that is called when the user closes the dialog
+        // by clicking on the dialog's close button (not the OK button)
+        screeDataPanel.screeDataDialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                screeDataPanel.okButtonPressed = screeDataPanel.okButton.isEnabled();
+                screeDataPanel.screeDataDialog.setVisible(false);
+                if (screeDataPanel.okButtonPressed) {
+                    data.writePathsToPreferences();
+                }
+            }
+        });
+
+        screeDataPanel.screeDataDialog.setLocationRelativeTo(owner);
+        screeDataPanel.screeDataDialog.setModalityType(Dialog.ModalityType.MODELESS);
+        screeDataPanel.screeDataDialog.setVisible(true);
+
+        // load data
+        screeDataPanel.loadData(data.isDEMFilePathValid(),
+                data.isShadingFilePathValid(),
+                data.isLargeStonesFilePathValid(),
+                data.isGradationMaskFilePathValid(),
+                data.isObstaclesFilePathValid(),
+                data.isReferenceFilePath(),
+                data.isScreePolygonsFilePathValid(),
+                data.isGullyLinesFilePath());
+    }
 
     public static boolean showDialog(JFrame owner,
             ScreeDataFilePaths data,
@@ -223,126 +264,138 @@ public class ScreeDataPanel extends javax.swing.JPanel {
             ++tasks;
         }
 
-        final Frame frame = ika.gui.GUIUtil.getOwnerFrame(this);
-        SwingWorkerWithProgressIndicator worker = new SwingWorkerWithProgressIndicator(
+        final ScreeWindow frame = (ScreeWindow) ika.gui.GUIUtil.getOwnerFrame(this);
+        SwingWorkerWithProgressIndicatorOld worker = new SwingWorkerWithProgressIndicatorOld(
                 frame, "Scree Painter Data Import", "", true) {
 
-                    String errorMsg = "The file could not be imported.";
-                    String errorTitle = "Scree Painter Error";
+            String errorMsg = "The file could not be imported.";
+            String errorTitle = "Scree Painter Error";
 
-                    @Override
-                    protected void done() {
-                        MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
-                        try {
-                            get(); // exceptions that occured in the backround tasks are thrown here
+            @Override
+            protected void done() {
+                MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
+                try {
+                    get(); // exceptions that occured in the backround tasks are thrown here
 
-                            writeToGUI();
+                    writeToGUI();
 
-                            warnOfSmallCellSize(screeData.dem);
+                    warnOfSmallCellSize(screeData.dem);
 
-                            backgroundGeoSet.replaceGeoObject(screeData.shadingImage, SHADING_IMAGE_NAME);
-                            warnOfSmallCellSize(screeData.shadingImage);
+                    backgroundGeoSet.replaceGeoObject(screeData.shadingImage, SHADING_IMAGE_NAME);
+                    warnOfSmallCellSize(screeData.shadingImage);
 
-                            backgroundGeoSet.replaceGeoObject(screeData.largeStoneMaskImage, LARGE_STONE_IMAGE_NAME);
-                            warnOfSmallCellSize(screeData.largeStoneMaskImage);
+                    backgroundGeoSet.replaceGeoObject(screeData.largeStoneMaskImage, LARGE_STONE_IMAGE_NAME);
+                    warnOfSmallCellSize(screeData.largeStoneMaskImage);
 
-                            backgroundGeoSet.replaceGeoObject(screeData.shadingGradationMaskImage, GRADATION_MASK_IMAGE_NAME);
-                            warnOfSmallCellSize(screeData.shadingGradationMaskImage);
+                    backgroundGeoSet.replaceGeoObject(screeData.shadingGradationMaskImage, GRADATION_MASK_IMAGE_NAME);
+                    warnOfSmallCellSize(screeData.shadingGradationMaskImage);
 
-                            backgroundGeoSet.replaceGeoObject(screeData.obstaclesMaskImage, OBSTACLES_IMAGE_NAME);
-                            warnOfSmallCellSize(screeData.obstaclesMaskImage);
+                    backgroundGeoSet.replaceGeoObject(screeData.obstaclesMaskImage, OBSTACLES_IMAGE_NAME);
+                    warnOfSmallCellSize(screeData.obstaclesMaskImage);
 
-                            backgroundGeoSet.replaceGeoObject(screeData.referenceImage, REF_IMAGE_NAME);
-                            warnOfSmallCellSize(screeData.referenceImage);
+                    backgroundGeoSet.replaceGeoObject(screeData.referenceImage, REF_IMAGE_NAME);
+                    warnOfSmallCellSize(screeData.referenceImage);
 
-                            foregroundGeoSet.add(screeData.screePolygons);
+                    foregroundGeoSet.add(screeData.screePolygons);
 
-                            foregroundGeoSet.add(screeData.gullyLines);
-                        } catch (ExecutionException ex) {
-                            ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex.getCause(), dialog);
-                        } catch (Throwable ex) {
-                            ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex, dialog);
-                        } finally {
-                            trigger.inform();
+                    foregroundGeoSet.add(screeData.gullyLines);
+
+                    // if in command line mode, hide dialog after loading data
+                    // and start creating scree
+                    if (owner.isCommandLineMode()) {
+                        if (isCancelled()) {
+                            System.exit(0);
+                        }
+                        screeDataDialog.setVisible(false);
+                        owner.showAll();
+                        owner.generateScree();
+                    }
+
+                } catch (ExecutionException ex) {
+                    ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex.getCause(), dialog);
+                } catch (Throwable ex) {
+                    ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex, dialog);
+                } finally {
+                    trigger.inform();
+                }
+            }
+
+            @Override
+            protected Object doInBackground() throws Exception {
+
+                MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
+                try {
+
+                    if (loadShading) {
+                        this.nextTask();
+                        loadShading(this);
+                        if (isCancelled()) {
+                            return null;
                         }
                     }
 
-                    @Override
-                    protected Object doInBackground() throws Exception {
-
-                        MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
-                        try {
-
-                            if (loadShading) {
-                                this.nextTask();
-                                loadShading(this);
-                                if (isAborted()) {
-                                    return null;
-                                }
-                            }
-
-                            if (loadLargeStoneMask) {
-                                this.nextTask();
-                                loadLargeStonesMask(this);
-                                if (isAborted()) {
-                                    return null;
-                                }
-                            }
-
-                            if (loadGradationMask) {
-                                this.nextTask();
-                                loadGradationMask(this);
-                                if (isAborted()) {
-                                    return null;
-                                }
-                            }
-
-                            if (loadObstaclesMask) {
-                                this.nextTask();
-                                loadObstaclesMask(this);
-                                if (isAborted()) {
-                                    return null;
-                                }
-                            }
-
-                            if (loadRefImage) {
-                                this.nextTask();
-                                loadReferenceImage(this);
-                                if (isAborted()) {
-                                    return null;
-                                }
-                            }
-
-                            if (loadDem) {
-                                loadDEM(this);
-                                if (isAborted()) {
-                                    return null;
-                                }
-                            }
-
-                            if (loadScreePolygons) {
-                                this.nextTask();
-                                loadScreePolygons(this);
-                                if (isAborted()) {
-                                    return null;
-                                }
-                            }
-
-                            if (loadGullyLines) {
-                                this.nextTask();
-                                loadGullyLines(this);
-                                if (isAborted()) {
-                                    return null;
-                                }
-                            }
-
-                        } finally {
-                            this.complete();
-                            trigger.abort();
+                    if (loadLargeStoneMask) {
+                        this.nextTask();
+                        loadLargeStonesMask(this);
+                        if (isCancelled()) {
+                            return null;
                         }
-                        return null;
                     }
-                };
+
+                    if (loadGradationMask) {
+                        this.nextTask();
+                        loadGradationMask(this);
+                        if (isCancelled()) {
+                            return null;
+                        }
+                    }
+
+                    if (loadObstaclesMask) {
+                        this.nextTask();
+                        loadObstaclesMask(this);
+                        if (isCancelled()) {
+                            return null;
+                        }
+                    }
+
+                    if (loadRefImage) {
+                        this.nextTask();
+                        loadReferenceImage(this);
+                        if (isCancelled()) {
+                            return null;
+                        }
+                    }
+
+                    if (loadDem) {
+                        loadDEM(this);
+                        if (isCancelled()) {
+                            return null;
+                        }
+                    }
+
+                    if (loadScreePolygons) {
+                        this.nextTask();
+                        loadScreePolygons(this);
+                        if (isCancelled()) {
+                            return null;
+                        }
+                    }
+
+                    if (loadGullyLines) {
+                        this.nextTask();
+                        loadGullyLines(this);
+                        if (isCancelled()) {
+                            return null;
+                        }
+                    }
+
+                } finally {
+                    this.complete();
+                    trigger.abort();
+                }
+                return null;
+            }
+        };
         worker.setTotalTasksCount(tasks);
         worker.setMaxTimeWithoutDialog(1);
         worker.execute();
@@ -488,7 +541,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         File file = new File(path);
         return file.exists() && file.isFile();
     }
-    
+
     private void writeToGUI() {
 
         // file paths
@@ -1378,7 +1431,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         this.okButtonPressed = true;
         this.screeDataDialog.setVisible(false);
-        screeInputData.writePathsToPreferences();        
+        screeInputData.writePathsToPreferences();
 }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed

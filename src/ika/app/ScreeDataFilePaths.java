@@ -177,6 +177,38 @@ public class ScreeDataFilePaths implements Cloneable {
         return filePathOrInfo(DEF_REF_PATH, referenceFilePath);
     }
 
+    public boolean isShadingFilePathValid() {
+        return isFile(shadingFilePath);
+    }
+
+    public boolean isDEMFilePathValid() {
+        return isFile(demFilePath);
+    }
+
+    public boolean isScreePolygonsFilePathValid() {
+        return isFile(screePolygonsFilePath);
+    }
+
+    public boolean isObstaclesFilePathValid() {
+        return isFile(obstaclesFilePath);
+    }
+
+    public boolean isLargeStonesFilePathValid() {
+        return isFile(largeStoneFilePath);
+    }
+
+    public boolean isGradationMaskFilePathValid() {
+        return isFile(gradationMaskFilePath);
+    }
+
+    public boolean isGullyLinesFilePath() {
+        return isFile(gullyLinesFilePath);
+    }
+
+    public boolean isReferenceFilePath() {
+        return isFile(referenceFilePath);
+    }
+    
     public String toCommandLineArguments() {
         String nl = System.getProperty("line.separator");
         StringBuilder sb = new StringBuilder();
@@ -189,6 +221,11 @@ public class ScreeDataFilePaths implements Cloneable {
         sb.append("--gully_lines ").append("\"").append(gullyLinesFilePath()).append("\"").append(nl);
         sb.append("--reference_image ").append("\"").append(referenceFilePath()).append("\"").append(nl);
         return sb.toString();
+    }
+
+    private boolean isFile(String filePath) {
+        File f = new File(filePath);
+        return f.exists() && !f.isDirectory();
     }
 
 }

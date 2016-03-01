@@ -183,7 +183,7 @@ public class GeoExportGUI {
 
     }
 
-    private static void export(GeoSetExporter exporter,
+    public static void export(GeoSetExporter exporter,
             GeoSet geoSet,
             String filePath,
             ProgressIndicator progressIndicator) throws IOException {
@@ -281,6 +281,10 @@ public class GeoExportGUI {
         if (exporterName == null) {
             return null; // user canceled
         }
+        return getExporterByName(exporterName);
+    }
+    
+    public static GeoSetExporter getExporterByName(String exporterName) {
         Class cls = (Class) exporterMap.get(exporterName);
         if (cls != null) {
             try {
