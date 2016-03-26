@@ -536,7 +536,7 @@ public class ScreeGenerator {
 
         double pointRasterCellSize = p.stoneMaxDiameter / REL_POINT_RASTER_RESOLUTION;
         Rectangle2D bb = polygonToFill.getBounds2D(GeoObject.UNDEFINED_SCALE);
-        PointRaster pointRaster = new PointRaster(bb, pointRasterCellSize);
+        PointRaster pointRaster = new BitSetPointRaster(bb, pointRasterCellSize);
 
         // array to store all generated stones
         ArrayList<Stone> stones = new ArrayList<Stone>();
