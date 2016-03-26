@@ -7,13 +7,21 @@ import ika.geo.GeoSet;
 
 public class ScreeData {
 
+    public static final String REF_IMAGE_NAME = "refmap";
+    public static final String OBSTACLES_IMAGE_NAME = "obstacles";
+    public static final String LARGE_STONE_IMAGE_NAME = "largeStonesMask";
+    public static final String SHADING_IMAGE_NAME = "shading";
+    public static final String GRADATION_MASK_IMAGE_NAME = "gradationMask";
+    public static final String LINES_NAME = "lines";
+    public static final String POLYGONS_NAME = "polygons";
+
     /**
      * polygons to fill with scree. This GeoSet is added to the map and receives
      * the generated scree dots.
      */
     public final GeoSet screePolygons;
     /**
-     * A digital elevation  model
+     * A digital elevation model
      */
     public GeoGrid dem;
     /**
@@ -21,7 +29,8 @@ public class ScreeData {
      */
     public GeoImage shadingImage;
     /**
-     * Use second gradation curve for shading where values are not 0 in this dem.
+     * Use second gradation curve for shading where values are not 0 in this
+     * dem.
      */
     public GeoImage shadingGradationMaskImage;
     /**
@@ -29,12 +38,12 @@ public class ScreeData {
      */
     public GeoImage obstaclesMaskImage;
     /**
-     * mask image with areas where larger stones are placed.
-     * stones are enlarged on non-white areas
+     * mask image with areas where larger stones are placed. stones are enlarged
+     * on non-white areas
      */
     public GeoImage largeStoneMaskImage;
     /**
-     * An image that is displayed as a reference. Not used for the computation 
+     * An image that is displayed as a reference. Not used for the computation
      * of scree.
      */
     public GeoImage referenceImage;
@@ -55,8 +64,8 @@ public class ScreeData {
      */
     public final GeoSet gullyLines;
     /**
-     * flag that is true when gully lines have been imported from a file and must
-     * not be extracted from the DEM.
+     * flag that is true when gully lines have been imported from a file and
+     * must not be extracted from the DEM.
      */
     public boolean fixedScreeLines = false;
 
@@ -107,7 +116,7 @@ public class ScreeData {
     public boolean hasScreePolygons() {
         return screePolygons.getNumberOfChildren() > 0;
     }
-    
+
     public boolean hasScreeStones() {
         return screeStones.getNumberOfChildren() > 0;
     }

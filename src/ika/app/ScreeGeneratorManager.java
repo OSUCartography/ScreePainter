@@ -83,7 +83,7 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
 
     public void generateScree(ScreeGenerator screeGenerator,
             Rectangle2D screeBB,
-            SwingWorkerWithProgressIndicator progress,
+            ProgressIndicator progress,
             boolean generateScreeStones) throws InterruptedException {
 
         this.polygonID = 0;
@@ -96,8 +96,10 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
         try {
             long startTime = System.currentTimeMillis();
 
-            progress.disableCancel();
-            progress.start();
+            if (progress != null) {
+                progress.disableCancel();
+                progress.start();
+            }
 
             // find all polygons that intersect with screeBB
             tempPolygonsToFill = new ArrayList<>();
@@ -151,7 +153,9 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
             tempLinesDensityGridToDither1 = screeGenerator.screeData.lineDensityGrid.clone();
             tempLinesDensityGridToDither2 = screeGenerator.screeData.lineDensityGrid.clone();
 
-            progress.enableCancel();
+            if (progress != null) {
+                progress.enableCancel();
+            }
 
             /*
             int nThreads = Runtime.getRuntime().availableProcessors();
@@ -190,7 +194,9 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
             milliSecondsToGenerateStones = endTime - startTime;
 
         } finally {
-            progress.complete();
+            if (progress != null) {
+                progress.complete();
+            }
         }
 
     }
@@ -243,7 +249,7 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
         return tempPolygonsToFill.get(polygonID++);
     }
 
-    private /*synchronized*/int increaseCounter(int newStones) {
+    private /*synchronized*/ int increaseCounter(int newStones) {
         stonesCounter += newStones;
         return stonesCounter;
     }
@@ -276,19 +282,20 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
                     generateScreeStones);
 
             //synchronized (progress) {
-                // update progress
-                sb.delete(0, sb.length());
-                sb.append("<html>Filling polygon ");
-                sb.append(polygonID);
-                sb.append(msgPart);
-                sb.append(f.format(increaseCounter(nItems)));
-                sb.append("</html>");
+            // update progress
+            sb.delete(0, sb.length());
+            sb.append("<html>Filling polygon ");
+            sb.append(polygonID);
+            sb.append(msgPart);
+            sb.append(f.format(increaseCounter(nItems)));
+            sb.append("</html>");
 
+            if (progress != null) {
                 if (progress.progress(100 * polygonID / nPolygons) == false) {
                     return;
                 }
                 progress.setMessage(sb.toString());
-            //}
+            }
         }
     }
 }

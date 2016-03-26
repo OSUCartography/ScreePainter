@@ -8,11 +8,16 @@ package ika.app;
 
 import com.sanityinc.jargs.CmdLineParser;
 import com.sanityinc.jargs.CmdLineParser.Option;
+import ika.geoexport.GeoSetExporter;
 import ika.geoexport.GeospatialPDFExporter;
+import ika.geoexport.ShapeExporter;
+import ika.geoexport.ShapeGeometryExporter;
+import ika.geoexport.VectorGraphicsExporter;
 import ika.gui.*;
 import ika.utils.FileUtils;
 import ika.utils.IconUtils;
 import java.io.File;
+import java.io.IOException;
 import javax.swing.*;
 
 /**
@@ -108,7 +113,7 @@ public class Main {
             printUsage();
             System.exit(0);
         }
-        
+
         if (parser.getOptionValue(version, false)) {
             System.out.println(ApplicationInfo.getApplicationVersion());
             System.exit(0);
@@ -188,6 +193,105 @@ public class Main {
         return cmd;
     }
 
+    private static void runCommandLine(CommandLineArguments commandLineArguments) {
+        try {
+            ScreeGenerator screeGenerator = new ScreeGenerator();
+            CmdLineProgress prog = new CmdLineProgress();           
+            ScreeDataLoader loader = new ScreeDataLoader(
+                    commandLineArguments.dataFilePaths, screeGenerator.screeData);
+
+            // load required data
+            loader.loadDEM(prog);
+            prog.complete();
+            loader.loadShading(prog);
+            prog.complete();
+            loader.loadObstaclesMask(prog);
+            prog.complete();
+            loader.loadScreePolygons(prog);
+            prog.complete();
+
+            // load optional data
+            if (commandLineArguments.dataFilePaths.isLargeStonesFilePathValid()) {
+                loader.loadLargeStonesMask(prog);
+                prog.complete();
+            }
+            if (commandLineArguments.dataFilePaths.isGradationMaskFilePathValid()) {
+                loader.loadGradationMask(prog);
+                prog.complete();
+            }
+            if (commandLineArguments.dataFilePaths.isGullyLinesFilePath()) {
+                loader.loadGullyLines(prog);
+                prog.complete();
+            }
+
+            // load parameters file
+            File f = new File(commandLineArguments.parametersFilePath);
+            screeGenerator.p.fromString(new String(FileUtils.getBytesFromFile(f)));
+            if (!screeGenerator.screeData.fixedScreeLines) {
+                screeGenerator.screeData.gullyLines.removeAllGeoObjects(); // FIXME
+            }
+            
+            // generate scree
+            ScreeGeneratorManager manager = new ScreeGeneratorManager();
+            manager.generateScree(screeGenerator, null, prog, true);
+            
+            // export scree
+            screeGenerator.screeData.screeStones.setVisible(true);
+            GeoSetExporter exporter = GeoExportGUI.getExporterByName(commandLineArguments.outputFormat);
+            if (exporter == null) {
+                throw new IOException("Unknown format " + commandLineArguments.outputFormat);
+            }
+            PageFormat pageFormat = new PageFormat();
+            pageFormat.setPageScale(commandLineArguments.scale);
+            pageFormat.setPageLeft(commandLineArguments.west);
+            pageFormat.setPageBottom(commandLineArguments.south);
+            pageFormat.setPageHeightWorldCoordinates(commandLineArguments.width);
+            pageFormat.setPageWidthWorldCoordinates(commandLineArguments.height);
+
+            if (exporter instanceof ShapeExporter) {
+                ((ShapeExporter) exporter).setShapeType(ShapeGeometryExporter.POLYGON_SHAPE_TYPE);
+            }
+
+            // for Swiss LV95 coordinate system only
+            if (exporter instanceof GeospatialPDFExporter) {
+                GeospatialPDFExporter geospatialPDFExporter = (GeospatialPDFExporter) exporter;
+                geospatialPDFExporter.setWKT(SwissLV95GeospatialPDFExport.wkt);
+                float[] corners = SwissLV95GeospatialPDFExport.lonLatCornerPoints(pageFormat);
+                if (corners == null) {
+                    throw new Exception("Cannot initialize Swiss LV95 Coordinate System");
+                }
+                geospatialPDFExporter.setLonLatCornerPoints(corners);
+            }
+
+            if (exporter instanceof VectorGraphicsExporter) {
+                ((VectorGraphicsExporter) exporter).setPageFormat(pageFormat);
+            }
+
+            // screeGenerator.screeData.screeStones contains ScreeGenerator.Stone,
+            // a class that derives from GeoObject but is not usually supported by
+            // exporters. The stones could be converted to GeoPaths using
+            // stone.toGeoPath, however, this would multiply the amount of memory
+            // required to store the graphics. The exporters have therefore each
+            // been hacked to call stone.toGeoPath and then using the standard
+            // export routines for GeoPaths.
+            exporter.setDocumentName(ApplicationInfo.getApplicationName());
+            exporter.setDocumentAuthor(System.getProperty("user.name"));
+            exporter.setDocumentSubject("scree");
+            exporter.setDocumentKeyWords("");
+            GeoExportGUI.export(exporter, screeGenerator.screeData.screeStones,
+                    commandLineArguments.outputFilePath, null);
+
+        } catch (Throwable ex) {
+            String msg = "Scree could not be generated completely.";
+            if (ex instanceof java.lang.OutOfMemoryError) {
+                msg += "\nThere is not enough memory available.";
+                msg += "\nTry adjusting memory with -Xmx";
+            }
+            System.err.println(msg);
+            ex.printStackTrace();
+        }
+    }
+
     /**
      * main routine for the application.
      *
@@ -198,6 +302,8 @@ public class Main {
         final CommandLineArguments commandLineArguments;
         if (args.length > 0) {
             commandLineArguments = parseCommandLine(args);
+            runCommandLine(commandLineArguments);
+            System.exit(0);
         } else {
             commandLineArguments = null;
         }

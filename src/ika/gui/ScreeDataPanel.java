@@ -116,13 +116,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     }
     private final GeoSet backgroundGeoSet;
     private final GeoSet foregroundGeoSet;
-    private static final String REF_IMAGE_NAME = "refmap";
-    private static final String OBSTACLES_IMAGE_NAME = "obstacles";
-    private static final String LARGE_STONE_IMAGE_NAME = "largeStonesMask";
-    private static final String SHADING_IMAGE_NAME = "shading";
-    private static final String GRADATION_MASK_IMAGE_NAME = "gradationMask";
-    private static final String LINES_NAME = "lines";
-    private static final String POLYGONS_NAME = "polygons";
+   
 
     /**
      * store the owner of the dialog: a hack to pass the owner to
@@ -281,19 +275,19 @@ public class ScreeDataPanel extends javax.swing.JPanel {
 
                     warnOfSmallCellSize(screeData.dem);
 
-                    backgroundGeoSet.replaceGeoObject(screeData.shadingImage, SHADING_IMAGE_NAME);
+                    backgroundGeoSet.replaceGeoObject(screeData.shadingImage, ScreeData.SHADING_IMAGE_NAME);
                     warnOfSmallCellSize(screeData.shadingImage);
 
-                    backgroundGeoSet.replaceGeoObject(screeData.largeStoneMaskImage, LARGE_STONE_IMAGE_NAME);
+                    backgroundGeoSet.replaceGeoObject(screeData.largeStoneMaskImage, ScreeData.LARGE_STONE_IMAGE_NAME);
                     warnOfSmallCellSize(screeData.largeStoneMaskImage);
 
-                    backgroundGeoSet.replaceGeoObject(screeData.shadingGradationMaskImage, GRADATION_MASK_IMAGE_NAME);
+                    backgroundGeoSet.replaceGeoObject(screeData.shadingGradationMaskImage, ScreeData.GRADATION_MASK_IMAGE_NAME);
                     warnOfSmallCellSize(screeData.shadingGradationMaskImage);
 
-                    backgroundGeoSet.replaceGeoObject(screeData.obstaclesMaskImage, OBSTACLES_IMAGE_NAME);
+                    backgroundGeoSet.replaceGeoObject(screeData.obstaclesMaskImage, ScreeData.OBSTACLES_IMAGE_NAME);
                     warnOfSmallCellSize(screeData.obstaclesMaskImage);
 
-                    backgroundGeoSet.replaceGeoObject(screeData.referenceImage, REF_IMAGE_NAME);
+                    backgroundGeoSet.replaceGeoObject(screeData.referenceImage, ScreeData.REF_IMAGE_NAME);
                     warnOfSmallCellSize(screeData.referenceImage);
 
                     foregroundGeoSet.add(screeData.screePolygons);
@@ -440,7 +434,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         prog.setMessage("Loading shaded relief...");
         prog.enableCancel();
         screeData.shadingImage = loadImage(screeInputData.shadingFilePath(),
-                SHADING_IMAGE_NAME, prog);
+                ScreeData.SHADING_IMAGE_NAME, prog);
         if (screeData.shadingImage != null) {
             screeData.shadingImage.convertToGrayscale();
         }
@@ -450,7 +444,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         prog.setMessage("Loading mask for large stones...");
         prog.enableCancel();
         screeData.largeStoneMaskImage = loadImage(screeInputData.largeStonesFilePath(),
-                LARGE_STONE_IMAGE_NAME, prog);
+                ScreeData.LARGE_STONE_IMAGE_NAME, prog);
         if (screeData.largeStoneMaskImage != null) {
             screeData.largeStoneMaskImage.convertToGrayscale();
         }
@@ -460,7 +454,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         prog.setMessage("Loading mask for alternative gradation...");
         prog.enableCancel();
         screeData.shadingGradationMaskImage = loadImage(screeInputData.gradationMaskFilePath(),
-                GRADATION_MASK_IMAGE_NAME, prog);
+                ScreeData.GRADATION_MASK_IMAGE_NAME, prog);
         if (screeData.shadingGradationMaskImage != null) {
             screeData.shadingGradationMaskImage.convertToGrayscale();
         }
@@ -470,7 +464,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         prog.setMessage("Loading obstacles mask image...");
         prog.enableCancel();
         screeData.obstaclesMaskImage = loadImage(screeInputData.obstaclesFilePath(),
-                OBSTACLES_IMAGE_NAME, prog);
+                ScreeData.OBSTACLES_IMAGE_NAME, prog);
         if (screeData.obstaclesMaskImage != null) {
             // this image will be drawn frequently, and it could be in color,
             // so optimize it for the display hardware.
@@ -482,7 +476,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         prog.setMessage("Loading reference image...");
         prog.enableCancel();
         screeData.referenceImage = loadImage(screeInputData.referenceFilePath(),
-                REF_IMAGE_NAME, prog);
+                ScreeData.REF_IMAGE_NAME, prog);
         if (screeData.referenceImage != null) {
             // this image will be drawn frequently, and it could be in color,
             // so optimize it for the display hardware.
@@ -509,7 +503,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         screeData.screePolygons.setVectorSymbol(ScreeGenerator.SCREE_POLYGON_VECTOR_SYMBOL);
         screeData.screePolygons.setVisible(false);
         screeData.screePolygons.setSelectable(false);
-        screeData.screePolygons.setName(POLYGONS_NAME);
+        screeData.screePolygons.setName(ScreeData.POLYGONS_NAME);
     }
 
     private void loadGullyLines(ProgressIndicator prog) throws IOException {
@@ -530,7 +524,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         screeData.gullyLines.setVectorSymbol(ScreeGenerator.GULLIES_VECTOR_SYMBOL);
         screeData.gullyLines.setVisible(false);
         screeData.gullyLines.setSelectable(false);
-        screeData.gullyLines.setName(LINES_NAME);
+        screeData.gullyLines.setName(ScreeData.LINES_NAME);
         screeData.fixedScreeLines = true;
     }
 

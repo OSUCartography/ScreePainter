@@ -414,6 +414,7 @@ public class ScreeWindow extends MainWindow {
         return commandLineArguments != null;
     }
 
+    /*
     private class ScreeWorker extends ika.gui.SwingWorkerWithProgressIndicator {
 
         private Rectangle2D screeBB = null;
@@ -507,9 +508,29 @@ public class ScreeWindow extends MainWindow {
             }
         }
     }
-
+     */
     public void generateScree() {
-        new ScreeWorker(this).generateScree();
+        // FIXME new ScreeWorker(this).generateScree();
+
+        // FIXME running in EDT
+        try {
+            if (!screeGenerator.screeData.fixedScreeLines) {
+                screeGenerator.screeData.gullyLines.removeAllGeoObjects(); // FIXME
+            }
+            ScreeGeneratorManager manager = new ScreeGeneratorManager();
+            screeGenerationReport = null;
+            manager.generateScree(screeGenerator, null, null, true);
+            screeGenerator.screeData.screeStones.setVisible(true);
+            exportAndExit();
+        } catch (Throwable ex) {
+            String msg = "Scree could not be generated completely.";
+            if (ex instanceof java.lang.OutOfMemoryError) {
+                msg += "\nThere is not enough memory available.";
+                msg += "\nTry adjusting memory with -Xmx";
+            }
+            System.err.println(msg);
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -1624,7 +1645,7 @@ private void exportGullyLinesMenuItemActionPerformed(java.awt.event.ActionEvent 
         if (res == JOptionPane.YES_OPTION) {
             return;
         }
-        new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
+        // FIXME new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
     }
 
     exportGullyLines();
@@ -1639,7 +1660,7 @@ private void updateScreeMenuItemActionPerformed(java.awt.event.ActionEvent evt) 
 
 private void generateScreeLinesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateScreeLinesMenuItemActionPerformed
     screeParametersPanel.readGUI();
-    new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
+    // FIXME new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
     screeGenerator.screeData.gullyLines.setVisible(true);
     viewGullyLinesCheckBoxMenuItem.setSelected(true);
 }//GEN-LAST:event_generateScreeLinesMenuItemActionPerformed
