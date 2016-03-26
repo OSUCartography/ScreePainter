@@ -81,6 +81,10 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
         return sb.toString();
     }
 
+    public int nbrGeneratedScreeStones() {
+        return stonesCounter;
+    }
+    
     public void generateScree(ScreeGenerator screeGenerator,
             Rectangle2D screeBB,
             ProgressIndicator progress,
@@ -261,6 +265,10 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
         final double cellSize = tempResampledShadingGrid.getCellSize() / 2;
         final DecimalFormat f = new DecimalFormat("#,###");
 
+        if (progress instanceof CmdLineProgress) {
+            progress.setMessage("Generating scree");
+        }
+
         StringBuilder sb = new StringBuilder();
         sb.append(" of ");
         sb.append(nPolygons);
@@ -294,7 +302,9 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
                 if (progress.progress(100 * polygonID / nPolygons) == false) {
                     return;
                 }
-                progress.setMessage(sb.toString());
+                if (progress instanceof CmdLineProgress == false) {
+                    progress.setMessage(sb.toString());
+                }
             }
         }
     }

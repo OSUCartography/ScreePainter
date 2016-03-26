@@ -17,7 +17,6 @@ import ika.geoimport.ESRIASCIIGridReader;
 import ika.geoimport.GeoImporter;
 import ika.geoimport.ImageImporter;
 import java.awt.BorderLayout;
-import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -42,47 +41,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     private final ScreeData screeData;
     private boolean okButtonPressed = false;
     private static String lastPathSelected = ScreeDataFilePaths.getDirPath();
-
-    public static void showRobotDialog(ScreeWindow owner,
-            ScreeDataFilePaths data,
-            ScreeData screeData,
-            GeoSet backgroundGeoSet,
-            GeoSet foregroundGeoSet,
-            boolean showCancel) {
-
-        final ScreeDataPanel screeDataPanel = new ScreeDataPanel(owner, data,
-                screeData,
-                backgroundGeoSet,
-                foregroundGeoSet,
-                showCancel);
-
-        // add event handler that is called when the user closes the dialog
-        // by clicking on the dialog's close button (not the OK button)
-        screeDataPanel.screeDataDialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                screeDataPanel.okButtonPressed = screeDataPanel.okButton.isEnabled();
-                screeDataPanel.screeDataDialog.setVisible(false);
-                if (screeDataPanel.okButtonPressed) {
-                    data.writePathsToPreferences();
-                }
-            }
-        });
-
-        screeDataPanel.screeDataDialog.setLocationRelativeTo(owner);
-        screeDataPanel.screeDataDialog.setModalityType(Dialog.ModalityType.MODELESS);
-        screeDataPanel.screeDataDialog.setVisible(true);
-
-        // load data
-        screeDataPanel.loadData(data.isDEMFilePathValid(),
-                data.isShadingFilePathValid(),
-                data.isLargeStonesFilePathValid(),
-                data.isGradationMaskFilePathValid(),
-                data.isObstaclesFilePathValid(),
-                data.isReferenceFilePath(),
-                data.isScreePolygonsFilePathValid(),
-                data.isGullyLinesFilePath());
-    }
 
     public static boolean showDialog(JFrame owner,
             ScreeDataFilePaths data,
@@ -291,20 +249,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
                     warnOfSmallCellSize(screeData.referenceImage);
 
                     foregroundGeoSet.add(screeData.screePolygons);
-
                     foregroundGeoSet.add(screeData.gullyLines);
-
-                    // if in command line mode, hide dialog after loading data
-                    // and start creating scree
-                    if (owner.isCommandLineMode()) {
-                        if (isCancelled()) {
-                            System.exit(0);
-                        }
-                        screeDataDialog.setVisible(false);
-                        owner.showAll();
-                        owner.generateScree();
-                    }
-
                 } catch (ExecutionException ex) {
                     ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex.getCause(), dialog);
                 } catch (Throwable ex) {

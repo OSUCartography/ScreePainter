@@ -5,7 +5,6 @@
 package ika.gui;
 
 import ika.app.ApplicationInfo;
-import ika.app.CommandLineArguments;
 import ika.app.SwissLV95GeospatialPDFExport;
 import ika.app.ScreeDataFilePaths;
 import ika.app.ScreeGenerator;
@@ -21,7 +20,6 @@ import java.awt.event.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -63,22 +61,17 @@ public class ScreeWindow extends MainWindow {
     /**
      * file path to the input data sets.
      */
-    private ScreeDataFilePaths screeDataFilePaths = new ScreeDataFilePaths();
+    private final ScreeDataFilePaths screeDataFilePaths = new ScreeDataFilePaths();
 
     /**
      * The panel on the left side of this window.
      */
-    private ScreeParametersPanel screeParametersPanel = new ScreeParametersPanel();
+    private final ScreeParametersPanel screeParametersPanel = new ScreeParametersPanel();
 
     /**
      * A string reporting on the last scree generation.
      */
     private String screeGenerationReport = null;
-
-    /**
-     * Not null if Scree Painter is started from the command line.
-     */
-    private CommandLineArguments commandLineArguments;
 
     /**
      * Creates new form
@@ -98,9 +91,7 @@ public class ScreeWindow extends MainWindow {
         this.initMenusForMac();
     }
 
-    protected boolean init(CommandLineArguments commandLineArguments) {
-
-        this.commandLineArguments = commandLineArguments;
+    protected boolean init() {
 
         // initialize the map
         this.mapComponent.setGeoSet(new GeoMap());
@@ -199,7 +190,7 @@ public class ScreeWindow extends MainWindow {
         pageFormat.setPageScale(25000);
         pageFormat.setVisible(false);
 
-        if (!showScreeDataDialog(true, commandLineArguments)) {
+        if (!showScreeDataDialog(true)) {
             return false;
         }
 
@@ -253,40 +244,29 @@ public class ScreeWindow extends MainWindow {
             }
         });
 
-        // in command line mode: load parameters file
-        if (isCommandLineMode()) {
-            try {
-                File f = new File(commandLineArguments.parametersFilePath);
-                screeGenerator.p.fromString(new String(FileUtils.getBytesFromFile(f)));
-            } catch (IOException ex) {
-                Logger.getLogger(ScreeWindow.class.getName()).log(Level.SEVERE, null, ex);
-                System.exit(2);
+        // read default settings from JAR
+        BufferedReader reader = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            URL url = this.getClass().getResource(SETTINGS_FILE_PATH);
+            BufferedInputStream bis = new BufferedInputStream(url.openStream());
+            InputStreamReader isr = new InputStreamReader(bis, "UTF-8");
+            reader = new BufferedReader(isr);
+            char[] chars = new char[1024];
+            int numRead = 0;
+            while ((numRead = reader.read(chars)) > -1) {
+                sb.append(String.valueOf(chars));
             }
-        } else {
-            // read default settings from JAR
-            BufferedReader reader = null;
-            StringBuilder sb = new StringBuilder();
-            try {
-                URL url = this.getClass().getResource(SETTINGS_FILE_PATH);
-                BufferedInputStream bis = new BufferedInputStream(url.openStream());
-                InputStreamReader isr = new InputStreamReader(bis, "UTF-8");
-                reader = new BufferedReader(isr);
-                char[] chars = new char[1024];
-                int numRead = 0;
-                while ((numRead = reader.read(chars)) > -1) {
-                    sb.append(String.valueOf(chars));
-                }
-                screeGenerator.p.fromString(sb.toString());
-                screeParametersPanel.writeGUI();
-            } catch (IOException e) {
-                Logger.getLogger(ScreeWindow.class.getName()).log(Level.SEVERE, null, e);
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ex) {
-                        Logger.getLogger(ScreeWindow.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+            screeGenerator.p.fromString(sb.toString());
+            screeParametersPanel.writeGUI();
+        } catch (IOException e) {
+            Logger.getLogger(ScreeWindow.class.getName()).log(Level.SEVERE, null, e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(ScreeWindow.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -341,21 +321,9 @@ public class ScreeWindow extends MainWindow {
         }
     }
 
-    private boolean showScreeDataDialog(boolean showCancelButton, CommandLineArguments commandLineArguments) {
+    private boolean showScreeDataDialog(boolean showCancelButton) {
 
-        if (commandLineArguments != null) {
-            // render the entire area when in command line mode
-            areaToggleButton.setSelected(true);
-
-            // command line mode: load data
-            screeDataFilePaths = commandLineArguments.dataFilePaths;
-            ScreeDataPanel.showRobotDialog(this,
-                    screeDataFilePaths,
-                    screeGenerator.screeData,
-                    backgroundGeoSet,
-                    mapComponent.getGeoSet(),
-                    showCancelButton);
-        } else if (!ScreeDataPanel.showDialog(this,
+        if (!ScreeDataPanel.showDialog(this,
                 screeDataFilePaths,
                 screeGenerator.screeData,
                 backgroundGeoSet,
@@ -407,14 +375,6 @@ public class ScreeWindow extends MainWindow {
 
     }
 
-    /**
-     * @return the commandLineMode
-     */
-    public boolean isCommandLineMode() {
-        return commandLineArguments != null;
-    }
-
-    /*
     private class ScreeWorker extends ika.gui.SwingWorkerWithProgressIndicator {
 
         private Rectangle2D screeBB = null;
@@ -484,15 +444,7 @@ public class ScreeWindow extends MainWindow {
                 get(); // get exceptions
                 viewScreeCheckBoxMenuItem.setSelected(true);
                 screeGenerator.screeData.screeStones.setVisible(true);
-                mapComponent.getGeoSet().add(screeGenerator.screeData.screeStones);
-
-                // if in command line mode, export the created scree and exit
-                if (isCommandLineMode()) {
-                    if (isCancelled()) {
-                        System.exit(0);
-                    }
-                    exportAndExit();
-                }
+                mapComponent.getGeoSet().add(screeGenerator.screeData.screeStones);                
             } catch (Throwable ex) {
                 String msg = "Scree could not be generated completely.";
                 if (ex instanceof java.lang.OutOfMemoryError) {
@@ -508,29 +460,9 @@ public class ScreeWindow extends MainWindow {
             }
         }
     }
-     */
+    
     public void generateScree() {
-        // FIXME new ScreeWorker(this).generateScree();
-
-        // FIXME running in EDT
-        try {
-            if (!screeGenerator.screeData.fixedScreeLines) {
-                screeGenerator.screeData.gullyLines.removeAllGeoObjects(); // FIXME
-            }
-            ScreeGeneratorManager manager = new ScreeGeneratorManager();
-            screeGenerationReport = null;
-            manager.generateScree(screeGenerator, null, null, true);
-            screeGenerator.screeData.screeStones.setVisible(true);
-            exportAndExit();
-        } catch (Throwable ex) {
-            String msg = "Scree could not be generated completely.";
-            if (ex instanceof java.lang.OutOfMemoryError) {
-                msg += "\nThere is not enough memory available.";
-                msg += "\nTry adjusting memory with -Xmx";
-            }
-            System.err.println(msg);
-            ex.printStackTrace();
-        }
+        new ScreeWorker(this).generateScree();
     }
 
     /**
@@ -1285,7 +1217,7 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void newMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newMenuItemActionPerformed
-        ScreeWindow.newDocumentWindow(null);
+        ScreeWindow.newDocumentWindow();
     }//GEN-LAST:event_newMenuItemActionPerformed
 
     private void loadSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadSettingsMenuItemActionPerformed
@@ -1393,56 +1325,6 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
         geospatialPDFExporter.setLonLatCornerPoints(corners);
     }
 
-    private void exportAndExit() {
-
-        try {
-            GeoSetExporter exporter = GeoExportGUI.getExporterByName(commandLineArguments.outputFormat);
-            if (exporter == null) {
-                throw new IOException("Unknown format " + commandLineArguments.outputFormat);
-            }
-            PageFormat pageFormat = new PageFormat();
-            pageFormat.setPageScale(commandLineArguments.scale);
-            pageFormat.setPageLeft(commandLineArguments.west);
-            pageFormat.setPageBottom(commandLineArguments.south);
-            pageFormat.setPageHeightWorldCoordinates(commandLineArguments.width);
-            pageFormat.setPageWidthWorldCoordinates(commandLineArguments.height);
-
-            if (exporter instanceof ShapeExporter) {
-                ((ShapeExporter) exporter).setShapeType(ShapeGeometryExporter.POLYGON_SHAPE_TYPE);
-            }
-
-            // for Swiss LV95 coordinate system only
-            if (exporter instanceof GeospatialPDFExporter) {
-                GeospatialPDFExporter geospatialPDFExporter = (GeospatialPDFExporter) exporter;
-                initGeospatialPDFExporter(geospatialPDFExporter, pageFormat);
-            }
-
-            if (exporter instanceof VectorGraphicsExporter) {
-                ((VectorGraphicsExporter) exporter).setPageFormat(pageFormat);
-            }
-
-            // screeGenerator.screeData.screeStones contains ScreeGenerator.Stone,
-            // a class that derives from GeoObject but is not usually supported by
-            // exporters. The stones could be converted to GeoPaths using
-            // stone.toGeoPath, however, this would multiply the amount of memory
-            // required to store the graphics. The exporters have therefore each
-            // been hacked to call stone.toGeoPath and then using the standard
-            // export routines for GeoPaths.
-            exporter.setDocumentName(ApplicationInfo.getApplicationName());
-            exporter.setDocumentAuthor(System.getProperty("user.name"));
-            exporter.setDocumentSubject("scree");
-            exporter.setDocumentKeyWords("");
-            GeoExportGUI.export(exporter, screeGenerator.screeData.screeStones,
-                    commandLineArguments.outputFilePath, null);
-
-            // exit
-            System.exit(0);
-        } catch (IOException ex) {
-            Logger.getLogger(ScreeWindow.class.getName()).log(Level.SEVERE, null, ex);
-            System.exit(2);
-        }
-    }
-
     private void exportScreeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportScreeMenuItemActionPerformed
 
         GeoSetExporter exporter = GeoExportGUI.askExporter(this);
@@ -1498,7 +1380,7 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 }//GEN-LAST:event_exportScreeMenuItemActionPerformed
 
     private void loadInputDataMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadInputDataMenuItemActionPerformed
-        showScreeDataDialog(false, null);
+        showScreeDataDialog(false);
 }//GEN-LAST:event_loadInputDataMenuItemActionPerformed
 
 private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
@@ -1614,7 +1496,7 @@ private void viewGullyLinesCheckBoxMenuItemActionPerformed(java.awt.event.Action
 }//GEN-LAST:event_viewGullyLinesCheckBoxMenuItemActionPerformed
 
 private void dataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dataButtonActionPerformed
-    showScreeDataDialog(false, null);
+    showScreeDataDialog(false);
 }//GEN-LAST:event_dataButtonActionPerformed
 
 private void areaToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_areaToggleButtonActionPerformed
@@ -1645,7 +1527,7 @@ private void exportGullyLinesMenuItemActionPerformed(java.awt.event.ActionEvent 
         if (res == JOptionPane.YES_OPTION) {
             return;
         }
-        // FIXME new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
+        new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
     }
 
     exportGullyLines();
@@ -1660,7 +1542,7 @@ private void updateScreeMenuItemActionPerformed(java.awt.event.ActionEvent evt) 
 
 private void generateScreeLinesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateScreeLinesMenuItemActionPerformed
     screeParametersPanel.readGUI();
-    // FIXME new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
+    new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
     screeGenerator.screeData.gullyLines.setVisible(true);
     viewGullyLinesCheckBoxMenuItem.setSelected(true);
 }//GEN-LAST:event_generateScreeLinesMenuItemActionPerformed

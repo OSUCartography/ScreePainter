@@ -128,7 +128,7 @@ public abstract class MainWindow extends javax.swing.JFrame
      * @throws java.lang.InstantiationException
      * @throws java.lang.IllegalAccessException
      */
-    private static ScreeWindow createNewMainWindow(boolean callIInit, CommandLineArguments commandLineArguments)
+    private static ScreeWindow createNewMainWindow(boolean callIInit)
             throws java.lang.ClassNotFoundException,
             java.lang.InstantiationException,
             IllegalAccessException {
@@ -140,7 +140,7 @@ public abstract class MainWindow extends javax.swing.JFrame
         ScreeWindow window = new ScreeWindow();
 
         if (callIInit) {
-            if (!window.init(commandLineArguments)) {
+            if (!window.init()) {
                 return null;
             }
 
@@ -167,7 +167,7 @@ public abstract class MainWindow extends javax.swing.JFrame
 
         MainWindow tempWindow = null;
         try {
-            tempWindow = MainWindow.createNewMainWindow(false, null);
+            tempWindow = MainWindow.createNewMainWindow(false);
 
             JMenuBar menuBar = tempWindow.getJMenuBar();
 
@@ -185,7 +185,6 @@ public abstract class MainWindow extends javax.swing.JFrame
             e.printStackTrace();
             return null;
         }
-
     }
 
     /**
@@ -284,10 +283,10 @@ public abstract class MainWindow extends javax.swing.JFrame
      *
      * @return A new empty document, which is a sub-class of MainWindow.
      */
-    static public MainWindow newDocumentWindow(CommandLineArguments commandLineArguments) {
+    static public MainWindow newDocumentWindow() {
         MainWindow w = null;
         try {
-            w = MainWindow.createNewMainWindow(true, commandLineArguments);
+            w = MainWindow.createNewMainWindow(true);
             if (w != null) {
                 w.setVisible(true);
             }
@@ -316,7 +315,7 @@ public abstract class MainWindow extends javax.swing.JFrame
             byte[] data = FileUtils.getBytesFromFile(file);
 
             // successfully imported new data. Create new window.
-            w = MainWindow.createNewMainWindow(true, null);
+            w = MainWindow.createNewMainWindow(true);
             w.setDocumentData(data);
             w.setTitle(FileUtils.getFileNameWithoutExtension(newFilePath));
             w.filePath = newFilePath;
