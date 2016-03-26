@@ -74,6 +74,7 @@ public class Main {
 
         Option<Boolean> verbose = parser.addBooleanOption('v', "verbose");
         Option<Boolean> help = parser.addBooleanOption('h', "help");
+        Option<Boolean> version = parser.addBooleanOption("version");
 
         // Options may have just a long form with no corresponding short form.
         Option<String> parameters = parser.addStringOption("parameters");
@@ -105,6 +106,11 @@ public class Main {
 
         if (parser.getOptionValue(help, false)) {
             printUsage();
+            System.exit(0);
+        }
+        
+        if (parser.getOptionValue(version, false)) {
+            System.out.println(ApplicationInfo.getApplicationVersion());
             System.exit(0);
         }
 
