@@ -242,8 +242,8 @@ public class CmdLineMain {
             pageFormat.setPageScale(commandLineArguments.scale);
             pageFormat.setPageLeft(commandLineArguments.west);
             pageFormat.setPageBottom(commandLineArguments.south);
-            pageFormat.setPageHeightWorldCoordinates(commandLineArguments.width);
-            pageFormat.setPageWidthWorldCoordinates(commandLineArguments.height);
+            pageFormat.setPageHeightWorldCoordinates(commandLineArguments.height);
+            pageFormat.setPageWidthWorldCoordinates(commandLineArguments.width);
 
             // configre Esri shapefile exporter
             if (exporter instanceof ShapeExporter) {
@@ -279,7 +279,7 @@ public class CmdLineMain {
             GeoExportGUI.export(exporter, screeGenerator.screeData.screeStones,
                     commandLineArguments.outputFilePath, null);
 
-            System.out.println("Saved file.");
+            System.out.format("Saved file to %s%n", commandLineArguments.outputFilePath);
 
         } catch (Throwable ex) {
             String msg = "Scree could not be generated completely.";
