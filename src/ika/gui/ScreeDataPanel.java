@@ -7,6 +7,7 @@ package ika.gui;
 
 import ika.app.ScreeData;
 import ika.app.ScreeDataFilePaths;
+import ika.app.ScreeDataLoader;
 import ika.app.ScreeGenerator;
 import ika.geo.GeoImage;
 import ika.geo.GeoObject;
@@ -261,75 +262,77 @@ public class ScreeDataPanel extends javax.swing.JPanel {
 
             @Override
             protected Object doInBackground() throws Exception {
+                ScreeDataLoader loader = new ScreeDataLoader(screeInputData, screeData);
 
                 MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
                 try {
 
                     if (loadShading) {
-                        this.nextTask();
-                        loadShading(this);
+                        nextTask();
+                        loader.loadShading(this);
                         if (isCancelled()) {
                             return null;
                         }
                     }
 
                     if (loadLargeStoneMask) {
-                        this.nextTask();
-                        loadLargeStonesMask(this);
+                        nextTask();
+                        loader.loadLargeStonesMask(this);
                         if (isCancelled()) {
                             return null;
                         }
                     }
 
                     if (loadGradationMask) {
-                        this.nextTask();
-                        loadGradationMask(this);
+                        nextTask();
+                        loader.loadGradationMask(this);
                         if (isCancelled()) {
                             return null;
                         }
                     }
 
                     if (loadObstaclesMask) {
-                        this.nextTask();
-                        loadObstaclesMask(this);
+                        nextTask();
+                        loader.loadObstaclesMask(this);
                         if (isCancelled()) {
                             return null;
                         }
                     }
 
                     if (loadRefImage) {
-                        this.nextTask();
-                        loadReferenceImage(this);
+                        nextTask();
+                        loader.loadReferenceImage(this);
                         if (isCancelled()) {
                             return null;
                         }
                     }
 
                     if (loadDem) {
-                        loadDEM(this);
+                        nextTask();
+                        loader.loadDEM(this);
                         if (isCancelled()) {
                             return null;
                         }
                     }
 
                     if (loadScreePolygons) {
-                        this.nextTask();
-                        loadScreePolygons(this);
+                        nextTask();
+                        loader.loadScreePolygons(this);
                         if (isCancelled()) {
                             return null;
                         }
                     }
 
                     if (loadGullyLines) {
-                        this.nextTask();
-                        loadGullyLines(this);
+                        nextTask();
+                        loader.loadGullyLines(this);
                         if (isCancelled()) {
                             return null;
                         }
                     }
 
                 } finally {
-                    this.complete();
+                    complete();
                     trigger.abort();
                 }
                 return null;
@@ -351,126 +354,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
             String title = raster.getName() + ": Small Cell Size";
             ika.utils.ErrorDialog.showErrorDialog(msg, title, null, this);
         }
-    }
-
-    private static GeoImage loadImage(String filePath,
-            String name,
-            ProgressIndicator progressIndicator) throws IOException {
-        ImageImporter importer = new ImageImporter();
-        importer.setOptimizeForDisplay(false);
-        importer.setProgressIndicator(progressIndicator, false);
-        GeoImage geoImage = (GeoImage) importer.read(filePath);
-        if (geoImage != null) {
-            geoImage.setName(name);
-            geoImage.setVisible(false);
-            geoImage.setSelectable(false);
-        }
-        return geoImage;
-    }
-
-    private void loadDEM(ProgressIndicator prog) throws IOException {
-        prog.setMessage("Loading elevation model...");
-        prog.enableCancel();
-        screeData.dem = ESRIASCIIGridReader.read(screeInputData.demFilePath());
-        screeData.curvatureGrid = new GridPlanCurvatureOperator().operate(screeData.dem);
-    }
-
-    private void loadShading(ProgressIndicator prog) throws IOException {
-        prog.setMessage("Loading shaded relief...");
-        prog.enableCancel();
-        screeData.shadingImage = loadImage(screeInputData.shadingFilePath(),
-                ScreeData.SHADING_IMAGE_NAME, prog);
-        if (screeData.shadingImage != null) {
-            screeData.shadingImage.convertToGrayscale();
-        }
-    }
-
-    private void loadLargeStonesMask(ProgressIndicator prog) throws IOException {
-        prog.setMessage("Loading mask for large stones...");
-        prog.enableCancel();
-        screeData.largeStoneMaskImage = loadImage(screeInputData.largeStonesFilePath(),
-                ScreeData.LARGE_STONE_IMAGE_NAME, prog);
-        if (screeData.largeStoneMaskImage != null) {
-            screeData.largeStoneMaskImage.convertToGrayscale();
-        }
-    }
-
-    private void loadGradationMask(ProgressIndicator prog) throws IOException {
-        prog.setMessage("Loading mask for alternative gradation...");
-        prog.enableCancel();
-        screeData.shadingGradationMaskImage = loadImage(screeInputData.gradationMaskFilePath(),
-                ScreeData.GRADATION_MASK_IMAGE_NAME, prog);
-        if (screeData.shadingGradationMaskImage != null) {
-            screeData.shadingGradationMaskImage.convertToGrayscale();
-        }
-    }
-
-    private void loadObstaclesMask(ProgressIndicator prog) throws IOException {
-        prog.setMessage("Loading obstacles mask image...");
-        prog.enableCancel();
-        screeData.obstaclesMaskImage = loadImage(screeInputData.obstaclesFilePath(),
-                ScreeData.OBSTACLES_IMAGE_NAME, prog);
-        if (screeData.obstaclesMaskImage != null) {
-            // this image will be drawn frequently, and it could be in color,
-            // so optimize it for the display hardware.
-            screeData.obstaclesMaskImage.optimizeForDisplay();
-        }
-    }
-
-    private void loadReferenceImage(ProgressIndicator prog) throws IOException {
-        prog.setMessage("Loading reference image...");
-        prog.enableCancel();
-        screeData.referenceImage = loadImage(screeInputData.referenceFilePath(),
-                ScreeData.REF_IMAGE_NAME, prog);
-        if (screeData.referenceImage != null) {
-            // this image will be drawn frequently, and it could be in color,
-            // so optimize it for the display hardware.
-            screeData.referenceImage.optimizeForDisplay();
-        }
-    }
-
-    private void loadScreePolygons(ProgressIndicator prog) throws IOException {
-        prog.setMessage("Loading scree polygons...");
-        prog.enableCancel();
-        String filePath = screeInputData.screePolygonsFilePath();
-        GeoImporter importer = GeoImporter.findGeoImporter(filePath);
-
-        GeoObject geoObject = importer.read(filePath);
-        final GeoSet newScreePolygons;
-        if (geoObject instanceof GeoSet) {
-            newScreePolygons = (GeoSet) geoObject;
-        } else {
-            // single paths are not returned in a GeoSet
-            newScreePolygons = new GeoSet();
-            newScreePolygons.add(geoObject);
-        }
-        screeData.screePolygons.replaceGeoObjects(newScreePolygons);
-        screeData.screePolygons.setVectorSymbol(ScreeGenerator.SCREE_POLYGON_VECTOR_SYMBOL);
-        screeData.screePolygons.setVisible(false);
-        screeData.screePolygons.setSelectable(false);
-        screeData.screePolygons.setName(ScreeData.POLYGONS_NAME);
-    }
-
-    private void loadGullyLines(ProgressIndicator prog) throws IOException {
-        prog.setMessage("Loading gully lines...");
-        prog.enableCancel();
-        String filePath = screeInputData.gullyLinesFilePath();
-        GeoImporter importer = GeoImporter.findGeoImporter(filePath);
-        GeoObject geoObject = importer.read(filePath);
-        final GeoSet newGullyLines;
-        if (geoObject instanceof GeoSet) {
-            newGullyLines = (GeoSet) geoObject;
-        } else {
-            // single paths are not returned in a GeoSet
-            newGullyLines = new GeoSet();
-            newGullyLines.add(geoObject);
-        }
-        screeData.gullyLines.replaceGeoObjects(newGullyLines);
-        screeData.gullyLines.setVectorSymbol(ScreeGenerator.GULLIES_VECTOR_SYMBOL);
-        screeData.gullyLines.setVisible(false);
-        screeData.gullyLines.setSelectable(false);
-        screeData.gullyLines.setName(ScreeData.LINES_NAME);
-        screeData.fixedScreeLines = true;
     }
 
     private boolean fileExists(String path) {
