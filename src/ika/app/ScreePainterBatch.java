@@ -1,6 +1,7 @@
 package ika.app;
 
 import com.sanityinc.jargs.CmdLineParser;
+import ika.geo.GeoSet;
 import ika.geoexport.GeoSetExporter;
 import ika.geoexport.GeospatialPDFExporter;
 import ika.geoexport.ShapeExporter;
@@ -18,9 +19,9 @@ import java.io.IOException;
  * @author Bernhard Jenny, School of Mathematical and Geospatial Sciences, RMIT
  * University, Melbourne
  */
-public class CmdLineMain {
+public class ScreePainterBatch {
 
-    private CmdLineMain() {
+    private ScreePainterBatch() {
     }
 
     private static void printUsage() {
@@ -140,22 +141,22 @@ public class CmdLineMain {
 
         // verbose info
         if (cmd.verbose) {
-            System.out.println("parameters file: " + cmd.parametersFilePath);
-            System.out.println("shading file: " + cmd.dataFilePaths.shadingFilePath);
-            System.out.println("dem file: " + cmd.dataFilePaths.demFilePath);
-            System.out.println("scree polygons file: " + cmd.dataFilePaths.screePolygonsFilePath);
-            System.out.println("obstacles mask file: " + cmd.dataFilePaths.obstaclesFilePath);
-            System.out.println("large stones mask file: " + cmd.dataFilePaths.largeStoneFilePath);
-            System.out.println("gradation mask file: " + cmd.dataFilePaths.gradationMaskFilePath);
-            System.out.println("gully lines file: " + cmd.dataFilePaths.gullyLinesFilePath);
-            System.out.println("reference image file: " + cmd.dataFilePaths.referenceFilePath);
-            System.out.println("output file: " + cmd.outputFilePath);
-            System.out.println("output format: " + cmd.outputFormat);
-            System.out.println("west: " + cmd.west);
-            System.out.println("south: " + cmd.south);
-            System.out.println("width: " + cmd.width);
-            System.out.println("height: " + cmd.height);
-            System.out.println("scale: " + cmd.scale);
+            System.out.println("\tparameters file: " + cmd.parametersFilePath);
+            System.out.println("\tshading file: " + cmd.dataFilePaths.shadingFilePath);
+            System.out.println("\tdem file: " + cmd.dataFilePaths.demFilePath);
+            System.out.println("\tscree polygons file: " + cmd.dataFilePaths.screePolygonsFilePath);
+            System.out.println("\tobstacles mask file: " + cmd.dataFilePaths.obstaclesFilePath);
+            System.out.println("\tlarge stones mask file: " + cmd.dataFilePaths.largeStoneFilePath);
+            System.out.println("\tgradation mask file: " + cmd.dataFilePaths.gradationMaskFilePath);
+            System.out.println("\tgully lines file: " + cmd.dataFilePaths.gullyLinesFilePath);
+            System.out.println("\treference image file: " + cmd.dataFilePaths.referenceFilePath);
+            System.out.println("\toutput file: " + cmd.outputFilePath);
+            System.out.println("\toutput format: " + cmd.outputFormat);
+            System.out.println("\twest: " + cmd.west);
+            System.out.println("\tsouth: " + cmd.south);
+            System.out.println("\twidth: " + cmd.width);
+            System.out.println("\theight: " + cmd.height);
+            System.out.println("\tscale: " + cmd.scale);
         }
 
         // test if all required parameters have been provided. Exit otherwise. 
@@ -190,7 +191,7 @@ public class CmdLineMain {
         return cmd;
     }
 
-    public static void runCommandLine(CommandLineArguments commandLineArguments) {
+    public static void runBatch(CommandLineArguments commandLineArguments) {
         try {
             ScreeGenerator screeGenerator = new ScreeGenerator();
             CmdLineProgress prog = new CmdLineProgress();
@@ -222,16 +223,21 @@ public class CmdLineMain {
             }
 
             // load parameters file
+            System.out.println("Loading parameters file");
             File f = new File(commandLineArguments.parametersFilePath);
             screeGenerator.p.fromString(new String(FileUtils.getBytesFromFile(f)));
 
             // generate scree
+            System.out.println("Starting scree generation");
             ScreeGeneratorManager manager = new ScreeGeneratorManager();
             manager.generateScree(screeGenerator, null, prog, true);
             System.out.format("Generated %,d scree stones.%n", manager.nbrGeneratedScreeStones());
 
+            // release memory; needed are only the scree stones to export
+            GeoSet screeStones = screeGenerator.screeData.screeStones;
+            screeGenerator = null;
+
             // export scree
-            screeGenerator.screeData.screeStones.setVisible(true);
             GeoSetExporter exporter = GeoExportGUI.getExporterByName(commandLineArguments.outputFormat);
             if (exporter == null) {
                 throw new IOException("Unknown format " + commandLineArguments.outputFormat);
@@ -244,8 +250,11 @@ public class CmdLineMain {
             pageFormat.setPageBottom(commandLineArguments.south);
             pageFormat.setPageHeightWorldCoordinates(commandLineArguments.height);
             pageFormat.setPageWidthWorldCoordinates(commandLineArguments.width);
-
-            // configre Esri shapefile exporter
+            if (exporter instanceof VectorGraphicsExporter) {
+                ((VectorGraphicsExporter) exporter).setPageFormat(pageFormat);
+            }
+            
+            // configure Esri shapefile exporter
             if (exporter instanceof ShapeExporter) {
                 ((ShapeExporter) exporter).setShapeType(ShapeGeometryExporter.POLYGON_SHAPE_TYPE);
             }
@@ -261,10 +270,6 @@ public class CmdLineMain {
                 geospatialPDFExporter.setLonLatCornerPoints(corners);
             }
 
-            if (exporter instanceof VectorGraphicsExporter) {
-                ((VectorGraphicsExporter) exporter).setPageFormat(pageFormat);
-            }
-
             // screeGenerator.screeData.screeStones contains ScreeGenerator.Stone,
             // a class that derives from GeoObject but is not usually supported by
             // exporters. The stones could be converted to GeoPaths using
@@ -276,7 +281,7 @@ public class CmdLineMain {
             exporter.setDocumentAuthor(System.getProperty("user.name"));
             exporter.setDocumentSubject("scree");
             exporter.setDocumentKeyWords("");
-            GeoExportGUI.export(exporter, screeGenerator.screeData.screeStones,
+            GeoExportGUI.export(exporter, screeStones,
                     commandLineArguments.outputFilePath, null);
 
             System.out.format("Saved file to %s%n", commandLineArguments.outputFilePath);
@@ -288,7 +293,7 @@ public class CmdLineMain {
                 msg += "\nTry adjusting memory with -Xmx";
             }
             System.err.println(msg);
-            
+
             if (commandLineArguments.verbose) {
                 ex.printStackTrace();
             }

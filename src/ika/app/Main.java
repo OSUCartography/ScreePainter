@@ -25,8 +25,8 @@ public class Main {
     public static void main(String args[]) {
 
         if (args.length > 0) {
-            CommandLineArguments commandLineArguments = CmdLineMain.parseCommandLine(args);
-            CmdLineMain.runCommandLine(commandLineArguments);
+            CommandLineArguments commandLineArguments = ScreePainterBatch.parseCommandLine(args);
+            ScreePainterBatch.runBatch(commandLineArguments);
             System.exit(0);
         }
 
