@@ -17,6 +17,7 @@ import ika.geo.grid.GridPlanCurvatureOperator;
 import ika.geoimport.ESRIASCIIGridReader;
 import ika.geoimport.GeoImporter;
 import ika.geoimport.ImageImporter;
+import ika.utils.ErrorDialog;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -1327,7 +1328,9 @@ public class ScreeDataPanel extends javax.swing.JPanel {
                     loadScreePolygons, loadScreeLines);
 
         } catch (IOException ex) {
-            // FIXME
+            String msg = "An error occured.";
+            String title = "Scree Painter Error";
+            ErrorDialog.showErrorDialog(msg, title, ex, owner);
             ex.printStackTrace();
         }
     }//GEN-LAST:event_selectFolderButtonActionPerformed

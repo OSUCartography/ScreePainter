@@ -224,6 +224,9 @@ public class ScreeDataFilePaths implements Cloneable {
     }
 
     private boolean isFile(String filePath) {
+        if (filePath == null) {
+            return false;
+        }
         File f = new File(filePath);
         return f.exists() && !f.isDirectory();
     }

@@ -116,6 +116,7 @@ public class CmdLineMain {
         }
 
         CommandLineArguments cmd = new CommandLineArguments();
+        cmd.verbose = parser.getOptionValue(verbose, false);
         cmd.parametersFilePath = parser.getOptionValue(parameters);
         cmd.dataFilePaths.shadingFilePath = parser.getOptionValue(shading);
         cmd.dataFilePaths.demFilePath = parser.getOptionValue(dem);
@@ -138,7 +139,7 @@ public class CmdLineMain {
         }
 
         // verbose info
-        if (parser.getOptionValue(verbose, false)) {
+        if (cmd.verbose) {
             System.out.println("parameters file: " + cmd.parametersFilePath);
             System.out.println("shading file: " + cmd.dataFilePaths.shadingFilePath);
             System.out.println("dem file: " + cmd.dataFilePaths.demFilePath);
@@ -287,6 +288,10 @@ public class CmdLineMain {
                 msg += "\nTry adjusting memory with -Xmx";
             }
             System.err.println(msg);
+            
+            if (commandLineArguments.verbose) {
+                ex.printStackTrace();
+            }
         }
     }
 }
