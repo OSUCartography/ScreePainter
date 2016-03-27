@@ -237,6 +237,8 @@ public class ScreePainterBatch {
             GeoSet screeStones = screeGenerator.screeData.screeStones;
             screeGenerator = null;
 
+            System.out.format("Saving to file at %s%n", commandLineArguments.outputFilePath);
+            
             // export scree
             GeoSetExporter exporter = GeoExportGUI.getExporterByName(commandLineArguments.outputFormat);
             if (exporter == null) {
@@ -284,10 +286,10 @@ public class ScreePainterBatch {
             GeoExportGUI.export(exporter, screeStones,
                     commandLineArguments.outputFilePath, null);
 
-            System.out.format("Saved file to %s%n", commandLineArguments.outputFilePath);
+            System.out.format("Succesfully saved scree to file.");
 
         } catch (Throwable ex) {
-            String msg = "Scree could not be generated completely.";
+            String msg = "An error occured. Scree could not be generated completely.";
             if (ex instanceof java.lang.OutOfMemoryError) {
                 msg += "\nThere is not enough memory available.";
                 msg += "\nTry adjusting memory with -Xmx";

@@ -22,8 +22,7 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
     
     /** rounding of coordinates */
     private static int NBR_AFTER_COMA_DECIMALS = 2;
-    private static float AFTER_COMA_ROUNDER = 
-            (float)Math.pow(10, NBR_AFTER_COMA_DECIMALS);
+    private static double AFTER_COMA_ROUNDER = Math.pow(10, NBR_AFTER_COMA_DECIMALS);
     
     protected PageFormat pageFormat = null;
     
@@ -71,10 +70,10 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
      * @param x The horizontal coordinate.
      * @return Returns the coordinate in the page coordinate system.
      */
-    protected float xToPage(float x) {
+    protected double xToPage(double x) {
         final double mapScale = this.pageFormat.getPageScale();
         final double west = this.pageFormat.getPageLeft();
-        return (float)((x - west) / mapScale);
+        return (x - west) / mapScale;
     }
     
     /**
@@ -83,8 +82,8 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
      * @param x The horizontal coordinate.
      * @return Returns the coordinate in pixels.
      */
-    protected float xToPagePx(float x) {
-        return (float)(this.xToPage(x) * 1000 * PageFormat.MM2PX);
+    protected double xToPagePx(double x) {
+        return xToPage(x) * 1000 * PageFormat.MM2PX;
     }
     
     /**
@@ -93,10 +92,10 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
      * @param y The vertical coordinate.
      * @return Returns the coordinate in the page coordinate system.
      */
-    protected float yToPage(float y) {
+    protected double yToPage(double y) {
         final double mapScale = this.pageFormat.getPageScale();
         final double north = this.pageFormat.getPageTop();
-        return (float)((north - y) / mapScale);
+        return (north - y) / mapScale;
     }
     
     /**
@@ -106,8 +105,8 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
      * @param y The vertical coordinate.
      * @return Returns the coordinate in pixels.
      */
-    protected float yToPagePx(float y) {
-        return (float)(this.yToPage(y) * 1000 * PageFormat.MM2PX);
+    protected double yToPagePx(double y) {
+        return yToPage(y) * 1000 * PageFormat.MM2PX;
     }
         
     /**
@@ -115,9 +114,9 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
      * @param d The distance to transform.
      * @return The scaled distance.
      */
-    protected float dimToPage(float d) {
+    protected double dimToPage(double d) {
         final double mapScale = this.pageFormat.getPageScale();
-        return (float)(d / mapScale);
+        return d / mapScale;
     }
     
     /**
@@ -126,8 +125,8 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
      * @param d The distance to transform.
      * @return The scaled distance in pixels.
      */
-    protected float dimToPagePx(float d) {
-        return (float)(this.dimToPage(d) * 1000 * PageFormat.MM2PX);
+    protected double dimToPagePx(double d) {
+        return this.dimToPage(d) * 1000 * PageFormat.MM2PX;
     }
     
     /**
@@ -137,18 +136,18 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
      * @param x The horizontal coordinate.
      * @return Returns the coordinate in pixels.
      */
-    protected float xToPageRoundedPx(float x) {
-        return this.round(this.xToPagePx(x));
+    protected double xToPageRoundedPx(double x) {
+        return round(xToPagePx(x));
     }
     
     /**
      * Transforms and rounds a vertical y coordinate (usually in meters) 
      * to pixels. Takes the scale and bounding box defined by the PageFormat 
-     * into acount.
+     * into account.
      * @param y The vertical coordinate.
      * @return Returns the coordinate in pixels.
      */
-    protected float yToPageRoundedPx(float y) {
+    protected double yToPageRoundedPx(double y) {
         return this.round(this.yToPagePx(y));
     }
     
@@ -158,11 +157,11 @@ public abstract class VectorGraphicsExporter extends GeoSetExporter {
      * @param d The distance to transform.
      * @return The distance in pixels.
      */
-    protected float dimToPageRoundedPx(float d) {
+    protected double dimToPageRoundedPx(double d) {
         return this.round(this.dimToPagePx(d));
     }
     
-    private float round(float d){
+    private double round(double d){
         return Math.round(AFTER_COMA_ROUNDER * d) / AFTER_COMA_ROUNDER;
     }
 }

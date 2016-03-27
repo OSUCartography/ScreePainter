@@ -65,17 +65,17 @@ public class UngenerateExporter extends GeoSetExporter {
             if (geoObject instanceof GeoPath) {
                 GeoPath geoPath = (GeoPath)geoObject;
                 GeoPathIterator iterator = geoPath.getIterator();
-                float lastMoveToX = Float.NaN;
-                float lastMoveToY = Float.NaN;
+                double lastMoveToX = Double.NaN;
+                double lastMoveToY = Double.NaN;
                 do {
                     final int type = iterator.getInstruction();
                     switch (type) {
                         case GeoPathModel.CLOSE:
                             if (iterator.atFirstInstruction())
                                 continue;
-                            writer.print(Float.toString(lastMoveToX));
+                            writer.print(Double.toString(lastMoveToX));
                             writer.print("\t");
-                            writer.println(Float.toString(lastMoveToY));
+                            writer.println(Double.toString(lastMoveToY));
                             break;
                         case GeoPathModel.MOVETO:
                             if (!iterator.atFirstInstruction())
@@ -85,11 +85,11 @@ public class UngenerateExporter extends GeoSetExporter {
                             lastMoveToY = iterator.getY();
                             // fall thru
                         case GeoPathModel.LINETO:
-                            final float x = iterator.getX();
-                            final float y = iterator.getY();
-                            writer.print(Float.toString(x));
+                            final double x = iterator.getX();
+                            final Double y = iterator.getY();
+                            writer.print(Double.toString(x));
                             writer.print("\t");
-                            writer.println(Float.toString(y));
+                            writer.println(Double.toString(y));
                             break;
                             
                         default:

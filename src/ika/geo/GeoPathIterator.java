@@ -88,7 +88,7 @@ public class GeoPathIterator {
      * is a close instruction or if there are no drawing instructions.
      * @return The x coordinate for the current drawing instruction. 
      */
-    public float getX() {
+    public double getX() {
         final int instruction = this.path.instructions[this.instructionID];
         if (instruction == GeoPathModel.CLOSE)
             throw new IllegalStateException(); 
@@ -101,7 +101,7 @@ public class GeoPathIterator {
      * is a close instruction or if there are no drawing instructions.
      * @return The y coordinate for the current drawing instruction. 
      */
-    public float getY() {
+    public double getY() {
         final int instruction = this.path.instructions[this.instructionID];
         if (instruction == GeoPathModel.CLOSE)
             throw new IllegalStateException(); 
@@ -115,7 +115,7 @@ public class GeoPathIterator {
      * or quadratic bezier curve.
      * @return The x coordinate of the first control point. 
      */
-    public float getX2() {
+    public double getX2() {
         final int instruction = this.path.instructions[this.instructionID];
         if (instruction == GeoPathModel.CURVETO || instruction == GeoPathModel.QUADCURVETO)
             return path.points[pointID+2];
@@ -130,7 +130,7 @@ public class GeoPathIterator {
      * or quadratic bezier curve.
      * @return The y coordinate of the first control point. 
      */
-    public float getY2() {
+    public double getY2() {
         final int instruction = this.path.instructions[this.instructionID];
         if (instruction == GeoPathModel.CURVETO || instruction == GeoPathModel.QUADCURVETO)
             return path.points[pointID+3];
@@ -145,7 +145,7 @@ public class GeoPathIterator {
      * instruction is not a cubic bezier curve.
      * @return The x coordinate of the second control point. 
      */
-    public float getX3() {
+    public double getX3() {
         final int instruction = this.path.instructions[this.instructionID];
         if (instruction == GeoPathModel.CURVETO)
             return path.points[pointID+4];
@@ -159,7 +159,7 @@ public class GeoPathIterator {
      * instruction is not a cubic bezier curve.
      * @return The y coordinate of the second control point. 
      */
-    public float getY3() {
+    public double getY3() {
         final int instruction = this.path.instructions[this.instructionID];
         if (instruction == GeoPathModel.CURVETO)
             return path.points[pointID+5];

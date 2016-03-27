@@ -89,8 +89,8 @@ public class IllustratorExporter extends VectorGraphicsExporter {
         // lly values are rounded down, and urx and ury values are rounded up.
         final double wWC = this.pageFormat.getPageWidthWorldCoordinates();
         final double hWC = this.pageFormat.getPageHeightWorldCoordinates();
-        final float w = dimToPageRoundedPx((float) wWC);
-        final float h = dimToPageRoundedPx((float) hWC);
+        final double w = dimToPageRoundedPx((float) wWC);
+        final double h = dimToPageRoundedPx((float) hWC);
 
         // %%BoundingBox: llx lly urx ury
         writer.print("%%BoundingBox: ");
@@ -569,10 +569,10 @@ public class IllustratorExporter extends VectorGraphicsExporter {
 
         // remember the last written segment type and the point position.
         int lastSegmentType = UNDEF_SEG_TYPE;
-        float lastMoveToX = 0;
-        float lastMoveToY = 0;
-        float lastEndX = 0;
-        float lastEndY = 0;
+        double lastMoveToX = 0;
+        double lastMoveToY = 0;
+        double lastEndX = 0;
+        double lastEndY = 0;
         // write colors and stroke width if necessary.
         this.writePaintingAttributes(vectorSymbol, writer);
 
@@ -703,7 +703,7 @@ public class IllustratorExporter extends VectorGraphicsExporter {
      * Transforms a pair of coordinate to sheet coordinates, and writes them
      * using the specified operator.
      */
-    private void writeCoordinate(float x, float y, String operator, PrintWriter writer) {
+    private void writeCoordinate(double x, double y, String operator, PrintWriter writer) {
         writeCoordinate(x, y, writer);
         writer.println(operator);
     }
@@ -711,7 +711,7 @@ public class IllustratorExporter extends VectorGraphicsExporter {
     /**
      * Transforms a pair of coordinate to sheet coordinates, and writes them.
      */
-    private void writeCoordinate(float x, float y, PrintWriter writer) {
+    private void writeCoordinate(double x, double y, PrintWriter writer) {
         // apply offset and scale
         x = xToPageRoundedPx(x);
         y = yToPageRoundedPx(y);

@@ -6,7 +6,6 @@ import ika.geo.GeoObject;
 import ika.geo.GeoPath;
 import ika.geo.grid.ImageToGridOperator;
 import ika.gui.ProgressIndicator;
-import ika.gui.SwingWorkerWithProgressIndicator;
 import ika.utils.GeometryUtils;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
@@ -53,11 +52,10 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
     private boolean generateScreeStones;
 
     /**
-     * A copy of the shaded resampled to the stone resolution. The values of
+     * A copy of the shading re-sampled to the stone resolution. The values of
      * this grid will change during the generation of scree stones.
      */
     private GeoGridShort tempResampledShadingGrid;
-    private float minShading, maxShading;
 
     private GeoGridShort tempShadingGridToDither;
     private GeoGridShort tempLinesDensityGridToDither1, tempLinesDensityGridToDither2;
@@ -142,10 +140,7 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
             } else {
                 screeGenerator.p.shadingGradationCurve1.applyToGrid(tempResampledShadingGrid.getGrid());
             }
-            short[] minMax = tempResampledShadingGrid.getMinMax();
-            minShading = minMax[0];
-            maxShading = minMax[1];
-
+            
             tempShadingGridToDither = tempResampledShadingGrid.clone();
 
             resampledShading = screeGenerator.screeData.shadingImage.getResampledCopy(
@@ -261,8 +256,11 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
     //@Override
     public void run() {
 
+        short[] minMax = tempResampledShadingGrid.getMinMax();
+        short minShading = minMax[0];
+        short maxShading = minMax[1];
+
         final int nPolygons = tempPolygonsToFill.size();
-        final double cellSize = tempResampledShadingGrid.getCellSize() / 2;
         final DecimalFormat f = new DecimalFormat("#,###");
 
         if (progress instanceof CmdLineProgress) {
@@ -281,7 +279,6 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
 
             int nItems = screeGenerator.generateScree(screeBB,
                     polygon,
-                    cellSize,
                     tempResampledShadingGrid,
                     minShading, maxShading,
                     tempShadingGridToDither,
@@ -289,7 +286,6 @@ public class ScreeGeneratorManager /*implements Runnable*/ {
                     tempLinesDensityGridToDither2,
                     generateScreeStones);
 
-            //synchronized (progress) {
             // update progress
             sb.delete(0, sb.length());
             sb.append("<html>Filling polygon ");

@@ -19,10 +19,10 @@ public class GeospatialPDFExporter extends PDFExporter {
 
     // Well Known Text format for coordinate reference system
     private String wkt = "";
-    
+
     // geographic coordinates of corner points as lat/lon pairs
     private float[] lonLatCornerPoints = null;
-    
+
     @Override
     public String getFileFormatName() {
         return "Geospatial PDF (Swiss CH1903+ / LV95)";
@@ -30,11 +30,11 @@ public class GeospatialPDFExporter extends PDFExporter {
 
     @Override
     protected void configurePDFWriter(PdfWriter writer) throws IOException {
-        
+
         final boolean initialPrecisionFlat = ByteBuffer.HIGH_PRECISION;
         try {
             ByteBuffer.HIGH_PRECISION = true;
-            
+
             PdfDictionary dicMeasure = new PdfDictionary(new PdfName("Measure"));
             dicMeasure.put(PdfName.SUBTYPE, new PdfName("GEO"));
 
@@ -57,15 +57,15 @@ public class GeospatialPDFExporter extends PDFExporter {
             PdfIndirectObject indObjGCS = writer.addToBody(dicGCS);
             PdfIndirectReference indRefGCS = indObjGCS.getIndirectReference();
             dicMeasure.put(new PdfName("GCS"), indRefGCS);
-            
+
             PdfDictionary viewport = new PdfDictionary(new PdfName("Viewport"));
-            
+
             viewport.put(new PdfName("Name"), new PdfString("Scree"));
-            
-            float left = xToPagePx((float) pageFormat.getPageLeft());
-            float lower = yToPagePx((float) pageFormat.getPageBottom());
-            float right = xToPagePx((float) pageFormat.getPageRight());
-            float upper = yToPagePx((float) pageFormat.getPageTop());
+
+            float left = (float) xToPagePx(pageFormat.getPageLeft());
+            float lower = (float) yToPagePx(pageFormat.getPageBottom());
+            float right = (float) xToPagePx(pageFormat.getPageRight());
+            float upper = (float) yToPagePx(pageFormat.getPageTop());
             viewport.put(new PdfName("BBox"), new PdfRectangle(left, lower, right, upper));
 
             PdfIndirectObject indObjMeasure = writer.addToBody(dicMeasure);
@@ -73,7 +73,7 @@ public class GeospatialPDFExporter extends PDFExporter {
             viewport.put(new PdfName("Measure"), indRefMeasure);
 
             writer.setPageViewport(new PdfArray(viewport));
-          
+
         } finally {
             ByteBuffer.HIGH_PRECISION = initialPrecisionFlat;
         }

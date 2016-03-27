@@ -9,7 +9,7 @@ package ika.geo;
 
 import ika.utils.GeometryUtils;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
+import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -38,7 +38,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
     /**
      * An array containing all points: x1, y1, x2, y2, etc.
      */
-    protected float[] points = new float[0];
+    protected double[] points = new double[0];
     
     /**
      * An array containing MOVETO, LINETO, CURVETO, QUADCURVETO or CLOSE.
@@ -80,7 +80,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
         copy.instructions = instructionsCopy;
         
         final int coordinatesCount = this.points.length;
-        final float[] pointsCopy = new float[coordinatesCount];
+        final double[] pointsCopy = new double[coordinatesCount];
         System.arraycopy(this.points, 0, pointsCopy, 0, coordinatesCount);
         copy.points = pointsCopy;
         
@@ -107,7 +107,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
         if (GeometryUtils.isStraightLine(x1, y1, x2, y2, x3, y3, x4, y4, tol)) {
             // don't add new point if start and end point coincide.
             if (x1 != x4 || y1 != y4)
-                path.lineTo((float)x4, (float)y4);
+                path.lineTo(x4, y4);
         } else {   // divide curve by factor of two
             
             final double hx = t * (x2 + x3);
@@ -167,11 +167,11 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * @param y The horizontal coordinate of the point.
      * @param drawingInstruction The instruction to add.
      */
-    private void add(float x, float y, byte drawingInstruction) {
+    private void add(double x, double y, byte drawingInstruction) {
         
         // add point
         final int coordinatesCount = this.points.length;
-        final float[] newPoints = new float[coordinatesCount + 2];
+        final double[] newPoints = new double[coordinatesCount + 2];
         System.arraycopy(this.points, 0, newPoints, 0, coordinatesCount);
         newPoints[coordinatesCount] = x;
         newPoints[coordinatesCount + 1] = y;
@@ -189,7 +189,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
      */
     private void removePoints(int count) {
         final int coordinatesCount = this.points.length;
-        final float[] newPoints = new float[coordinatesCount - count * 2];
+        final double[] newPoints = new double[coordinatesCount - count * 2];
         System.arraycopy(this.points, 0, newPoints, 0, newPoints.length);
         this.points = newPoints;
         
@@ -202,10 +202,10 @@ public final class GeoPathModel implements Serializable, Cloneable {
      */
     private void includeLastPointInBoundingBox() {
         final int coordinatesCount = points.length;
-        final float x = this.points[coordinatesCount-2];
-        final float y = this.points[coordinatesCount-1];
+        final double x = this.points[coordinatesCount-2];
+        final double y = this.points[coordinatesCount-1];
         if (this.bounds == null) {
-            this.bounds = new Rectangle2D.Float(x, y, 0, 0);
+            this.bounds = new Rectangle2D.Double(x, y, 0, 0);
             return;
         }
         
@@ -225,14 +225,14 @@ public final class GeoPathModel implements Serializable, Cloneable {
             return;
         }
         
-        float minX = points[0];
-        float maxX = points[0];
-        float minY = points[1];
-        float maxY = points[1];
+        double minX = points[0];
+        double maxX = points[0];
+        double minY = points[1];
+        double maxY = points[1];
         
         for (int i = 2; i < coordinatesCount; i+=2) {
-            final float x = points[i];
-            final float y = points[i+1];
+            final double x = points[i];
+            final double y = points[i+1];
             if (x < minX)
                 minX = x;
             else if (x > maxX)
@@ -243,7 +243,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
                 maxY = y;
         }
         
-        this.bounds = new Rectangle2D.Float(minX, minY, maxX - minX, maxY - minY);
+        this.bounds = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
     }
     
     /**
@@ -276,7 +276,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * Removes all currently stored drawing instructions and all points.
      */
     public void reset() {
-        this.points = new float[0];
+        this.points = new double[0];
         this.instructions = new byte[0];
         this.bounds = null;
     }
@@ -297,7 +297,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * @param x The location to move to.
      * @param y The location to move to.
      */
-    public void moveTo(float x, float y) {
+    public void moveTo(double x, double y) {
         final int instructionsCount = this.instructions.length;
         if (instructionsCount > 0 
                 && this.instructions[instructionsCount - 1] == MOVETO) {
@@ -312,7 +312,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * specified location without drawing any line.
      * @param xy An array containing the x and the y coordinate.
      */
-    public void moveTo(float[] xy) {
+    public void moveTo(double[] xy) {
         this.moveTo(xy[0], xy[1]);
     }
     
@@ -323,7 +323,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * @param x The end point of the new line.
      * @param y The end point of the new line.
      */
-    public void lineTo(float x, float y) {
+    public void lineTo(double x, double y) {
         this.add(x, y, LINETO);
     }
     
@@ -333,7 +333,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * sure moveTo is called before lineTo (or quadTo, resp. curveTo).
      * @param xy An array containing the x and the y coordinate.
      */
-    public void lineTo(float[] xy) {
+    public void lineTo(double[] xy) {
         this.add(xy[0], xy[1], LINETO);
     }
     
@@ -344,7 +344,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * @param x The end point of the new line, or the location to move to.
      * @param y The end point of the new line, or the location to move to.
      */
-    public void moveOrLineTo(float x, float y) {
+    public void moveOrLineTo(double x, double y) {
         if (this.points.length == 0)
             this.moveTo(x, y);
         else
@@ -358,10 +358,10 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * @param x2 The location of the end point of the new curve.
      * @param y2 The location of the control point that is not on the curve.
      */
-    public void quadTo(float x1, float y1, float x2, float y2) {
+    public void quadTo(double x1, double y1, double x2, double y2) {
         // add two points
         int coordinatesCount = this.points.length;
-        final float[] expandedPoints = new float[coordinatesCount + 4];
+        final double[] expandedPoints = new double[coordinatesCount + 4];
         System.arraycopy(this.points, 0, expandedPoints, 0, coordinatesCount);
         expandedPoints[coordinatesCount] = x1;
         expandedPoints[++coordinatesCount] = y1;
@@ -386,11 +386,11 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * @param x3 The location of the end point of the new curve.
      * @param y3 The location of the end point of the new curve.
      */
-    public void curveTo(float x1, float y1, float x2, float y2, float x3, float y3) {
+    public void curveTo(double x1, double y1, double x2, double y2, double x3, double y3) {
         
         // add three points
         int coordinatesCount = this.points.length;
-        final float[] expandedPoints = new float[coordinatesCount + 6];
+        final double[] expandedPoints = new double[coordinatesCount + 6];
         System.arraycopy(this.points, 0, expandedPoints, 0, coordinatesCount);
         expandedPoints[coordinatesCount] = x1;
         expandedPoints[++coordinatesCount] = y1;
@@ -465,7 +465,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
     }
     
     public void append(PathIterator pathIterator) {
-        float coords[] = new float [6];
+        double coords[] = new double [6];
         while (!pathIterator.isDone()) {
             switch (pathIterator.currentSegment(coords)) {
                 case PathIterator.SEG_CLOSE:
@@ -534,9 +534,10 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * @return
      */
     public boolean contains(double x, double y) {
-        if (this.bounds.contains(x, y) == false)
+        if (bounds.contains(x, y) == false) {
             return false;
-        return this.toGeneralPath().contains(x, y);
+        }
+        return toPath().contains(x, y);
     }
     
     /**
@@ -546,7 +547,7 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * height may be 0.
      */
     public Rectangle2D getBounds2D() {
-        return this.bounds;
+        return bounds;
     }
     
     /**
@@ -606,8 +607,8 @@ public final class GeoPathModel implements Serializable, Cloneable {
     /**
      * Scale this path by a factor relative to a passed origin.
      * @param scale Scale factor.
-     * @param cx The x coordinate of the point relativ to which the object is scaled.
-     * @param cy The y coordinate of the point relativ to which the object is scaled.
+     * @param cx The x coordinate of the point relative to which the object is scaled.
+     * @param cy The y coordinate of the point relative to which the object is scaled.
      */
     public void scale(double scale, double cx, double cy) {
         final int pointsCount = this.points.length / 2;
@@ -617,10 +618,10 @@ public final class GeoPathModel implements Serializable, Cloneable {
         }
         
         for (int i = 0; i < pointsCount; i++) {
-            final float x = points[2*i];
-            final float y = points[2*i+1];
-            points[2*i] = (float)((x - cx) * scale + cx);
-            points[2*i+1] = (float)((y - cy) * scale + cy);
+            final double x = points[2*i];
+            final double y = points[2*i+1];
+            points[2*i] = (x - cx) * scale + cx;
+            points[2*i+1] = (y - cy) * scale + cy;
         }
         
         this.updateBounds();
@@ -674,45 +675,32 @@ public final class GeoPathModel implements Serializable, Cloneable {
      * Does not work with bezier curves !!! ???
      */
     public double getArea() {
-        return Math.abs(this.getSignedArea());
+        return Math.abs(getSignedArea());
     }
     
-    /**
-     * Converts all bezier lines to straight lines and returns the result in a
-     * new PathModel. Does not change this PathModel.
-     * @param flatness The maximum distance between the smooth bezier curve and
-     * the new straight lines approximating the bezier curve.
-     */
-    public GeoPathModel toFlattenedPath(double flatness) {
-        PathIterator pi = this.toGeneralPath().getPathIterator(null, flatness);
-        GeoPathModel pm = new GeoPathModel();
-        pm.reset(pi);
-        return pm;
-    }
-    
-    public GeneralPath toGeneralPath() {
-        GeneralPath path = new GeneralPath();
-        final int instructionsCount = this.instructions.length;
+    public Path2D.Double toPath() {
+        Path2D.Double path = new Path2D.Double();
+        final int instructionsCount = instructions.length;
         int ptID = 0;
         for (int i = 0; i < instructionsCount; i++) {
-            switch (this.instructions[i]) {
+            switch (instructions[i]) {
                 case MOVETO:
-                    path.moveTo(this.points[ptID++], this.points[ptID++]);
+                    path.moveTo(points[ptID++], points[ptID++]);
                     break;
                 case LINETO:
-                    path.lineTo(this.points[ptID++], this.points[ptID++]);
+                    path.lineTo(points[ptID++], points[ptID++]);
                     break;
                 case CLOSE:
                     path.closePath();
                     break;
                 case QUADCURVETO:
-                    path.quadTo(this.points[ptID++], this.points[ptID++],
-                            this.points[ptID++], this.points[ptID++]);
+                    path.quadTo(points[ptID++], points[ptID++],
+                            points[ptID++], points[ptID++]);
                     break;
                 case CURVETO:
-                    path.curveTo(this.points[ptID++], this.points[ptID++],
-                            this.points[ptID++], this.points[ptID++], 
-                            this.points[ptID++], this.points[ptID++]);
+                    path.curveTo(points[ptID++], points[ptID++],
+                            points[ptID++], points[ptID++], 
+                            points[ptID++], points[ptID++]);
                     break;
             }
         }
@@ -720,11 +708,11 @@ public final class GeoPathModel implements Serializable, Cloneable {
     }
     
     PathIterator toPathIterator(AffineTransform affineTransform) {
-        return this.toGeneralPath().getPathIterator(affineTransform);
+        return toPath().getPathIterator(affineTransform);
     }
     
     PathIterator toPathIterator(AffineTransform affineTransform, double flatness) {
-        return this.toGeneralPath().getPathIterator(affineTransform, flatness);
+        return toPath().getPathIterator(affineTransform, flatness);
     }
     
     @Override

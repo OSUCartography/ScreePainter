@@ -5,7 +5,7 @@ import ika.geo.grid.GridFalllineOperator;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.Raster;
@@ -19,6 +19,14 @@ public class ScreeGenerator {
 
     public ScreeData screeData = new ScreeData();
     public ScreeParameters p = new ScreeParameters();
+
+    /**
+     * Polygons are converted to raster to accelerate frequent point-in-polygon
+     * tests. The resolution of the raster to for this test is
+     * POINT_IN_POLOGYON_TOLERANCE times higher than the resolution of the grid
+     * to dither.
+     */
+    private final static double POINT_IN_POLOGYON_TOLERANCE = 10d;
 
     /**
      * A stone with a position, radius and the corners.
@@ -40,8 +48,7 @@ public class ScreeGenerator {
         /**
          * geometry of stone
          */
-        public GeneralPath path;
-        //private Path2D.Float path;
+        public Path2D.Double path;
         /**
          * cached bounding box for accelerating drawing
          */
@@ -50,12 +57,13 @@ public class ScreeGenerator {
         public Stone(double x, double y, double r) {
             this.x = x;
             this.y = y;
-            this.setR(r);
-            this.setSelectable(false);
+            setR(r);
+            setSelectable(false);
         }
 
         /**
          * Converts this stone to a GeoPath object
+         *
          * @return
          */
         public GeoPath toGeoPath() {
@@ -70,11 +78,12 @@ public class ScreeGenerator {
 
         /**
          * Set the geometry of the stone
+         *
          * @param corners x1, y1, x2, y2, etc.
          */
-        public void setCorners(float[] corners) {
+        public void setCorners(double[] corners) {
             // update path for drawing
-            this.path = new GeneralPath();
+            path = new Path2D.Double();
             path.moveTo(corners[0], corners[1]);
             final int cornerscount = corners.length / 2;
             for (int i = 1; i < cornerscount; i++) {
@@ -84,6 +93,7 @@ public class ScreeGenerator {
 
         /**
          * set mean radius of stone
+         *
          * @param r
          */
         public void setR(double r) {
@@ -94,6 +104,7 @@ public class ScreeGenerator {
 
         /**
          * returns a bounding box
+         *
          * @param scale
          * @return
          */
@@ -104,6 +115,7 @@ public class ScreeGenerator {
 
         /**
          * draw this object in a map
+         *
          * @param rp
          */
         @Override
@@ -141,13 +153,11 @@ public class ScreeGenerator {
     }
     public static final VectorSymbol GULLIES_VECTOR_SYMBOL;
 
-
     static {
         GULLIES_VECTOR_SYMBOL = new VectorSymbol(null, Color.DARK_GRAY, 2);
         GULLIES_VECTOR_SYMBOL.setScaleInvariant(true);
     }
     public static final VectorSymbol SCREE_POLYGON_VECTOR_SYMBOL;
-
 
     static {
         SCREE_POLYGON_VECTOR_SYMBOL = new VectorSymbol(null, Color.RED, 1);
@@ -157,18 +167,17 @@ public class ScreeGenerator {
     }
     public static final VectorSymbol STONE_SYMBOL = new VectorSymbol(Color.BLACK, null, 0);
     /**
-     * A PointRaster object is used to find dots that are too close to each other.
-     * The cell size of this raster grid is
-     * p.stoneMaxDiameter / REL_POINT_RASTER_RESOLUTION;
+     * A PointRaster object is used to find dots that are too close to each
+     * other. The cell size of this raster grid is p.stoneMaxDiameter /
+     * REL_POINT_RASTER_RESOLUTION;
      */
     private static final int REL_POINT_RASTER_RESOLUTION = 20;
     /**
-     * Search resolution is
-     * d = screeGenerator.p.lineMinDistance / REL_GULLIES_SEARCH_RESOLUTION.
-     * The shading is resampled to cell size d and then dithered to find
-     * start points for searching gully lines. d is also the relative cell
-     * size of a grid used to identify gully lines that are
-     * getting too close to each other.
+     * Search resolution is d = screeGenerator.p.lineMinDistance /
+     * REL_GULLIES_SEARCH_RESOLUTION. The shading is resampled to cell size d
+     * and then dithered to find start points for searching gully lines. d is
+     * also the relative cell size of a grid used to identify gully lines that
+     * are getting too close to each other.
      */
     protected static double REL_GULLIES_SEARCH_RESOLUTION = 3;
 
@@ -183,20 +192,23 @@ public class ScreeGenerator {
 
     /**
      * Fills a single polygon with scree.
-     * @param screeBB A clipping rectangle: only generate stones inside this
+     *
+     * @param screeBB a clipping rectangle: only generate stones inside this
      * rectangle. Can be null.
-     * @param screePolygon
-     * @param cellSize
-     * @param shadingGrid
-     * @param screeStones The destination for new stones. If null, only scree
-     * lines are generated.
-     * @param screeLinesGeoSet
-     * @param extractScreeLines
+     * @param screePolygon the polygon to fill with scree stones
+     * @param shadingGrid grid to control the radius of scree dots.
+     * @param minShading the smallest value in shadingGrid
+     * @param maxShading the largest value in shadingGrid
+     * @param tempShadingGridToDither apply Floyd-Steinberg dithering to this
+     * grid. This grid will be changed by this method
+     * @param tempLinesDensityGridToDither1
+     * @param tempLinesDensityGridToDither2
+     * @param generateScreeStones if true polygons are filled with scree stones,
+     * otherwise only gully lines are created.
      * @return The number of generated stones or lines if screeStones is null.
      */
     public int generateScree(Rectangle2D screeBB,
             GeoPath screePolygon,
-            final double cellSize,
             GeoGridShort shadingGrid,
             float minShading, float maxShading,
             GeoGridShort tempShadingGridToDither,
@@ -211,7 +223,7 @@ public class ScreeGenerator {
 
         // convert the polygon to fill to a FastContainsGeoPath
         FastContainsGeoPath fastContainsGeoPath = new FastContainsGeoPath(screePolygon);
-        fastContainsGeoPath.initContainsTest(cellSize);
+        fastContainsGeoPath.initContainsTest(shadingGrid.getCellSize() / POINT_IN_POLOGYON_TOLERANCE);
 
         // extract gully lines for the polygon
         ArrayList<GeoPath> screeLines;
@@ -252,6 +264,7 @@ public class ScreeGenerator {
 
     /**
      * Finds gully lines inside a polygon.
+     *
      * @param polygon The polygon to fill with gully lines
      * @param binGrid A grid image containing other rasterized gully lines.
      * @return An array with the found gully lines.
@@ -281,7 +294,8 @@ public class ScreeGenerator {
 
             fallLineOp.setStart(x, y);
             GridFalllineOperator.WeightedGeoPath line;
-            line = fallLineOp.operate(screeData.dem, binGrid, polygon, screeData.curvatureGrid, p.lineMinCurvature, null);
+            line = fallLineOp.operate(screeData.dem, binGrid, polygon,
+                    screeData.curvatureGrid, p.lineMinCurvature, null);
 
             // compute the mean curvature along the line by dividing the total
             // curvature by the length of the line.
@@ -299,6 +313,7 @@ public class ScreeGenerator {
 
     /**
      * Order an array of WeightedGeoPath by decreasing weight.
+     *
      * @param lines The paths to sort.
      */
     private static void sort(ArrayList<GridFalllineOperator.WeightedGeoPath> lines) {
@@ -318,7 +333,7 @@ public class ScreeGenerator {
     }
 
     /**
-     * 
+     *
      * @param allScreeLines
      * @param fastContainsGeoPath
      * @return
@@ -355,6 +370,7 @@ public class ScreeGenerator {
 
     /**
      * Extract gully lines for a polygon.
+     *
      * @param polygonToFill The polygon that delimits the scree area to fill.
      * @return The found lines.
      */
@@ -385,10 +401,10 @@ public class ScreeGenerator {
         VectorSymbol singleWidthSymbol = new VectorSymbol(null, Color.BLACK, (float) p.lineMinDistance);
 
         // find full length lines
-        ArrayList<GridFalllineOperator.WeightedGeoPath> weightedLines =
-                this.findGullyLines(polygonToFill,
-                null,
-                tempLinesDensityGridToDither1);
+        ArrayList<GridFalllineOperator.WeightedGeoPath> weightedLines
+                = this.findGullyLines(polygonToFill,
+                        null,
+                        tempLinesDensityGridToDither1);
 
         // sort lines by curvature weight
         ScreeGenerator.sort(weightedLines);
@@ -515,9 +531,10 @@ public class ScreeGenerator {
 
     /**
      * Fills a polygon with scree.
+     *
      * @param polygonToFill GeoPath to fill with scree.
      * @param gullyLines Place stones along these lines.
-     * @param shadingGrid
+     * @param shadingGrid grid to control the radius of scree dots.
      * @param screeBB
      * @return A set of stones for the passed polygonToFill
      */
@@ -554,8 +571,8 @@ public class ScreeGenerator {
             GeoPathIterator iter = line.getIterator();
             double meanR = 0;
             do {
-                float x = iter.getX();
-                float y = iter.getY();
+                double x = iter.getX();
+                double y = iter.getY();
                 meanR += modulatedStoneRadius(x, y, stoneMaxR,
                         shadingGrid, minShading, maxShading);
             } while (iter.next());
@@ -606,7 +623,8 @@ public class ScreeGenerator {
 
         // fill the polygon with randomly placed stones using Floyd-Steinberg
         // error diffusion dithering.
-        this.ditherFillPolygon(polygonToFill, stones, tempShadingGridToDither, screeBB, pointRaster, shadingGrid, minShading, maxShading);
+        ditherFillPolygon(polygonToFill, stones, tempShadingGridToDither,
+                screeBB, pointRaster, shadingGrid, minShading, maxShading);
 
         // generate stones
         GeoSet stonesGeoSet = new GeoSet();
@@ -616,25 +634,24 @@ public class ScreeGenerator {
         }
 
         return stonesGeoSet;
-
     }
 
     /**
-     * Tests whether a stone with a given radius conflicts with an obstacle, i.e.
-     * the stone touches a cell that is not white in the obstaclesMaskImage.
-     * The stone is treated as a regular circle.
+     * Tests whether a stone with a given radius conflicts with an obstacle,
+     * i.e. the stone touches a cell that is not white in the
+     * obstaclesMaskImage. The stone is treated as a regular circle.
+     *
      * @param x Center of the stone.
      * @param y Center of the stone.
      * @param radius Radius of the stone in world coordinates [m].
-     * @return True if the stone touches a cell in obstaclesMaskImage that is not white.
+     * @return True if the stone touches a cell in obstaclesMaskImage that is
+     * not white.
      */
     private boolean isStoneOnObstacle(double x, double y, double radius) {
 
         // This uses normalized dem coordinates that are relative to the
         // top-left corner: y is downwards, one cell has a length of 1.
         // Variables in the normalized dem coordinates are marked with "_".
-
-
         // compute the cell size of the dem in normalized dem coordinates
         final double inverseCellSize_ = 1. / this.screeData.obstaclesMaskImage.getCellSize();
 
@@ -689,6 +706,7 @@ public class ScreeGenerator {
      * Returns the a pseudorandom value from a bell-shaped distribution with
      * mean {@code 0.0}. The standard deviation is not {@code 1.0}, but values
      * are clamped to the range between 0 and 1 (all positivie).
+     *
      * @param random A random number generator.
      * @return A pseudorandom value between 0 and 1 with a bell distribution.
      */
@@ -705,11 +723,12 @@ public class ScreeGenerator {
     }
 
     /**
-     * Fills a polygon with randomly placed stones using Floyd-Steinberg error 
+     * Fills a polygon with randomly placed stones using Floyd-Steinberg error
      * diffusion dithering.
+     *
      * @param screePolygon The polygon to fill with stones.
      * @param stones Store new stones in this array.
-     * @param shadingGrid Density of stones: black more stones, white less stones.
+     * @param shadingGrid grid to control the radius of scree dots.
      */
     private void ditherFillPolygon(GeoPath screePolygon,
             ArrayList<Stone> stones,
@@ -749,7 +768,7 @@ public class ScreeGenerator {
                     continue;
                 }
 
-                // make sure the stone is inisde the area of interest
+                // make sure the stone is inside the area of interest
                 if (screeBB != null && !screeBB.contains(x, y)) {
                     continue;
                 }
@@ -764,6 +783,11 @@ public class ScreeGenerator {
                     // test whether the new stone would overlay any obstacle
                     // this test is not taking the variation of the stone radius into acount
                     if (isStoneOnObstacle(stoneX, stoneY, maxStoneRadius + minObstacleDist)) {
+                        continue;
+                    }
+
+                    // make sure the jittered stone center is still inside the polygon
+                    if (!screePolygon.contains(stoneX, stoneY)) {
                         continue;
                     }
 
@@ -804,7 +828,8 @@ public class ScreeGenerator {
                         double r = maxStoneRadius * rScale;
                         // adjust the radius of the stone to the brightness of the shading
                         r = this.modulatedStoneRadius(stoneX, stoneY, r, shadingGrid, minShading, maxShading);
-                        if (isStoneOnObstacle(stoneX, stoneY, r + minObstacleDist) || pointRaster.isCircleOverlaying(stoneX, stoneY, r + minStoneDist)) {
+                        if (isStoneOnObstacle(stoneX, stoneY, r + minObstacleDist)
+                                || pointRaster.isCircleOverlaying(stoneX, stoneY, r + minStoneDist)) {
                             continue;
                         }
                         stones.add(new Stone(stoneX, stoneY, r));
@@ -815,24 +840,23 @@ public class ScreeGenerator {
                         dif = shade - 255;
                     }
 
-                    
                     // Floyd Steinberg error diffusion dithering
                     // right
                     float v = ditherGrid.getValue(shadeCol + inc, shadeRow);
-                    ditherGrid.setValue((short)(v + dif * A), shadeCol + inc, shadeRow);
+                    ditherGrid.setValue((short) (v + dif * A), shadeCol + inc, shadeRow);
 
                     // left bottom
                     v = ditherGrid.getValue(shadeCol - inc, shadeRow + 1);
-                    ditherGrid.setValue((short)(v + dif * B), shadeCol - inc, shadeRow + 1);
+                    ditherGrid.setValue((short) (v + dif * B), shadeCol - inc, shadeRow + 1);
 
                     // center bottom
                     v = ditherGrid.getValue(shadeCol, shadeRow + 1);
-                    ditherGrid.setValue((short)(v + dif * C), shadeCol, shadeRow + 1);
+                    ditherGrid.setValue((short) (v + dif * C), shadeCol, shadeRow + 1);
 
                     // right bottom
                     v = ditherGrid.getValue(shadeCol + inc, shadeRow + 1);
-                    ditherGrid.setValue((short)(v + dif * D), shadeCol + inc, shadeRow + 1);
-                    
+                    ditherGrid.setValue((short) (v + dif * D), shadeCol + inc, shadeRow + 1);
+
                     /*
                     // Atkinson dithering
                     // Atkinson dithering doesn't diffuse the entire quantization
@@ -868,8 +892,7 @@ public class ScreeGenerator {
                         v = ditherGrid.getValue(shadeCol, shadeRow + 2);
                         ditherGrid.setValue((short)(v + dif_8), shadeCol, shadeRow + 2);
                     }
-                    */
-
+                     */
                     break;
                 }
             }
@@ -914,19 +937,19 @@ public class ScreeGenerator {
                     // Floyd Steinberg error diffusion dithering
                     // right
                     float v = shading.getValue(shadeCol + inc, shadeRow);
-                    shading.setValue((short)(v + dif * A), shadeCol + inc, shadeRow);
+                    shading.setValue((short) (v + dif * A), shadeCol + inc, shadeRow);
 
                     // left bottom
                     v = shading.getValue(shadeCol - inc, shadeRow + 1);
-                    shading.setValue((short)(v + dif * B), shadeCol - inc, shadeRow + 1);
+                    shading.setValue((short) (v + dif * B), shadeCol - inc, shadeRow + 1);
 
                     // center bottom
                     v = shading.getValue(shadeCol, shadeRow + 1);
-                    shading.setValue((short)(v + dif * C), shadeCol, shadeRow + 1);
+                    shading.setValue((short) (v + dif * C), shadeCol, shadeRow + 1);
 
                     // right bottom
                     v = shading.getValue(shadeCol + inc, shadeRow + 1);
-                    shading.setValue((short)(v + dif * D), shadeCol + inc, shadeRow + 1);
+                    shading.setValue((short) (v + dif * D), shadeCol + inc, shadeRow + 1);
                 }
 
                 x += dist;
@@ -956,10 +979,7 @@ public class ScreeGenerator {
 
     private GeoObject generateStone(Stone stone, Random random) {
 
-        double cx = stone.x;
-        double cy = stone.y;
-
-        if (Double.isNaN(cx) || Double.isNaN(cy) || Double.isNaN(stone.r)) {
+        if (Double.isNaN(stone.x) || Double.isNaN(stone.y) || Double.isNaN(stone.r)) {
             return null;
         }
 
@@ -970,26 +990,22 @@ public class ScreeGenerator {
         r *= 1 + radiusVariance;
         stone.setR(r);
 
-        // the number of corners of the rock
+        // the number of corners of the stone
         int nbrCorners = (int) Math.round(p.stoneMinCornerCount + (p.stoneMaxCornerCount - p.stoneMinCornerCount) * random.nextDouble());
-        float corners[] = new float[nbrCorners * 2];
+        double corners[] = new double[nbrCorners * 2];
 
         // the angle between two neighboring corners measured from the center
         final double angleIncrement = Math.PI * 2 / nbrCorners;
-        final float fx = (float) cx;
-        final float fy = (float) cy;
         double currAngle = Math.PI * random.nextDouble();
 
         for (int i = 0; i < nbrCorners; i++) {
-            final double angleVariance = p.stoneAngleVariabilityPerc / 100. * random.nextDouble();
-            final double angle = currAngle + angleIncrement * angleVariance;
+            double angleVariance = p.stoneAngleVariabilityPerc / 100. * random.nextDouble();
+            double angle = currAngle + angleIncrement * angleVariance;
             currAngle += angleIncrement;
-
-            final float cornerX = (float) (r * Math.cos(angle));
-            final float cornerY = (float) (r * Math.sin(angle));
-
-            corners[i * 2] = cornerX + fx;
-            corners[i * 2 + 1] = cornerY + fy;
+            double cornerX = r * Math.cos(angle);
+            double cornerY = r * Math.sin(angle);
+            corners[i * 2] = cornerX + stone.x;
+            corners[i * 2 + 1] = cornerY + stone.y;
         }
         stone.setCorners(corners); // this will update the path for drawing
         return stone;

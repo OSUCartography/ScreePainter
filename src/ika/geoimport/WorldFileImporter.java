@@ -130,8 +130,8 @@ public class WorldFileImporter {
 
             geoImage.setCellSize(pixelSizeHorizontal);
 
-            geoImage.setWest(west);
-            geoImage.setNorth(north);
+            geoImage.setWest(west - pixelSizeHorizontal / 2);
+            geoImage.setNorth(north - pixelSizeVertical / 2);
         } finally {
             if (in != null) {
                 try {

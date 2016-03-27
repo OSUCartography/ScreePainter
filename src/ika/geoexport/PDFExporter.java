@@ -90,11 +90,11 @@ public class PDFExporter extends VectorGraphicsExporter {
                 document.addKeywords(documentKeyWords);
             }
 
-            final double wWC = this.pageFormat.getPageWidthWorldCoordinates();
-            final double hWC = this.pageFormat.getPageHeightWorldCoordinates();
-            final float w = this.dimToPagePx((float) wWC);
-            final float h = this.dimToPagePx((float) hWC);
-            Rectangle pdfBounds = new Rectangle(w, h);
+            final double wWC = pageFormat.getPageWidthWorldCoordinates();
+            final double hWC = pageFormat.getPageHeightWorldCoordinates();
+            final double w = dimToPagePx(wWC);
+            final double h = dimToPagePx(hWC);
+            Rectangle pdfBounds = new Rectangle((float)w, (float)h);
             document.setPageSize(pdfBounds);
             document.setMargins(0, 0, 0, 0);
 
@@ -351,35 +351,35 @@ public class PDFExporter extends VectorGraphicsExporter {
             switch (type) {
                 case GeoPathModel.CLOSE:
                     cb.closePath();
-                    this.writeFillStroke(vectorSymbol, true, cb); // !!! ??? needed?
+                    writeFillStroke(vectorSymbol, true, cb); // !!! ??? needed?
                     break;
 
                 case GeoPathModel.MOVETO:
-                    this.writeFillStroke(vectorSymbol, false, cb);// !!! ??? needed?
+                    writeFillStroke(vectorSymbol, false, cb);// !!! ??? needed?
                     // start defintion of new path
-                    cb.moveTo(this.xToPagePx(iterator.getX()),
-                            this.yToPagePx(iterator.getY()));
+                    cb.moveTo((float)xToPagePx(iterator.getX()),
+                            (float)yToPagePx(iterator.getY()));
                     break;
 
                 case GeoPathModel.LINETO:
-                    cb.lineTo(this.xToPagePx(iterator.getX()),
-                            this.yToPagePx(iterator.getY()));
+                    cb.lineTo((float)xToPagePx(iterator.getX()),
+                            (float)yToPagePx(iterator.getY()));
                     break;
 
                 case GeoPathModel.QUADCURVETO:
-                    cb.curveTo(this.xToPagePx(iterator.getX()),
-                            this.yToPagePx(iterator.getY()),
-                            this.xToPagePx(iterator.getX2()),
-                            this.yToPagePx(iterator.getY2()));
+                    cb.curveTo((float)xToPagePx(iterator.getX()),
+                            (float)yToPagePx(iterator.getY()),
+                            (float)xToPagePx(iterator.getX2()),
+                            (float)yToPagePx(iterator.getY2()));
                     break;
 
                 case GeoPathModel.CURVETO:
-                    cb.curveTo(this.xToPagePx(iterator.getX()),
-                            this.yToPagePx(iterator.getY()),
-                            this.xToPagePx(iterator.getX2()),
-                            this.yToPagePx(iterator.getY2()),
-                            this.xToPagePx(iterator.getX3()),
-                            this.yToPagePx(iterator.getY3()));
+                    cb.curveTo((float)xToPagePx(iterator.getX()),
+                            (float)yToPagePx(iterator.getY()),
+                            (float)xToPagePx(iterator.getX2()),
+                            (float)yToPagePx(iterator.getY2()),
+                            (float)xToPagePx(iterator.getX3()),
+                            (float)yToPagePx(iterator.getY3()));
                     break;
             }
             lastSegmentType = type;
@@ -479,9 +479,9 @@ public class PDFExporter extends VectorGraphicsExporter {
      * axis is oriented upwards in PDF.
      */
     @Override
-    protected float yToPage(float y) {
+    protected double yToPage(double y) {
         final double mapScale = this.pageFormat.getPageScale();
         final double south = this.pageFormat.getPageBottom();
-        return (float) ((y - south) / mapScale);
+        return (y - south) / mapScale;
     }
 }
