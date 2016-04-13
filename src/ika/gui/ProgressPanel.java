@@ -17,7 +17,7 @@ import javax.swing.SwingUtilities;
  */
 public class ProgressPanel extends javax.swing.JPanel {
 
-    /**
+     /**
      * Dialogs created to show the progress information will have this name. This
      * can be used to identify progress dialogs using getName().
      */
@@ -109,7 +109,6 @@ public class ProgressPanel extends javax.swing.JPanel {
     public void start() {
         assert (SwingUtilities.isEventDispatchThread());
         progressBar.setValue(0);
-        cancelButton.setEnabled(true);
         progressBar.setIndeterminate(false);
     }
 

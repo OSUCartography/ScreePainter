@@ -327,11 +327,10 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
     @Override
     public void nextTask() {
         synchronized (this) {
-            ++this.currentTask;
-            if (this.currentTask > this.totalTasksCount) {
-                this.totalTasksCount = this.currentTask;
+            if (currentTask + 1 <= totalTasksCount) {
+                ++currentTask;
             }
-
+            
             // set progress to 0 for the new task, otherwise the progress bar would
             // jump to the end of this new task and jump back when setProgress(0)
             // is called
@@ -340,8 +339,8 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
     }
 
     public void nextTask (String message) {
-        this.nextTask();
-        this.setMessage(message);
+        nextTask();
+        setMessage(message);
     }
 
     /**
@@ -351,19 +350,19 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
     @Override
     public int currentTask() {
         synchronized (this) {
-            return this.currentTask;
+            return currentTask;
         }
     }
 
     public boolean isIndeterminate() {
         synchronized (this) {
-            return this.indeterminate;
+            return indeterminate;
         }
     }
 
-    public void setIndeterminate(boolean indet) {
+    public void setIndeterminate(boolean indeterminate) {
         synchronized (this) {
-            this.indeterminate = indet;
+            this.indeterminate = indeterminate;
         }
         SwingUtilities.invokeLater(new Runnable() {
 

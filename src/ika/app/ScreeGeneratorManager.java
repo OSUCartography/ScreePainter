@@ -68,6 +68,9 @@ public class ScreeGeneratorManager {
             // Resample shading to resolution of scree stones, used for placing
             // stones with a Floyd-Steinberg diffuse dithering algorithm.
             // The values in tempResampledShadingGrid will be changed when dithering.
+            if (progress != null) {
+                progress.setMessage("Resampling shaded relief for scree generation...");
+            }
             double cellSize = screeGenerator.p.stoneMaxDiameter;
             GeoImage resampledShading = screeGenerator.screeData.shadingImage.getResampledCopy(
                     cellSize,
@@ -87,6 +90,9 @@ public class ScreeGeneratorManager {
 
             GeoGridShort tempShadingGridToDither = tempResampledShadingGrid.clone();
 
+            if (progress != null) {
+                progress.setMessage("Resampling shaded relief for gully lines generation...");
+            }
             resampledShading = screeGenerator.screeData.shadingImage.getResampledCopy(
                     screeGenerator.getGullyGridCellsize(),
                     RenderingHints.VALUE_INTERPOLATION_BICUBIC,
