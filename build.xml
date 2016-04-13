@@ -30,7 +30,7 @@
             <option value="-Dcom.apple.macos.useScreenMenuBar=true"/>
             <option value="-Dapple.awt.application.name=Scree Painter"/>
             <option value="-Xms64m"/>
-            <option value="-Xmx3500m"/>
+            <option value="-Xmx4500m"/>
             
             <classpath file="${dist.jar}" />
             <classpath file="./lib/itextpdf-5.4.0.jar"/>

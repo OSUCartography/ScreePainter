@@ -8,15 +8,8 @@ package ika.gui;
 import ika.app.ScreeData;
 import ika.app.ScreeDataFilePaths;
 import ika.app.ScreeDataLoader;
-import ika.app.ScreeGenerator;
-import ika.geo.GeoImage;
-import ika.geo.GeoObject;
 import ika.geo.GeoSet;
 import ika.geo.MapEventTrigger;
-import ika.geo.grid.GridPlanCurvatureOperator;
-import ika.geoimport.ESRIASCIIGridReader;
-import ika.geoimport.GeoImporter;
-import ika.geoimport.ImageImporter;
 import ika.utils.ErrorDialog;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -219,7 +212,7 @@ public class ScreeDataPanel extends javax.swing.JPanel {
         }
 
         final ScreeWindow frame = (ScreeWindow) ika.gui.GUIUtil.getOwnerFrame(this);
-        SwingWorkerWithProgressIndicatorOld worker = new SwingWorkerWithProgressIndicatorOld(
+        SwingWorkerWithProgressIndicator worker = new SwingWorkerWithProgressIndicator(
                 frame, "Scree Painter Data Import", "", true) {
 
             String errorMsg = "The file could not be imported.";

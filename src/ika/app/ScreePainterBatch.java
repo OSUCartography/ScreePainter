@@ -21,9 +21,42 @@ import java.io.IOException;
  */
 public class ScreePainterBatch {
 
+    /**
+     * Main entry point for the batch process.
+     *
+     * @param args command line arguments.
+     */
+    public static void main(String args[]) {
+        CommandLineArguments commandLineArguments = null;
+        try {
+            System.out.println("Scree Painter " + ApplicationInfo.getApplicationVersion());
+            commandLineArguments = ScreePainterBatch.parseCommandLine(args);
+            ScreePainterBatch.runBatch(commandLineArguments);
+            System.exit(0);
+        } catch (Throwable ex) {
+            String msg = "An error occured. Scree could not be generated completely.";
+            if (ex instanceof java.lang.OutOfMemoryError) {
+                msg += "\nThere is not enough memory available.";
+                msg += "\nTry adjusting memory with -Xmx";
+            }
+            System.err.println(msg);
+
+            if (commandLineArguments != null && commandLineArguments.verbose) {
+                ex.printStackTrace();
+            }
+            System.exit(-1);
+        }
+    }
+
+    /**
+     * Hidden constructor.
+     */
     private ScreePainterBatch() {
     }
 
+    /**
+     * Print usage information to the system output stream.
+     */
     private static void printUsage() {
         System.out.println(
                 "Usage: ScreePainter parameters shading dem scree_polygons obstacles_mask output_file west south width height scale [large_stones_mask] [gradation_mask] [gullyLines] [reference_image]\n"
@@ -46,6 +79,12 @@ public class ScreePainterBatch {
         );
     }
 
+    /**
+     * Tests whether a file exists and exists if the file does not exist.
+     *
+     * @param filePath a path to the file to test
+     * @param info the command line name that is associated with this file
+     */
     private static void exitIfFileDoesNotExist(String filePath, String info) {
         if (filePath == null) {
             System.err.println("Missing command line argument '" + info
@@ -60,6 +99,15 @@ public class ScreePainterBatch {
         }
     }
 
+    /**
+     * Parses command line arguments, tests validity and completeness of
+     * arguments, and exists the process if not all required arguments are
+     * provided. Displays error messages to the standard output stream if the
+     * program cannot run.
+     *
+     * @param args the command line arguments to parse.
+     * @return the parsed command line arguments.
+     */
     public static CommandLineArguments parseCommandLine(String args[]) {
         /*
         This uses JArgs, a GNU getopt-style command-line argument parser
@@ -191,114 +239,107 @@ public class ScreePainterBatch {
         return cmd;
     }
 
-    public static void runBatch(CommandLineArguments commandLineArguments) {
-        try {
-            ScreeGenerator screeGenerator = new ScreeGenerator();
-            CmdLineProgress prog = new CmdLineProgress();
-            ScreeDataLoader loader = new ScreeDataLoader(
-                    commandLineArguments.dataFilePaths, screeGenerator.screeData);
+    /**
+     * Main Scree Painter batch mode process. Loads settings and data files,
+     * creates scree stones, and saves created scree stones to an output file.
+     *
+     * @param commandLineArguments command line arguments
+     * @throws IOException
+     */
+    public static void runBatch(CommandLineArguments commandLineArguments)
+            throws IOException {
+        ScreeGenerator screeGenerator = new ScreeGenerator();
+        CmdLineProgress prog = new CmdLineProgress();
+        ScreeDataLoader loader = new ScreeDataLoader(
+                commandLineArguments.dataFilePaths, screeGenerator.screeData);
 
-            // load required data
-            loader.loadDEM(prog);
+        // load required data
+        loader.loadDEM(prog);
+        prog.complete();
+        loader.loadShading(prog);
+        prog.complete();
+        loader.loadObstaclesMask(prog);
+        prog.complete();
+        loader.loadScreePolygons(prog);
+        prog.complete();
+
+        // load optional data
+        if (commandLineArguments.dataFilePaths.isLargeStonesFilePathValid()) {
+            loader.loadLargeStonesMask(prog);
             prog.complete();
-            loader.loadShading(prog);
-            prog.complete();
-            loader.loadObstaclesMask(prog);
-            prog.complete();
-            loader.loadScreePolygons(prog);
-            prog.complete();
-
-            // load optional data
-            if (commandLineArguments.dataFilePaths.isLargeStonesFilePathValid()) {
-                loader.loadLargeStonesMask(prog);
-                prog.complete();
-            }
-            if (commandLineArguments.dataFilePaths.isGradationMaskFilePathValid()) {
-                loader.loadGradationMask(prog);
-                prog.complete();
-            }
-            if (commandLineArguments.dataFilePaths.isGullyLinesFilePath()) {
-                loader.loadGullyLines(prog);
-                prog.complete();
-            }
-
-            // load parameters file
-            System.out.println("Loading parameters file");
-            File f = new File(commandLineArguments.parametersFilePath);
-            screeGenerator.p.fromString(new String(FileUtils.getBytesFromFile(f)));
-
-            // generate scree
-            System.out.println("Starting scree generation");
-            ScreeGeneratorManager manager = new ScreeGeneratorManager();
-            manager.generateScree(screeGenerator, null, prog, true);
-            System.out.format("Generated %,d scree stones.%n", manager.nbrGeneratedScreeStones());
-
-            // release memory; needed are only the scree stones to export
-            GeoSet screeStones = screeGenerator.screeData.screeStones;
-            screeGenerator = null;
-
-            System.out.format("Saving to file at %s%n", commandLineArguments.outputFilePath);
-            
-            // export scree
-            GeoSetExporter exporter = GeoExportGUI.getExporterByName(commandLineArguments.outputFormat);
-            if (exporter == null) {
-                throw new IOException("Unknown format " + commandLineArguments.outputFormat);
-            }
-
-            // setup format of map
-            PageFormat pageFormat = new PageFormat();
-            pageFormat.setPageScale(commandLineArguments.scale);
-            pageFormat.setPageLeft(commandLineArguments.west);
-            pageFormat.setPageBottom(commandLineArguments.south);
-            pageFormat.setPageHeightWorldCoordinates(commandLineArguments.height);
-            pageFormat.setPageWidthWorldCoordinates(commandLineArguments.width);
-            if (exporter instanceof VectorGraphicsExporter) {
-                ((VectorGraphicsExporter) exporter).setPageFormat(pageFormat);
-            }
-            
-            // configure Esri shapefile exporter
-            if (exporter instanceof ShapeExporter) {
-                ((ShapeExporter) exporter).setShapeType(ShapeGeometryExporter.POLYGON_SHAPE_TYPE);
-            }
-
-            // configure Swiss LV95 coordinate system
-            if (exporter instanceof GeospatialPDFExporter) {
-                GeospatialPDFExporter geospatialPDFExporter = (GeospatialPDFExporter) exporter;
-                geospatialPDFExporter.setWKT(SwissLV95GeospatialPDFExport.wkt);
-                float[] corners = SwissLV95GeospatialPDFExport.lonLatCornerPoints(pageFormat);
-                if (corners == null) {
-                    throw new Exception("Cannot initialize Swiss LV95 Coordinate System");
-                }
-                geospatialPDFExporter.setLonLatCornerPoints(corners);
-            }
-
-            // screeGenerator.screeData.screeStones contains ScreeGenerator.Stone,
-            // a class that derives from GeoObject but is not usually supported by
-            // exporters. The stones could be converted to GeoPaths using
-            // stone.toGeoPath, however, this would multiply the amount of memory
-            // required to store the graphics. The exporters have therefore each
-            // been hacked to call stone.toGeoPath and then using the standard
-            // export routines for GeoPaths.
-            exporter.setDocumentName(ApplicationInfo.getApplicationName());
-            exporter.setDocumentAuthor(System.getProperty("user.name"));
-            exporter.setDocumentSubject("scree");
-            exporter.setDocumentKeyWords("");
-            GeoExportGUI.export(exporter, screeStones,
-                    commandLineArguments.outputFilePath, null);
-
-            System.out.format("Succesfully saved scree to file.");
-
-        } catch (Throwable ex) {
-            String msg = "An error occured. Scree could not be generated completely.";
-            if (ex instanceof java.lang.OutOfMemoryError) {
-                msg += "\nThere is not enough memory available.";
-                msg += "\nTry adjusting memory with -Xmx";
-            }
-            System.err.println(msg);
-
-            if (commandLineArguments.verbose) {
-                ex.printStackTrace();
-            }
         }
+        if (commandLineArguments.dataFilePaths.isGradationMaskFilePathValid()) {
+            loader.loadGradationMask(prog);
+            prog.complete();
+        }
+        if (commandLineArguments.dataFilePaths.isGullyLinesFilePath()) {
+            loader.loadGullyLines(prog);
+            prog.complete();
+        }
+
+        // load parameters file
+        System.out.println("Loading parameters file");
+        File f = new File(commandLineArguments.parametersFilePath);
+        screeGenerator.p.fromString(new String(FileUtils.getBytesFromFile(f)));
+
+        // generate scree
+        System.out.println("Starting scree generation");
+        ScreeGeneratorManager manager = new ScreeGeneratorManager();
+        manager.generateScree(screeGenerator, null, prog, true);
+        System.out.format("Generated %,d scree stones.%n", manager.nbrGeneratedScreeStones());
+
+        // needed are only the scree stones to export
+        GeoSet screeStones = screeGenerator.screeData.screeStones;
+
+        System.out.format("Saving ouptut file to %s%n", commandLineArguments.outputFilePath);
+
+        // export scree
+        GeoSetExporter exporter = GeoExportGUI.getExporterByName(commandLineArguments.outputFormat);
+        if (exporter == null) {
+            throw new IOException("Unknown format " + commandLineArguments.outputFormat);
+        }
+
+        // setup format of map
+        PageFormat pageFormat = new PageFormat();
+        pageFormat.setPageScale(commandLineArguments.scale);
+        pageFormat.setPageLeft(commandLineArguments.west);
+        pageFormat.setPageBottom(commandLineArguments.south);
+        pageFormat.setPageHeightWorldCoordinates(commandLineArguments.height);
+        pageFormat.setPageWidthWorldCoordinates(commandLineArguments.width);
+        if (exporter instanceof VectorGraphicsExporter) {
+            ((VectorGraphicsExporter) exporter).setPageFormat(pageFormat);
+        }
+
+        // configure Esri shapefile exporter
+        if (exporter instanceof ShapeExporter) {
+            ((ShapeExporter) exporter).setShapeType(ShapeGeometryExporter.POLYGON_SHAPE_TYPE);
+        }
+
+        // configure Swiss LV95 coordinate system
+        if (exporter instanceof GeospatialPDFExporter) {
+            GeospatialPDFExporter geospatialPDFExporter = (GeospatialPDFExporter) exporter;
+            geospatialPDFExporter.setWKT(SwissLV95GeospatialPDFExport.wkt);
+            float[] corners = SwissLV95GeospatialPDFExport.lonLatCornerPoints(pageFormat);
+            if (corners == null) {
+                throw new IllegalStateException("Cannot initialize Swiss LV95 Coordinate System");
+            }
+            geospatialPDFExporter.setLonLatCornerPoints(corners);
+        }
+
+        // screeGenerator.screeData.screeStones contains ScreeGenerator.Stone,
+        // a class that derives from GeoObject but is not usually supported by
+        // exporters. The stones could be converted to GeoPaths using
+        // stone.toGeoPath, however, this would multiply the amount of memory
+        // required to store the graphics. The exporters have therefore each
+        // been hacked to call stone.toGeoPath and then using the standard
+        // export routines for GeoPaths.
+        exporter.setDocumentName(ApplicationInfo.getApplicationName());
+        exporter.setDocumentAuthor(System.getProperty("user.name"));
+        exporter.setDocumentSubject("scree");
+        exporter.setDocumentKeyWords("");
+        GeoExportGUI.export(exporter, screeStones,
+                commandLineArguments.outputFilePath, null);
+
+        System.out.println("Succesfully saved output file.");
     }
 }

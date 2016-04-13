@@ -446,6 +446,8 @@ public class ScreeWindow extends MainWindow {
                 screeGenerator.screeData.screeStones.setVisible(true);
                 mapComponent.getGeoSet().add(screeGenerator.screeData.screeStones);                
             } catch (Throwable ex) {
+                ex.printStackTrace();
+                
                 String msg = "Scree could not be generated completely.";
                 if (ex instanceof java.lang.OutOfMemoryError) {
                     msg += "\nThere is not enough memory available.";
@@ -453,7 +455,6 @@ public class ScreeWindow extends MainWindow {
                 }
                 String title = "Scree Painter Error";
                 ika.utils.ErrorDialog.showErrorDialog(msg, title, ex, owner);
-                ex.printStackTrace();
             } finally {
                 // enable map events again
                 trigger.inform();

@@ -1,35 +1,45 @@
-/*
- * Main.java
- *
- * Created on November 1, 2005, 10:19 AM
- *
- */
 package ika.app;
 
-import ika.gui.*;
+import ika.gui.MacWindowsManager;
+import ika.gui.MainWindow;
 import ika.utils.IconUtils;
-import javax.swing.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 /**
- * Main entry point.
+ * Main entry point for Scree Painter
  *
- * @author Bernhard Jenny, Institute of Cartography, ETH Zurich.
+ * @author Bernhard Jenny
  */
 public class Main {
 
     /**
-     * main routine for the application.
+     * Start a second process that maximizes heap space. This process will be
+     * blocked until the second process finishes.
      *
-     * @param args the command line arguments
+     * @param args command line arguments for second process.
      */
-    public static void main(String args[]) {
-
-        if (args.length > 0) {
-            CommandLineArguments commandLineArguments = ScreePainterBatch.parseCommandLine(args);
-            ScreePainterBatch.runBatch(commandLineArguments);
+    private static void startBatchProcess(String[] args) {
+        System.out.println("parent " + Runtime.getRuntime().maxMemory() / 1024 / 1024);
+        try {
+            String className = ScreePainterBatch.class.getName();
+            String xDockAppName = ApplicationInfo.getApplicationName();
+            ProcessLauncher processLauncher = new ProcessLauncher();
+            String xDockIconPath = processLauncher.findXDockIconPath("icon.icns");
+            processLauncher.startJVM(className, xDockAppName, xDockIconPath, args);
             System.exit(0);
+        } catch (Throwable ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(-1);
         }
+    }
 
+    /**
+     * Start the graphical user interface.
+     */
+    private static void startGUI() {
         // on Mac OS X: take the menu bar out of the window and put it on top
         // of the main screen.
         if (ika.utils.Sys.isMacOSX()) {
@@ -74,6 +84,20 @@ public class Main {
                  */
             }
         });
+    }
 
+    /**
+     * main routine for the application.
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        // if arguments are received, start batch process
+        if (args.length > 0) {
+            startBatchProcess(args);
+        } else {
+            // no arguments received, so start GUI process
+            startGUI();
+        }
     }
 }

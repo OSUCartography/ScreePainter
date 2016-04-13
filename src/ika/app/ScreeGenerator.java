@@ -12,7 +12,7 @@ import java.awt.image.Raster;
 import java.util.*;
 
 /**
- *
+ * ScreeGenerator fills polygons with scree stones and computes gully lines.
  * @author Bernhard Jenny, Institute of Cartography, ETH Zurich.
  */
 public class ScreeGenerator {
@@ -207,7 +207,7 @@ public class ScreeGenerator {
      * otherwise only gully lines are created.
      * @return The number of generated stones or lines if screeStones is null.
      */
-    public int generateScree(Rectangle2D screeBB,
+    protected int generateScreeForPolygon(Rectangle2D screeBB,
             GeoPath screePolygon,
             GeoGridShort shadingGrid,
             float minShading, float maxShading,
@@ -240,9 +240,7 @@ public class ScreeGenerator {
             for (GeoPath line : screeLines) {
                 line.setVectorSymbol(GULLIES_VECTOR_SYMBOL);
                 line.setSelectable(false);
-                synchronized (screeData.gullyLines) {
-                    screeData.gullyLines.add(line);
-                }
+                screeData.gullyLines.add(line);
             }
         }
 
@@ -252,10 +250,7 @@ public class ScreeGenerator {
                     fastContainsGeoPath, screeLines, shadingGrid,
                     minShading, maxShading,
                     tempShadingGridToDither, screeBB);
-
-            synchronized (screeData.screeStones) {
-                screeData.screeStones.add(stones);
-            }
+            screeData.screeStones.add(stones);
             return stones.getNumberOfChildren();
         }
 
@@ -276,7 +271,7 @@ public class ScreeGenerator {
 
         // fall lines are stored in this array
         ArrayList<GridFalllineOperator.WeightedGeoPath> lines;
-        lines = new ArrayList<GridFalllineOperator.WeightedGeoPath>();
+        lines = new ArrayList<>();
 
         // initialize search operator to find fall lines
         GridFalllineOperator fallLineOp = new GridFalllineOperator();
@@ -345,7 +340,7 @@ public class ScreeGenerator {
             allScreeLines = (GeoSet) allScreeLines.getGeoObject(0);
         }
 
-        ArrayList<GeoPath> screeLines = new ArrayList<GeoPath>();
+        ArrayList<GeoPath> screeLines = new ArrayList<>();
         int nLines = allScreeLines.getNumberOfChildren();
         for (int i = 0; i < nLines; i++) {
             GeoPath line = (GeoPath) allScreeLines.getGeoObject(i);
@@ -379,7 +374,7 @@ public class ScreeGenerator {
             GeoGridShort tempLinesDensityGridToDither2) {
 
         // this array contains the gully lines that will be symbolized with stones
-        ArrayList<GeoPath> lines = new ArrayList<GeoPath>();
+        ArrayList<GeoPath> lines = new ArrayList<>();
 
         // create two grids with references to the fall lines inside the polygon
         Rectangle2D polyBounds = polygonToFill.getBounds2D(GeoObject.UNDEFINED_SCALE);
@@ -444,7 +439,7 @@ public class ScreeGenerator {
         return lines;
     }
 
-    public ArrayList<Point2D> toBeads(GeoPath line,
+    private ArrayList<Point2D> toBeads(GeoPath line,
             double d,
             double jitterAlongLine,
             double jitterVertical) {
@@ -455,7 +450,7 @@ public class ScreeGenerator {
             throw new IllegalArgumentException();
         }
 
-        ArrayList<Point2D> xy = new ArrayList<Point2D>();
+        ArrayList<Point2D> xy = new ArrayList<>();
 
         GeoPathIterator iterator = line.getIterator();
         double startX = iterator.getX();
@@ -469,8 +464,7 @@ public class ScreeGenerator {
 
         double length = 0;
         while (iterator.next()) {
-            double endX = 0;
-            double endY = 0;
+            double endX, endY;
             final int inst = iterator.getInstruction();
             switch (inst) {
 
@@ -556,7 +550,7 @@ public class ScreeGenerator {
         PointRaster pointRaster = new BitSetPointRaster(bb, pointRasterCellSize);
 
         // array to store all generated stones
-        ArrayList<Stone> stones = new ArrayList<Stone>();
+        ArrayList<Stone> stones = new ArrayList<>();
 
         // place stones along the gully lines        
         final double minStoneDistOnLine = p.lineStoneDistFraction * p.stoneMaxDiameter;
@@ -583,7 +577,7 @@ public class ScreeGenerator {
             ArrayList<Point2D> pts = toBeads(line, d, jitterDist, jitterDist);
 
             // store each point on the gully line
-            ArrayList<Stone> lineStones = new ArrayList<Stone>();
+            ArrayList<Stone> lineStones = new ArrayList<>();
             int pointsCount = pts.size();
             for (int i = 0; i < pointsCount; i++) {
                 Point2D pt = pts.get(i);
@@ -653,7 +647,7 @@ public class ScreeGenerator {
         // top-left corner: y is downwards, one cell has a length of 1.
         // Variables in the normalized dem coordinates are marked with "_".
         // compute the cell size of the dem in normalized dem coordinates
-        final double inverseCellSize_ = 1. / this.screeData.obstaclesMaskImage.getCellSize();
+        final double inverseCellSize_ = 1. / screeData.obstaclesMaskImage.getCellSize();
 
         // compute the stone position in normalized dem coordinates
         final double x_ = (x - screeData.obstaclesMaskImage.getWest()) * inverseCellSize_;
@@ -705,12 +699,12 @@ public class ScreeGenerator {
     /**
      * Returns the a pseudorandom value from a bell-shaped distribution with
      * mean {@code 0.0}. The standard deviation is not {@code 1.0}, but values
-     * are clamped to the range between 0 and 1 (all positivie).
+     * are clamped to the range between 0 and 1 (all positive).
      *
      * @param random A random number generator.
      * @return A pseudorandom value between 0 and 1 with a bell distribution.
      */
-    public static double clampedGaussian(Random random) {
+    private static double clampedGaussian(Random random) {
         final double max = 3;
         double v;
         do {
@@ -903,7 +897,7 @@ public class ScreeGenerator {
     private static ArrayList<Point2D> diffuseDithering(GeoPath screeOutline, GeoGridShort shading) {
 
         final double dist = shading.getCellSize();
-        ArrayList<Point2D> points = new ArrayList<Point2D>();
+        ArrayList<Point2D> points = new ArrayList<>();
         Rectangle2D bounds = screeOutline.getBounds2D(GeoObject.UNDEFINED_SCALE);
 
         // stones are arranged in a dem
@@ -991,7 +985,8 @@ public class ScreeGenerator {
         stone.setR(r);
 
         // the number of corners of the stone
-        int nbrCorners = (int) Math.round(p.stoneMinCornerCount + (p.stoneMaxCornerCount - p.stoneMinCornerCount) * random.nextDouble());
+        int nbrCorners = (int) Math.round(p.stoneMinCornerCount 
+                + (p.stoneMaxCornerCount - p.stoneMinCornerCount) * random.nextDouble());
         double corners[] = new double[nbrCorners * 2];
 
         // the angle between two neighboring corners measured from the center
@@ -1012,6 +1007,7 @@ public class ScreeGenerator {
     }
 
     private boolean isFallLineLongEnough(GeoPath line) {
-        return line != null && line.getPointsCount() >= p.lineMinLengthApprox / screeData.dem.getCellSize();
+        return line != null
+                && line.getPointsCount() >= p.lineMinLengthApprox / screeData.dem.getCellSize();
     }
 }

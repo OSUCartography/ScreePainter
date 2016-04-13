@@ -13,6 +13,7 @@ import javax.swing.SwingWorker;
 /**
  *
  * @author Bernhard Jenny, Institute of Cartography, ETH Zurich.
+ * @param <T>
  */
 public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T, Integer>
         implements ProgressIndicator {
@@ -38,7 +39,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
      */
     private boolean indeterminate;
     /**
-     * The number of tasks to excecute. The default is 1.
+     * The number of tasks to execute. The default is 1.
      */
     private int totalTasksCount = 1;
     /**
@@ -98,6 +99,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
     /**
      * Initialize the dialog. Can be called from any thread.
      */
+    @Override
     public void start() {
 
         synchronized (this) {
@@ -111,6 +113,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
 
         // initialize the GUI in the event dispatching thread
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 progressPanel.start();
             }
@@ -122,6 +125,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
      * stop as soon as possible. This might not happen synchronously. Can be
      * called from any thread.
      */
+    @Override
     public void abort() {
         synchronized (this) {
             // the client has to regularly check the aborted flag.
@@ -130,6 +134,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
 
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 dialog.setVisible(false);
             }
@@ -139,9 +144,11 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
     /**
      * Inform the dialog that the operation has completed and it can be hidden.
      */
+    @Override
     public void complete() {
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 dialog.setVisible(false);
                 progressPanel.removeActionListeners();
@@ -154,6 +161,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
      * @param percentage A value between 0 and 100.
      * @return True if the operation should continue, false otherwise.
      */
+    @Override
     public boolean progress(int percentage) {
         this.setProgress(percentage);
         this.publish(percentage);
@@ -164,15 +172,18 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
      * Returns whether this operation should stop.
      * @return
      */
+    @Override
     public boolean isAborted() {
         synchronized (this) {
             return this.aborted;
         }
     }
 
+    @Override
     public void disableCancel() {
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 progressPanel.disableCancel();
             }
@@ -180,18 +191,22 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
 
     }
 
+    @Override
     public void enableCancel() {
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 progressPanel.enableCancel();
             }
         });
     }
 
+    @Override
     public void setMessage(final String msg) {
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 progressPanel.setMessage(msg);
             }
@@ -250,10 +265,12 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
          * Show the dialog if it is not visible yet and if the operation has not
          * yet finished.
          */
+        @Override
         public void actionPerformed(ActionEvent e) {
 
             SwingUtilities.invokeLater(new Runnable() {
 
+                @Override
                 public void run() {
                     // only make the dialog visible if the operation is not
                     // yet finished
@@ -286,6 +303,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
      * rescaled to 0..50.
      * @param tasksCount The total number of tasks.
      */
+    @Override
     public void setTotalTasksCount(int tasksCount) {
         synchronized (this) {
             this.totalTasksCount = tasksCount;
@@ -296,6 +314,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
      * Returns the total numbers of tasks for this progress indicator.
      * @return The total numbers of tasks.
      */
+    @Override
     public int getTotalTasksCount() {
         synchronized (this) {
             return this.totalTasksCount;
@@ -305,6 +324,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
     /**
      * Switch to the next task.
      */
+    @Override
     public void nextTask() {
         synchronized (this) {
             ++this.currentTask;
@@ -328,6 +348,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
      * Returns the ID of the current task. The first task has ID 1 (and not 0).
      * @return The ID of the current task.
      */
+    @Override
     public int currentTask() {
         synchronized (this) {
             return this.currentTask;
@@ -346,6 +367,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
         }
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 progressPanel.setIndeterminate(indeterminate);
             }
