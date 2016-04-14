@@ -91,6 +91,7 @@ public class ScreeWindow extends MainWindow {
         this.initMenusForMac();
     }
 
+    @Override
     protected boolean init() {
 
         // initialize the map
@@ -107,6 +108,19 @@ public class ScreeWindow extends MainWindow {
         // maximise the size of this window. Fill the primary screen.
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.validate();
+
+        // show all data once the window has reached its maximized state.
+        WindowStateListener windowStateListener = new WindowStateListener() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                if ((e.getOldState() & Frame.MAXIMIZED_BOTH) == 0
+                        && (e.getNewState() & Frame.MAXIMIZED_BOTH) != 0) {
+                    mapComponent.showAll();
+                    mapComponent.repaint();
+                }
+            }
+        };
+        addWindowStateListener(windowStateListener);
 
         // add a window listener that updates the menus when the
         // state of the window changes (minimized, close, focus lost, activated, etc.)
@@ -410,7 +424,7 @@ public class ScreeWindow extends MainWindow {
             this.setTotalTasksCount(1);
             this.disableCancel();
             this.setMessage("Generating scree...");
-           
+
             // remove features created last time
             mapComponent.getGeoSet().remove(screeGenerator.screeData.screeStones);
             if (!screeGenerator.screeData.fixedScreeLines) {
@@ -431,7 +445,7 @@ public class ScreeWindow extends MainWindow {
                 mapComponent.repaint();
             } catch (Throwable ex) {
                 ex.printStackTrace();
-                
+
                 String msg = "Scree could not be generated completely.";
                 if (ex instanceof java.lang.OutOfMemoryError) {
                     msg += "\nThere is not enough memory available.";
@@ -442,7 +456,7 @@ public class ScreeWindow extends MainWindow {
             }
         }
     }
-    
+
     public void generateScree() {
         new ScreeWorker(this).generateScree();
     }
