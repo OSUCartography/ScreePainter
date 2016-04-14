@@ -7,7 +7,6 @@
 
 package ika.geo;
 
-import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.geom.AffineTransform;
 
@@ -26,7 +25,7 @@ public class AdaptiveZoomGeoSet extends GeoSet {
     public AdaptiveZoomGeoSet() {
     }
     
-    public synchronized void drawNormalState(RenderParams rp) {
+    public void drawNormalState(RenderParams rp) {
         
         if (!this.isVisible())
             return;

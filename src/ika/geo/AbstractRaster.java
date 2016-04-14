@@ -39,7 +39,6 @@ public abstract class AbstractRaster extends GeoObject{
         this.west = 0;
         this.north = this.getRows();
         this.cellSize = 1;
-        MapEventTrigger.inform(this);
     }
     
     public double getCellSize() {
@@ -50,7 +49,6 @@ public abstract class AbstractRaster extends GeoObject{
         if (cellSize <= 0)
             throw new IllegalArgumentException();
         this.cellSize = cellSize;
-        MapEventTrigger.inform(this);
     }
 
     /**
@@ -65,7 +63,6 @@ public abstract class AbstractRaster extends GeoObject{
      */
     public void setNorth(double north) {
         this.north = north;
-        MapEventTrigger.inform(this);
     }
 
     /**
@@ -80,7 +77,6 @@ public abstract class AbstractRaster extends GeoObject{
      */
     public void setWest(double west) {
         this.west = west;
-        MapEventTrigger.inform(this);
     }
     
     public abstract double getSouth();

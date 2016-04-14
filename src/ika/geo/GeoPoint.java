@@ -78,7 +78,6 @@ public class GeoPoint extends GeoObject implements java.io.Serializable {
      */
     public void setX(double x) {
         this.x = x;
-        MapEventTrigger.inform(this);
     }
     
     /**
@@ -105,7 +104,6 @@ public class GeoPoint extends GeoObject implements java.io.Serializable {
      */
     public void setY(double y) {
         this.y = y;
-        MapEventTrigger.inform(this);
     }
     
     /**
@@ -119,7 +117,6 @@ public class GeoPoint extends GeoObject implements java.io.Serializable {
     public void setXY(double x, double y) {
         this.x = x;
         this.y = y;
-        MapEventTrigger.inform(this);
     }
     
     /**
@@ -154,19 +151,16 @@ public class GeoPoint extends GeoObject implements java.io.Serializable {
     public void move(double dx, double dy) {
         this.x += dx;
         this.y += dy;
-        MapEventTrigger.inform(this);
     }
     
     public void scale(double scale) {
         this.x *= scale;
         this.y *= scale;
-        MapEventTrigger.inform(this);
     }
     
     public void scale(double hScale, double vScale) {
         this.x *= hScale;
         this.y *= vScale;
-        MapEventTrigger.inform(this);
     }
     
     public void transform(AffineTransform affineTransform) {
@@ -174,7 +168,6 @@ public class GeoPoint extends GeoObject implements java.io.Serializable {
         affineTransform.transform(pt, 0, pt, 0, 1);
         this.x = pt[0];
         this.y = pt[1];
-        MapEventTrigger.inform(this);
     }
     
     public PointSymbol getPointSymbol() {
@@ -183,7 +176,6 @@ public class GeoPoint extends GeoObject implements java.io.Serializable {
 
     public void setPointSymbol(PointSymbol pointSymbol) {
         this.pointSymbol = pointSymbol;
-        MapEventTrigger.inform(this);
     }
     
     public final boolean isPointClose (GeoPoint geoPoint, double tolerance) {

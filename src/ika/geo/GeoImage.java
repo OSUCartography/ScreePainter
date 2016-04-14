@@ -636,7 +636,6 @@ public class GeoImage extends AbstractRaster implements Serializable {
     public void move(double dx, double dy) {
         this.west += dx;
         this.north += dy;
-        MapEventTrigger.inform(this);
     }
     
     @Override
@@ -644,7 +643,6 @@ public class GeoImage extends AbstractRaster implements Serializable {
         this.west *= scale;
         this.north *= scale;
         this.cellSize *= scale;
-        MapEventTrigger.inform(this);
     }
     
     @Override

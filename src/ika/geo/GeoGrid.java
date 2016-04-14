@@ -168,7 +168,6 @@ public class GeoGrid extends AbstractRaster {
     public void move(double dx, double dy) {
         this.west += dx;
         this.north += dy;
-        MapEventTrigger.inform(this);
     }
 
     @Override
@@ -176,7 +175,6 @@ public class GeoGrid extends AbstractRaster {
         this.west *= scale;
         this.north *= scale;
         this.cellSize *= scale;
-        MapEventTrigger.inform(this);
     }
 
     @Override
@@ -482,8 +480,6 @@ public class GeoGrid extends AbstractRaster {
         this.west += firstCol * this.cellSize;
         this.north -= firstRow * this.cellSize;
         this.grid = newGrid;
-
-        MapEventTrigger.inform(this);
     }
 
     public int getCols() {

@@ -98,19 +98,6 @@ public class ScreeWindow extends MainWindow {
         this.mapComponent.setCoordinateFormatter(new CoordinateFormatter("###,##0.#", "###,##0.#", 1));
         this.mapComponent.setMapTool(new ScaleMoveSelectionTool(this.mapComponent));
 
-        // add a MapEventListener: When the map changes, the dirty
-        // flag is set and the Save menu item updated.
-        MapEventListener mel = new MapEventListener() {
-
-            @Override
-            public void mapEvent(MapEvent evt) {
-                setDocumentDirty();
-                updateAllMenus();
-            }
-        };
-        // register the MapEventListener to be informed whenever the map changes.
-        GeoSetBroadcaster.addMapEventListener(mel, this.mapComponent.getGeoSet());
-
         // register the coordinate info panel with the map
         this.coordinateInfoPanel.registerWithMapComponent(this.mapComponent);
 
@@ -379,7 +366,6 @@ public class ScreeWindow extends MainWindow {
 
         private Rectangle2D screeBB = null;
         private boolean generateScreeStones = true;
-        private MapEventTrigger trigger;
 
         public ScreeWorker(ScreeWindow owner) {
             super(owner, "Scree Painter", "Generating scree...", true);
@@ -424,10 +410,7 @@ public class ScreeWindow extends MainWindow {
             this.setTotalTasksCount(1);
             this.disableCancel();
             this.setMessage("Generating scree...");
-
-            // block map events
-            trigger = new MapEventTrigger(mapComponent.getGeoSet());
-
+           
             // remove features created last time
             mapComponent.getGeoSet().remove(screeGenerator.screeData.screeStones);
             if (!screeGenerator.screeData.fixedScreeLines) {
@@ -444,7 +427,8 @@ public class ScreeWindow extends MainWindow {
                 get(); // get exceptions
                 viewScreeCheckBoxMenuItem.setSelected(true);
                 screeGenerator.screeData.screeStones.setVisible(true);
-                mapComponent.getGeoSet().add(screeGenerator.screeData.screeStones);                
+                mapComponent.getGeoSet().add(screeGenerator.screeData.screeStones);
+                mapComponent.repaint();
             } catch (Throwable ex) {
                 ex.printStackTrace();
                 
@@ -455,9 +439,6 @@ public class ScreeWindow extends MainWindow {
                 }
                 String title = "Scree Painter Error";
                 ika.utils.ErrorDialog.showErrorDialog(msg, title, ex, owner);
-            } finally {
-                // enable map events again
-                trigger.inform();
             }
         }
     }
@@ -1264,7 +1245,8 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
     private void showPageCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showPageCheckBoxMenuItemActionPerformed
         boolean show = this.showPageCheckBoxMenuItem.isSelected();
-        this.mapComponent.getPageFormat().setVisible(show);
+        mapComponent.getPageFormat().setVisible(show);
+        mapComponent.repaint();
     }//GEN-LAST:event_showPageCheckBoxMenuItemActionPerformed
 
     private void minimizeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_minimizeMenuItemActionPerformed
@@ -1391,10 +1373,12 @@ private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
 private void viewScreeCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewScreeCheckBoxMenuItemActionPerformed
     screeGenerator.screeData.screeStones.setVisible(viewScreeCheckBoxMenuItem.isSelected());
+    mapComponent.repaint();
 }//GEN-LAST:event_viewScreeCheckBoxMenuItemActionPerformed
 
 private void viewPolygonsCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewPolygonsCheckBoxMenuItemActionPerformed
     screeGenerator.screeData.screePolygons.setVisible(viewPolygonsCheckBoxMenuItem.isSelected());
+    mapComponent.repaint();
 }//GEN-LAST:event_viewPolygonsCheckBoxMenuItemActionPerformed
 
     private void synchronizeBackgroundImageWithMenu() {
@@ -1442,6 +1426,7 @@ private void viewPolygonsCheckBoxMenuItemActionPerformed(java.awt.event.ActionEv
         viewGradationMaskCheckBoxMenuItem.setSelected(false);
         viewReferenceCheckBoxMenuItem.setSelected(false);
         synchronizeBackgroundImageWithMenu();
+        mapComponent.repaint();
 }//GEN-LAST:event_viewObstaclesCheckBoxMenuItemActionPerformed
 
 private void viewShadingCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewShadingCheckBoxMenuItemActionPerformed
@@ -1451,6 +1436,7 @@ private void viewShadingCheckBoxMenuItemActionPerformed(java.awt.event.ActionEve
     viewObstaclesCheckBoxMenuItem.setSelected(false);
     viewReferenceCheckBoxMenuItem.setSelected(false);
     synchronizeBackgroundImageWithMenu();
+    mapComponent.repaint();
 }//GEN-LAST:event_viewShadingCheckBoxMenuItemActionPerformed
 
 private void viewLargeStonesMaskCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewLargeStonesMaskCheckBoxMenuItemActionPerformed
@@ -1460,6 +1446,7 @@ private void viewLargeStonesMaskCheckBoxMenuItemActionPerformed(java.awt.event.A
     viewObstaclesCheckBoxMenuItem.setSelected(false);
     viewReferenceCheckBoxMenuItem.setSelected(false);
     synchronizeBackgroundImageWithMenu();
+    mapComponent.repaint();
 }//GEN-LAST:event_viewLargeStonesMaskCheckBoxMenuItemActionPerformed
 
 private void viewReferenceCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewReferenceCheckBoxMenuItemActionPerformed
@@ -1469,6 +1456,7 @@ private void viewReferenceCheckBoxMenuItemActionPerformed(java.awt.event.ActionE
     viewGradationMaskCheckBoxMenuItem.setSelected(false);
     viewObstaclesCheckBoxMenuItem.setSelected(false);
     synchronizeBackgroundImageWithMenu();
+    mapComponent.repaint();
 }//GEN-LAST:event_viewReferenceCheckBoxMenuItemActionPerformed
 
 private void toggleViewMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleViewMenuItemActionPerformed
@@ -1489,11 +1477,12 @@ private void toggleViewMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 
     // adjust background image to new selection
     synchronizeBackgroundImageWithMenu();
-
+    mapComponent.repaint();
 }//GEN-LAST:event_toggleViewMenuItemActionPerformed
 
 private void viewGullyLinesCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewGullyLinesCheckBoxMenuItemActionPerformed
     screeGenerator.screeData.gullyLines.setVisible(viewGullyLinesCheckBoxMenuItem.isSelected());
+    mapComponent.repaint();
 }//GEN-LAST:event_viewGullyLinesCheckBoxMenuItemActionPerformed
 
 private void dataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dataButtonActionPerformed
@@ -1502,19 +1491,18 @@ private void dataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 
 private void areaToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_areaToggleButtonActionPerformed
     areaOfInterest.setVisible(!areaToggleButton.isSelected());
+    mapComponent.repaint();
 }//GEN-LAST:event_areaToggleButtonActionPerformed
 
     private void exportGullyLines() {
         // make sure lines are visible, as only visible vectors are exported.
         final boolean vis = screeGenerator.screeData.gullyLines.isVisible();
-        MapEventTrigger trigger = new MapEventTrigger(screeGenerator.screeData.gullyLines);
         screeGenerator.screeData.gullyLines.setVisible(true);
         try {
             ShapeExporter exporter = new ShapeExporter();
             GeoExportGUI.export(exporter, screeGenerator.screeData.gullyLines, "lines.shp", this, null, false);
         } finally {
             screeGenerator.screeData.gullyLines.setVisible(vis);
-            trigger.abort();
         }
     }
 
@@ -1546,6 +1534,7 @@ private void generateScreeLinesMenuItemActionPerformed(java.awt.event.ActionEven
     new ScreeWorker(this).generateOnlyGullyLinesForAllPolygons();
     screeGenerator.screeData.gullyLines.setVisible(true);
     viewGullyLinesCheckBoxMenuItem.setSelected(true);
+    mapComponent.repaint();
 }//GEN-LAST:event_generateScreeLinesMenuItemActionPerformed
 
 private void viewGradationMaskCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewGradationMaskCheckBoxMenuItemActionPerformed
@@ -1555,6 +1544,7 @@ private void viewGradationMaskCheckBoxMenuItemActionPerformed(java.awt.event.Act
     viewObstaclesCheckBoxMenuItem.setSelected(false);
     viewReferenceCheckBoxMenuItem.setSelected(false);
     synchronizeBackgroundImageWithMenu();
+    mapComponent.repaint();
 }//GEN-LAST:event_viewGradationMaskCheckBoxMenuItemActionPerformed
 
 private void viewNoneCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewNoneCheckBoxMenuItemActionPerformed
@@ -1564,6 +1554,7 @@ private void viewNoneCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent 
     viewObstaclesCheckBoxMenuItem.setSelected(false);
     viewReferenceCheckBoxMenuItem.setSelected(false);
     synchronizeBackgroundImageWithMenu();
+    mapComponent.repaint();
 }//GEN-LAST:event_viewNoneCheckBoxMenuItemActionPerformed
 
 private void reportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reportMenuItemActionPerformed
@@ -1587,6 +1578,7 @@ private void adjustUpdateAreaScreeMenuItemActionPerformed(java.awt.event.ActionE
     areaOfInterest.append(visArea, false);
     areaOfInterest.setVisible(true);
     areaToggleButton.setSelected(false);
+    mapComponent.repaint();
 }//GEN-LAST:event_adjustUpdateAreaScreeMenuItemActionPerformed
 
 private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zoomOnUpdateAreaMenuItemActionPerformed

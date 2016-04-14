@@ -34,7 +34,6 @@ public class GeoControlPoint extends GeoPoint{
 
     public void setDestX(double destX) {
         this.destX = destX;
-        MapEventTrigger.inform(this);
     }
 
     public double getDestY() {
@@ -43,7 +42,6 @@ public class GeoControlPoint extends GeoPoint{
 
     public void setDestY(double destY) {
         this.destY = destY;
-        MapEventTrigger.inform(this);
     }
     
     

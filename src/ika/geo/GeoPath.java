@@ -362,18 +362,14 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
      * @param points The points to connect.
      */
     public void straightLines(Point2D[] points) {
-        MapEventTrigger trigger = new MapEventTrigger(this);
-        try {
-            path.reset();
-            if (points.length >= 1) {
-                path.moveTo((float) points[0].getX(), (float) points[0].getY());
-                for (int i = 1; i < points.length; i++) {
-                    path.lineTo((float) points[i].getX(), (float) points[i].getY());
-                }
+        path.reset();
+        if (points.length >= 1) {
+            path.moveTo((float) points[0].getX(), (float) points[0].getY());
+            for (int i = 1; i < points.length; i++) {
+                path.lineTo((float) points[i].getX(), (float) points[i].getY());
             }
-        } finally {
-            trigger.inform();
         }
+
     }
 
     /**
@@ -385,18 +381,14 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
      * @nbrPoints The number of point to use.
      */
     public void straightLines(double[][] points, int firstPoint, int nbrPoints) {
-        MapEventTrigger trigger = new MapEventTrigger(this);
-        try {
-            path.reset();
-            if (points.length >= 1) {
-                final int lastPoint = firstPoint + nbrPoints;
-                path.moveTo((float) points[firstPoint][0], (float) points[firstPoint][1]);
-                for (int i = firstPoint + 1; i < lastPoint; i++) {
-                    path.lineTo((float) points[i][0], (float) points[i][1]);
-                }
+
+        path.reset();
+        if (points.length >= 1) {
+            final int lastPoint = firstPoint + nbrPoints;
+            path.moveTo((float) points[firstPoint][0], (float) points[firstPoint][1]);
+            for (int i = firstPoint + 1; i < lastPoint; i++) {
+                path.lineTo((float) points[i][0], (float) points[i][1]);
             }
-        } finally {
-            trigger.inform();
         }
     }
 
@@ -407,17 +399,12 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
      * @param param points The points to connect.
      */
     public void straightLines(double[] points) {
-        MapEventTrigger trigger = new MapEventTrigger(this);
-        try {
-            path.reset();
-            if (points.length >= 1) {
-                path.moveTo((float) points[0], (float) points[1]);
-                for (int i = 1; i < points.length / 2; i++) {
-                    path.lineTo((float) points[i * 2], (float) points[i * 2 + 1]);
-                }
+        path.reset();
+        if (points.length >= 1) {
+            path.moveTo((float) points[0], (float) points[1]);
+            for (int i = 1; i < points.length / 2; i++) {
+                path.lineTo((float) points[i * 2], (float) points[i * 2 + 1]);
             }
-        } finally {
-            trigger.inform();
         }
     }
 
@@ -477,66 +464,61 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
     public void smooth(double smoothness, double[][] points,
             int firstPoint, int nbrPoints) {
 
-        MapEventTrigger trigger = new MapEventTrigger(this);
-        try {
-            if (smoothness <= 0. || MathUtils.numbersAreClose(0., smoothness)) {
-                straightLines(points, firstPoint, nbrPoints);
-                return;
-            }
-
-            final double F = 0.39;
-            final int lastPoint = firstPoint + nbrPoints;
-
-            if (points[0].length < 2) {
-                throw new IllegalArgumentException();
-            }
-
-            path.reset();
-
-            final boolean closePath = MathUtils.numbersAreClose(
-                    points[firstPoint][0], points[lastPoint - 1][0])
-                    && MathUtils.numbersAreClose(
-                            points[firstPoint][1], points[lastPoint - 1][1]);
-
-            double prevX = points[firstPoint][0];
-            double prevY = points[firstPoint][1];
-
-            float[] ctrlP1 = new float[2];
-            float[] ctrlP2 = new float[2];
-
-            // move to first point
-            path.moveTo((float) points[firstPoint][0], (float) points[firstPoint][1]);
-
-            for (int i = firstPoint + 1; i < lastPoint - 1; i++) {
-
-                // previous point P0
-                final double x0 = points[i - 1][0];
-                final double y0 = points[i - 1][1];
-
-                // current point P1
-                final double x1 = points[i][0];
-                final double y1 = points[i][1];
-
-                // next point P2
-                final double x2 = points[i + 1][0];
-                final double y2 = points[i + 1][1];
-
-                bezierPoint(prevX, prevY, x0, y0, x1, y1, ctrlP1, smoothness);
-                bezierPoint(x2, y2, x1, y1, x0, y0, ctrlP2, smoothness);
-
-                // add a bezier line segment to the path
-                path.curveTo(ctrlP1[0], ctrlP1[1], ctrlP2[0], ctrlP2[1], (float) x1, (float) y1);
-                prevX = x0;
-                prevY = y0;
-            }
-
-            final double x0 = points[lastPoint - 1][0];
-            final double y0 = points[lastPoint - 1][1];
-            bezierPoint(x0, y0, x0, y0, prevX, prevY, ctrlP1, smoothness);
-            path.curveTo(ctrlP1[0], ctrlP1[1], (float) x0, (float) y0, (float) x0, (float) y0);
-        } finally {
-            trigger.inform();
+        if (smoothness <= 0. || MathUtils.numbersAreClose(0., smoothness)) {
+            straightLines(points, firstPoint, nbrPoints);
+            return;
         }
+
+        final double F = 0.39;
+        final int lastPoint = firstPoint + nbrPoints;
+
+        if (points[0].length < 2) {
+            throw new IllegalArgumentException();
+        }
+
+        path.reset();
+
+        final boolean closePath = MathUtils.numbersAreClose(
+                points[firstPoint][0], points[lastPoint - 1][0])
+                && MathUtils.numbersAreClose(
+                        points[firstPoint][1], points[lastPoint - 1][1]);
+
+        double prevX = points[firstPoint][0];
+        double prevY = points[firstPoint][1];
+
+        float[] ctrlP1 = new float[2];
+        float[] ctrlP2 = new float[2];
+
+        // move to first point
+        path.moveTo((float) points[firstPoint][0], (float) points[firstPoint][1]);
+
+        for (int i = firstPoint + 1; i < lastPoint - 1; i++) {
+
+            // previous point P0
+            final double x0 = points[i - 1][0];
+            final double y0 = points[i - 1][1];
+
+            // current point P1
+            final double x1 = points[i][0];
+            final double y1 = points[i][1];
+
+            // next point P2
+            final double x2 = points[i + 1][0];
+            final double y2 = points[i + 1][1];
+
+            bezierPoint(prevX, prevY, x0, y0, x1, y1, ctrlP1, smoothness);
+            bezierPoint(x2, y2, x1, y1, x0, y0, ctrlP2, smoothness);
+
+            // add a bezier line segment to the path
+            path.curveTo(ctrlP1[0], ctrlP1[1], ctrlP2[0], ctrlP2[1], (float) x1, (float) y1);
+            prevX = x0;
+            prevY = y0;
+        }
+
+        final double x0 = points[lastPoint - 1][0];
+        final double y0 = points[lastPoint - 1][1];
+        bezierPoint(x0, y0, x0, y0, prevX, prevY, ctrlP1, smoothness);
+        path.curveTo(ctrlP1[0], ctrlP1[1], (float) x0, (float) y0, (float) x0, (float) y0);
     }
 
     /**
@@ -553,28 +535,23 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
         if (r <= 0.f) {
             return; // throw new IllegalArgumentException();
         }
-        MapEventTrigger trigger = new MapEventTrigger(this);
-        try {
-            this.reset();
+        this.reset();
 
-            final float kappa = (float) ((Math.sqrt(2.) - 1.) * 4. / 3.);
-            final float l = r * kappa;
+        final float kappa = (float) ((Math.sqrt(2.) - 1.) * 4. / 3.);
+        final float l = r * kappa;
 
-            // move to top center
-            this.moveTo(cx, cy + r);
-            // I. quadrant
-            this.curveTo(cx + l, cy + r, cx + r, cy + l, cx + r, cy);
-            // II. quadrant
-            this.curveTo(cx + r, cy - l, cx + l, cy - r, cx, cy - r);
-            // III. quadrant
-            this.curveTo(cx - l, cy - r, cx - r, cy - l, cx - r, cy);
-            // IV. quadrant
-            this.curveTo(cx - r, cy + l, cx - l, cy + r, cx, cy + r);
+        // move to top center
+        this.moveTo(cx, cy + r);
+        // I. quadrant
+        this.curveTo(cx + l, cy + r, cx + r, cy + l, cx + r, cy);
+        // II. quadrant
+        this.curveTo(cx + r, cy - l, cx + l, cy - r, cx, cy - r);
+        // III. quadrant
+        this.curveTo(cx - l, cy - r, cx - r, cy - l, cx - r, cy);
+        // IV. quadrant
+        this.curveTo(cx - r, cy + l, cx - l, cy + r, cx, cy + r);
 
-            this.closePath();
-        } finally {
-            trigger.inform();
-        }
+        this.closePath();
     }
 
     /**
@@ -589,19 +566,14 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
             throw new IllegalArgumentException();
         }
 
-        MapEventTrigger trigger = new MapEventTrigger(this);
-        try {
-            this.reset();
+        this.reset();
 
-            float d_2 = d / 2f;
-            this.moveTo(cx - d_2, cy - d_2);
-            this.lineTo(cx + d_2, cy - d_2);
-            this.lineTo(cx + d_2, cy + d_2);
-            this.lineTo(cx - d_2, cy + d_2);
-            this.closePath();
-        } finally {
-            trigger.inform();
-        }
+        float d_2 = d / 2f;
+        this.moveTo(cx - d_2, cy - d_2);
+        this.lineTo(cx + d_2, cy - d_2);
+        this.lineTo(cx + d_2, cy + d_2);
+        this.lineTo(cx - d_2, cy + d_2);
+        this.closePath();
     }
 
     /**
@@ -614,32 +586,24 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
             throw new IllegalArgumentException();
         }
 
-        MapEventTrigger trigger = new MapEventTrigger(this);
-        try {
-            this.reset();
-
-            final float xMin = (float) rect.getMinX();
-            final float xMax = (float) rect.getMaxX();
-            final float yMin = (float) rect.getMinY();
-            final float yMax = (float) rect.getMaxY();
-            this.moveTo(xMin, yMin);
-            this.lineTo(xMax, yMin);
-            this.lineTo(xMax, yMax);
-            this.lineTo(xMin, yMax);
-            this.closePath();
-        } finally {
-            trigger.inform();
-        }
+        this.reset();
+        final float xMin = (float) rect.getMinX();
+        final float xMax = (float) rect.getMaxX();
+        final float yMin = (float) rect.getMinY();
+        final float yMax = (float) rect.getMaxY();
+        this.moveTo(xMin, yMin);
+        this.lineTo(xMax, yMin);
+        this.lineTo(xMax, yMax);
+        this.lineTo(xMin, yMax);
+        this.closePath();
     }
 
     public void reset() {
         path.reset();
-        MapEventTrigger.inform(this);
     }
 
     public void setPathModel(GeoPathModel path) {
         this.path = path;
-        MapEventTrigger.inform(this);
     }
 
     /**
@@ -648,7 +612,6 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
      */
     public void removeLastPoint() {
         this.path.removeLastInstruction();
-        MapEventTrigger.inform(this);
     }
 
     /**
@@ -661,7 +624,6 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
     public void append(GeoPath geoPath, boolean connect) {
         if (geoPath != null) {
             path.append(geoPath.path, connect);
-            MapEventTrigger.inform(this);
         }
     }
 
@@ -676,7 +638,6 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
         GeoPathModel pm = new GeoPathModel();
         pm.reset(s.getPathIterator(null));
         path.append(pm, connect);
-        MapEventTrigger.inform(this);
     }
 
     private class PathSegment {
@@ -690,45 +651,43 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
      * <B>Only for straight open lines!</B>
      */
     public void invertDirection() {
-        MapEventTrigger trigger = new MapEventTrigger(this);
-        try {
-            PathIterator pathIterator = this.toPathIterator(null);
-            if (pathIterator == null) {
-                return;
-            }
+        PathIterator pathIterator = this.toPathIterator(null);
+        if (pathIterator == null) {
+            return;
+        }
 
-            java.util.Vector segments = new java.util.Vector();
+        java.util.Vector segments = new java.util.Vector();
 
-            while (!pathIterator.isDone()) {
-                PathSegment ps = new PathSegment();
-                ps.coords = new float[6];
-                ps.id = pathIterator.currentSegment(ps.coords);
-                segments.add(ps);
-                pathIterator.next();
-            }
+        while (!pathIterator.isDone()) {
+            PathSegment ps = new PathSegment();
+            ps.coords = new float[6];
+            ps.id = pathIterator.currentSegment(ps.coords);
+            segments.add(ps);
+            pathIterator.next();
+        }
 
-            if (segments.size() == 0) {
-                return;
-            }
+        if (segments.size() == 0) {
+            return;
+        }
 
-            this.path.reset();
+        this.path.reset();
 
-            PathSegment ps = (PathSegment) (segments.get(segments.size() - 1));
-            this.path.moveTo(ps.coords[0], ps.coords[1]);
+        PathSegment ps = (PathSegment) (segments.get(segments.size() - 1));
+        this.path.moveTo(ps.coords[0], ps.coords[1]);
 
-            boolean firstMove = false;
-            for (int i = segments.size() - 2; i > 0; --i) {
-                ps = (PathSegment) (segments.get(i));
-                switch (ps.id) {
-                    case PathIterator.SEG_MOVETO:
-                        this.path.moveTo(ps.coords[0], ps.coords[1]);
-                        break;
+        boolean firstMove = false;
+        for (int i = segments.size() - 2; i > 0; --i) {
+            ps = (PathSegment) (segments.get(i));
+            switch (ps.id) {
+                case PathIterator.SEG_MOVETO:
+                    this.path.moveTo(ps.coords[0], ps.coords[1]);
+                    break;
 
-                    case PathIterator.SEG_LINETO:
-                        this.path.lineTo(ps.coords[0], ps.coords[1]);
-                        break;
+                case PathIterator.SEG_LINETO:
+                    this.path.lineTo(ps.coords[0], ps.coords[1]);
+                    break;
 
-                    /*
+                /*
                  case PathIterator.SEG_QUADTO:
                     this.path.quadTo(ps.coords[0], ps.coords[1], ps.coords[2], ps.coords[3]);
                     break;
@@ -742,15 +701,12 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
                 case PathIterator.SEG_CLOSE:
                     this.path.closePath();
                     break;
-                     */
-                }
+                 */
             }
-            // treat initial moveto
-            ps = (PathSegment) (segments.get(0));
-            this.path.lineTo(ps.coords[0], ps.coords[1]);
-        } finally {
-            trigger.inform();
         }
+        // treat initial moveto
+        ps = (PathSegment) (segments.get(0));
+        this.path.lineTo(ps.coords[0], ps.coords[1]);
     }
 
     /**
@@ -806,7 +762,6 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
      */
     public void setVectorSymbol(VectorSymbol symbol) {
         this.symbol = symbol;
-        MapEventTrigger.inform(this);
     }
 
     /**
@@ -824,7 +779,7 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
     public Path2D.Double toPath() {
         return path.toPath();
     }
-    
+
     /**
      * Returns a flattened PathIterator that can be used to draw this GeoPath or
      * iterate over its geometry. A flattened PathIterator does not contain any
@@ -1021,7 +976,6 @@ public class GeoPath extends GeoObject implements Serializable, Cloneable {
 
     public void transform(AffineTransform affineTransform) {
         this.path.transform(affineTransform);
-        MapEventTrigger.inform(this);
     }
 
     /**

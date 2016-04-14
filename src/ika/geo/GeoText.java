@@ -8,9 +8,6 @@
 package ika.geo;
 
 import java.awt.geom.AffineTransform;
-import java.awt.image.*;
-import java.awt.*;
-import java.awt.font.*;
 
 /**
  *
@@ -105,19 +102,16 @@ public class GeoText extends GeoObject {
     public void move(double dx, double dy) {
         this.x += dx;
         this.y += dy;
-        MapEventTrigger.inform(this);
     }
     
     public void scale(double scale) {
         this.x *= scale;
         this.y *= scale;
-        MapEventTrigger.inform(this);
     }
     
     public void scale (double hScale, double vScale) {
         this.x *= hScale;
         this.y *= vScale;
-        MapEventTrigger.inform(this);
     }
     
     public void transform(AffineTransform affineTransform) {
@@ -125,7 +119,6 @@ public class GeoText extends GeoObject {
         affineTransform.transform(pt, 0, pt, 0, 1);
         this.x = pt[0];
         this.y = pt[1];
-        MapEventTrigger.inform(this);
     }
      
     public double getX() {
@@ -134,7 +127,6 @@ public class GeoText extends GeoObject {
 
     public void setX(double x) {
         this.x = x;
-        MapEventTrigger.inform(this);
     }
 
     public double getY() {
@@ -143,7 +135,6 @@ public class GeoText extends GeoObject {
 
     public void setY(double y) {
         this.y = y;
-        MapEventTrigger.inform(this);
     }
     
     /** Returns the horizontal position of the origin of this GeoText, including
@@ -164,7 +155,6 @@ public class GeoText extends GeoObject {
 
     public void setDx(double dx) {
         this.dx = dx;
-        MapEventTrigger.inform(this);
     }
 
     public double getDy() {
@@ -173,7 +163,6 @@ public class GeoText extends GeoObject {
 
     public void setDy(double dy) {
         this.dy = dy;
-        MapEventTrigger.inform(this);
     }
         
     public FontSymbol getFontSymbol() {
@@ -182,7 +171,6 @@ public class GeoText extends GeoObject {
 
     public void setFontSymbol(FontSymbol fontSymbol) {
         this.fontSymbol = fontSymbol;
-        MapEventTrigger.inform(this);
     }
 
     public String getText() {
@@ -191,7 +179,6 @@ public class GeoText extends GeoObject {
 
     public void setText(String text) {
         this.text = text;
-        MapEventTrigger.inform(this);
     }
     
     public boolean isScaleInvariant() {
@@ -200,7 +187,6 @@ public class GeoText extends GeoObject {
     
     public void setScaleInvariant(boolean scaleInvariant) {
         this.fontSymbol.setScaleInvariant(scaleInvariant);
-        MapEventTrigger.inform(this);
     }
     
     public boolean isCenterHor() {
@@ -209,7 +195,6 @@ public class GeoText extends GeoObject {
 
     public void setCenterHor(boolean centerHor) {
         this.fontSymbol.setCenterHor(centerHor);
-        MapEventTrigger.inform(this);
     }
 
     public void setAlignLeft() {
@@ -234,7 +219,6 @@ public class GeoText extends GeoObject {
 
     public void setCenterVer(boolean centerVer) {
         this.fontSymbol.setCenterVer(centerVer);
-        MapEventTrigger.inform(this);
     }
     
     public int getSize() {
@@ -243,7 +227,6 @@ public class GeoText extends GeoObject {
 
     public void setSize (int size) {
         this.fontSymbol.setSize (size);
-        MapEventTrigger.inform(this);
     }   
 
     /**

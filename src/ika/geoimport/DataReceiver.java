@@ -10,11 +10,11 @@ import ika.geo.*;
 import ika.table.Table;
 
 /**
- * DataReceiver receives imported GeoObjects from a GeoImporter and is 
- * responsible for storing the data.
- * GeoObjects are stored in a destination GeoSet that must be provided by derived
- * classes.
- * It stores passed attribute Tables if the destination GeoSet is a GeoMap. 
+ * DataReceiver receives imported GeoObjects from a GeoImporter and is
+ * responsible for storing the data. GeoObjects are stored in a destination
+ * GeoSet that must be provided by derived classes. It stores passed attribute
+ * Tables if the destination GeoSet is a GeoMap.
+ *
  * @author Bernhard Jenny, Institute of Cartography, ETH Zurich
  */
 abstract public class DataReceiver {
@@ -22,9 +22,10 @@ abstract public class DataReceiver {
     private boolean showMessageOnError = true;
 
     private boolean hasReceivedError = false;
-    
+
     /**
      * Creates a new instance of DataReceiver.
+     *
      * @param destGeoSet The GeoSet that will receive all imported GeoObjects.
      */
     public DataReceiver() {
@@ -73,16 +74,15 @@ abstract public class DataReceiver {
 
     /**
      * Add a TableLink, which usually has references to a Table and a GeoSet.
-     * DataReceiver does not store the Table, derived classes can overwrite 
-     * this method and take care of this.
+     * DataReceiver does not store the Table, derived classes can overwrite this
+     * method and take care of this.
      */
     public boolean add(ika.table.TableLink tableLink) {
         GeoSet destGeoSet = this.getDestinationGeoSet();
         if (tableLink == null || destGeoSet == null) {
             return false;        // make sure GeoSetChangedListeners are only informed after all 
-        // changes are made.
+            // changes are made.
         }
-        MapEventTrigger mem = new MapEventTrigger(destGeoSet);
         try {
             GeoSet geoSet = tableLink.getGeoSet();
             if (geoSet != null && geoSet.getNumberOfChildren() == 0) {
@@ -102,15 +102,13 @@ abstract public class DataReceiver {
             return true;
         } catch (Exception e) {
             return false;
-        } finally {
-            mem.inform(new MapEvent(true, true, false));
         }
     }
 
     public void error(Exception exc, java.net.URL url) {
 
         hasReceivedError |= true;
-        
+
         // display a dialog with an error message.
         if (showMessageOnError) {
             String message;
@@ -123,7 +121,7 @@ abstract public class DataReceiver {
             }
             ika.utils.ErrorDialog.showErrorDialog(message, "Import Error", exc, null);
         }
-        
+
         if (exc != null) {
             //exc.printStackTrace();
 

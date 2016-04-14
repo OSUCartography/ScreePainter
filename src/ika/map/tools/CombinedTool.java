@@ -137,6 +137,7 @@ public class CombinedTool extends MapTool{
                 break;
             }
         }
+        mapComponent.repaint();
     }
     
     /**

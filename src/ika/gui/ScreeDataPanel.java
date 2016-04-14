@@ -9,7 +9,6 @@ import ika.app.ScreeData;
 import ika.app.ScreeDataFilePaths;
 import ika.app.ScreeDataLoader;
 import ika.geo.GeoSet;
-import ika.geo.MapEventTrigger;
 import ika.utils.ErrorDialog;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -220,7 +219,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
 
             @Override
             protected void done() {
-                MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
                 try {
                     get(); // exceptions that occured in the backround tasks are thrown here
 
@@ -249,8 +247,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
                     ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex.getCause(), dialog);
                 } catch (Throwable ex) {
                     ika.utils.ErrorDialog.showErrorDialog(errorMsg, errorTitle, ex, dialog);
-                } finally {
-                    trigger.inform();
                 }
             }
 
@@ -258,7 +254,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
             protected Object doInBackground() throws Exception {
                 ScreeDataLoader loader = new ScreeDataLoader(screeInputData, screeData);
 
-                MapEventTrigger trigger = new MapEventTrigger(backgroundGeoSet);
                 try {
 
                     if (loadShading) {
@@ -327,7 +322,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
 
                 } finally {
                     complete();
-                    trigger.abort();
                 }
                 return null;
             }
