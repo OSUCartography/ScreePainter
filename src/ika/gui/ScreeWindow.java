@@ -1330,6 +1330,11 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
         }
 
         PageFormat pageFormat = this.mapComponent.getPageFormat();
+        if (pageFormat.isAutomatic()) {
+            Rectangle2D bounds = mapComponent.getGeoSet().getBounds2D(GeoObject.UNDEFINED_SCALE);
+            pageFormat.setPageWorldCoordinates(bounds);
+        }
+
         if (exporter instanceof VectorGraphicsExporter) {
             pageFormat.setPageScale(this.screeGenerator.p.mapScale);
             PageFormatDialog.setPageFormat(this, pageFormat);
