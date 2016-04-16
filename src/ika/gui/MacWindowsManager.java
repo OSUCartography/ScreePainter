@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import net.roydesign.mac.MRJAdapter;
 
 /**
  * Mac OS X specific code. Integrates a Java application to the standard Mac
@@ -35,42 +34,6 @@ public class MacWindowsManager {
             return;
         
         MacWindowsManager.macFramelessMenuBar = menuBar;
-        
-        // attach the menu bar to an invisible JFrame. The menu
-        // will be visible if no window is open.
-        MRJAdapter.setFramelessJMenuBar(macFramelessMenuBar);
-        
-        // setup about command in apple menu
-        MRJAdapter.addAboutListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                ika.gui.ProgramInfoPanel.showApplicationInfo();
-            }
-        }
-        );
-        
-        // setup quit command in apple menu
-        MRJAdapter.addQuitApplicationListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (MainWindow.closeAllDocumentWindows())
-                    System.exit(0);
-            }
-        }
-        );
-        
-        // setup preferences command in apple menu
-        if (PreferencesDialog.canCreatePreferencesDialog()) {
-            MRJAdapter.addPreferencesListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    // search the foreground window
-                    MainWindow frontWindow = MainWindow.getFocusedFrontWindow();
-
-                    // show the preferences dialog
-                    new PreferencesDialog(frontWindow, true).setVisible(true);
-                }
-            });
-        }
-
     }
     
     /**

@@ -22,8 +22,8 @@
                       identifier="${main.class}"
                       mainclassname="${main.class}"
                       icon="mac/icon.icns"
-                      shortversion="1.2"
-                      copyright="© Bernhard Jenny 2009–2015"
+                      shortversion="1.2.1"
+                      copyright="© Bernhard Jenny 2009–2016"
                       applicationCategory="public.app-category.graphics-design">
             
             <option value="-Dapple.laf.useScreenMenuBar=true"/>
@@ -35,7 +35,6 @@
             <classpath file="${dist.jar}" />
             <classpath file="./lib/itextpdf-5.4.0.jar"/>
             <classpath file="./lib/jai_imageio.jar"/>
-            <classpath file="./lib/MRJAdapter.jar"/>
            
         </macbundleapp>
         <zip destfile="mac/ScreePainterMac.zip" level="9">

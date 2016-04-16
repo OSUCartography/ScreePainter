@@ -3,6 +3,8 @@ package ika.app;
 import ika.gui.MacWindowsManager;
 import ika.gui.MainWindow;
 import ika.utils.IconUtils;
+import ika.utils.PropertiesLoader;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -21,10 +23,8 @@ public class Main {
      *
      * @param args command line arguments for second process.
      */
-    private static void startBatchProcess(String[] args) {
-        System.out.println("parent " + Runtime.getRuntime().maxMemory() / 1024 / 1024);
+    private static void startProcess(String[] args, String className) {
         try {
-            String className = ScreePainterBatch.class.getName();
             String xDockAppName = ApplicationInfo.getApplicationName();
             ProcessLauncher processLauncher = new ProcessLauncher();
             String xDockIconPath = processLauncher.findXDockIconPath("icon.icns");
@@ -39,18 +39,17 @@ public class Main {
     /**
      * Start the graphical user interface.
      */
-    private static void startGUI() {
+    public static void startGUI() {
+        // set icon for JOptionPane dialogs
+        Properties props = PropertiesLoader.loadProperties("ika.app.Application");
+        IconUtils.setOptionPaneIcons(props.getProperty("ApplicationIcon"));
+
         // on Mac OS X: take the menu bar out of the window and put it on top
         // of the main screen.
         if (ika.utils.Sys.isMacOSX()) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Scree Painter");
         }
-
-        // set icon for JOptionPane dialogs
-        java.util.Properties props
-                = ika.utils.PropertiesLoader.loadProperties("ika.app.Application");
-        IconUtils.setOptionPaneIcons(props.getProperty("ApplicationIcon"));
 
         // Replace title of progress monitor dialog by empty string.
         UIManager.put("ProgressMonitor.progressText", "");
@@ -74,14 +73,6 @@ public class Main {
                 if (win == null) {
                     System.exit(0);
                 }
-
-                /*
-                // initialize output and error stream for display in a window
-                String appName = ika.app.ApplicationInfo.getApplicationName();
-                String outTitle = appName + " - Standard Output";
-                String errTitle = appName + " - Error Messages";
-                new ika.utils.StdErrOutWindows(null, outTitle, errTitle);
-                 */
             }
         });
     }
@@ -94,9 +85,9 @@ public class Main {
     public static void main(String args[]) {
         // if arguments are received, start batch process
         if (args.length > 0) {
-            startBatchProcess(args);
+            startProcess(args, ScreePainterBatch.class.getName());
         } else {
-            // no arguments received, so start GUI process
+            // no arguments received, so run in GUI mode
             startGUI();
         }
     }

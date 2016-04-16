@@ -549,7 +549,6 @@ public class ScreeWindow extends MainWindow {
         this.zoomOutMenuItem.setEnabled(true);
         this.zoomOnUpdateAreaMenuItem.setEnabled(true);
         this.showAllMenuItem.setEnabled(true);
-        this.showPageCheckBoxMenuItem.setEnabled(true);
         this.toggleViewMenuItem.setEnabled(true);
     }
 
@@ -625,7 +624,6 @@ public class ScreeWindow extends MainWindow {
         zoomOnUpdateAreaMenuItem = new javax.swing.JMenuItem();
         showAllMenuItem = new javax.swing.JMenuItem();
         jSeparator8 = new javax.swing.JSeparator();
-        showPageCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         toggleViewMenuItem = new javax.swing.JMenuItem();
         windowMenu = new javax.swing.JMenu();
         minimizeMenuItem = new javax.swing.JMenuItem();
@@ -1118,15 +1116,6 @@ showAllMenuItem.addActionListener(new java.awt.event.ActionListener() {
     viewMenu.add(showAllMenuItem);
     viewMenu.add(jSeparator8);
 
-    showPageCheckBoxMenuItem.setText("Show Map Outline");
-    showPageCheckBoxMenuItem.setEnabled(false);
-    showPageCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            showPageCheckBoxMenuItemActionPerformed(evt);
-        }
-    });
-    viewMenu.add(showPageCheckBoxMenuItem);
-
     toggleViewMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T,
         java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 toggleViewMenuItem.setText("Toggle Reference Image and Obstacles Mask");
@@ -1256,12 +1245,6 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
     private void showAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showAllMenuItemActionPerformed
         mapComponent.showAll();
     }//GEN-LAST:event_showAllMenuItemActionPerformed
-
-    private void showPageCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showPageCheckBoxMenuItemActionPerformed
-        boolean show = this.showPageCheckBoxMenuItem.isSelected();
-        mapComponent.getPageFormat().setVisible(show);
-        mapComponent.repaint();
-    }//GEN-LAST:event_showPageCheckBoxMenuItemActionPerformed
 
     private void minimizeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_minimizeMenuItemActionPerformed
         this.setState(Frame.ICONIFIED);
@@ -1746,7 +1729,6 @@ private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent 
     private javax.swing.JMenu screeMenu;
     private javax.swing.JButton showAllButton;
     private javax.swing.JMenuItem showAllMenuItem;
-    private javax.swing.JCheckBoxMenuItem showPageCheckBoxMenuItem;
     private ika.gui.ScaleLabel slopeLabel;
     private javax.swing.JMenuItem toggleViewMenuItem;
     private javax.swing.ButtonGroup toolBarButtonGroup;
