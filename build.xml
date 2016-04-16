@@ -15,6 +15,8 @@
              classname="com.oracle.appbundler.AppBundlerTask"   
              classpath="mac/appbundler-1.0.jar" />
 
+    <property name="itext" location="./lib/itextpdf-5.5.9.jar" />
+    
     <target name="run.macappbundler">
         <macbundleapp outputdirectory="mac/"
                       name="Scree Painter"
@@ -33,7 +35,7 @@
             <option value="-Xmx4500m"/>
             
             <classpath file="${dist.jar}" />
-            <classpath file="./lib/itextpdf-5.4.0.jar"/>
+            <classpath file="${itext}"/>
             <classpath file="./lib/jai_imageio.jar"/>
            
         </macbundleapp>
@@ -49,7 +51,7 @@
        
         <!-- Combine JAR files needed for Windows version into a single jar. -->
         <jar compress="true" destfile="${dist.jar}" update="true">
-            <zipfileset src="lib/itextpdf-5.4.0.jar"/>
+            <zipfileset src="${itext}"/>
             <zipfileset src="lib/jai_imageio.jar"/>
             <manifest>
                 <attribute value="${main.class}" name="Main-Class"/>

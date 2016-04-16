@@ -26,13 +26,13 @@
     <maxHeapPercent>90</maxHeapPercent>
   </jre>
   <versionInfo>
-    <fileVersion>1.2.0.0</fileVersion>
-    <txtFileVersion>1.2</txtFileVersion>
-    <fileDescription>Scree Painter 1.2</fileDescription>
+    <fileVersion>1.2.1.0</fileVersion>
+    <txtFileVersion>1.2.1</txtFileVersion>
+    <fileDescription>Scree Painter 1.2.1</fileDescription>
     <copyright>©Bernhard Jenny</copyright>
-    <productVersion>1.2.0.0</productVersion>
-    <txtProductVersion>1.2</txtProductVersion>
-    <productName>Scree Painter 1.2</productName>
+    <productVersion>1.2.1.0</productVersion>
+    <txtProductVersion>1.2.1</txtProductVersion>
+    <productName>Scree Painter 1.2.1</productName>
     <companyName></companyName>
     <internalName>Scree Painter</internalName>
     <originalFilename>ScreePainter.exe</originalFilename>
