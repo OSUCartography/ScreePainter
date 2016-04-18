@@ -256,68 +256,68 @@ public class ScreeDataPanel extends javax.swing.JPanel {
             protected Object doInBackground() throws Exception {
                 ScreeDataLoader loader = new ScreeDataLoader(screeInputData, screeData);
 
-                if (loadShading) {
-                    nextTask();
-                    loader.loadShading(this);
-                    if (isCancelled()) {
-                        return null;
-                    }
-                }
-
-                if (loadLargeStoneMask) {
-                    nextTask();
-                    loader.loadLargeStonesMask(this);
-                    if (isCancelled()) {
-                        return null;
-                    }
-                }
-
-                if (loadGradationMask) {
-                    nextTask();
-                    loader.loadGradationMask(this);
-                    if (isCancelled()) {
-                        return null;
-                    }
-                }
-
-                if (loadObstaclesMask) {
-                    nextTask();
-                    loader.loadObstaclesMask(this);
-                    if (isCancelled()) {
-                        return null;
-                    }
-                }
-
-                if (loadRefImage) {
-                    nextTask();
-                    loader.loadReferenceImage(this);
-                    if (isCancelled()) {
-                        return null;
-                    }
-                }
-
                 if (loadDem) {
-                    nextTask();
                     loader.loadDEM(this);
                     if (isCancelled()) {
                         return null;
                     }
+                    nextTask();
                 }
 
                 if (loadScreePolygons) {
-                    nextTask();
                     loader.loadScreePolygons(this);
                     if (isCancelled()) {
                         return null;
                     }
+                    nextTask();
                 }
 
                 if (loadGullyLines) {
-                    nextTask();
                     loader.loadGullyLines(this);
                     if (isCancelled()) {
                         return null;
                     }
+                    nextTask();
+                }
+                
+                if (loadShading) {
+                    loader.loadShading(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                    nextTask();
+                }
+
+                if (loadLargeStoneMask) {
+                    loader.loadLargeStonesMask(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                    nextTask();
+                }
+
+                if (loadGradationMask) {
+                    loader.loadGradationMask(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                    nextTask();
+                }
+
+                if (loadObstaclesMask) {
+                    loader.loadObstaclesMask(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                    nextTask();
+                }
+
+                if (loadRefImage) {
+                    loader.loadReferenceImage(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                    nextTask();
                 }
 
                 return null;

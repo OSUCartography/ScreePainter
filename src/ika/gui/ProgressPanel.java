@@ -108,7 +108,6 @@ public class ProgressPanel extends javax.swing.JPanel {
      */
     public void start() {
         assert (SwingUtilities.isEventDispatchThread());
-        progressBar.setValue(0);
         progressBar.setIndeterminate(false);
     }
 

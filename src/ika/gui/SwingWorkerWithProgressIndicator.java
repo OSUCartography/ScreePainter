@@ -101,7 +101,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
 
     /**
      * Initialize the dialog. Can be called from any thread. If called from the
-     * event dispatching thread, the dialog is shown immediately.
+     * event dispatching thread, the dialog is initialized immediately.
      */
     @Override
     public void start() {
@@ -157,7 +157,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
 
     /**
      * Inform the dialog that the operation has completed and it can be hidden.
-     * If called from the EDT, the dialog is hidden immediately.
+     * If called from the event dispatch thread, the dialog is hidden immediately.
      */
     @Override
     public void complete() {
@@ -241,6 +241,8 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
      */
     @Override
     protected void process(List<Integer> progressList) {
+        assert (SwingUtilities.isEventDispatchThread());
+        
         if (isAborted()) {
             return;
         }
@@ -301,9 +303,6 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
                         return;
                     }
 
-                    // don't know how long the operation will take.
-                    progressPanel.setIndeterminate(true);
-
                     // show the dialog
                     dialog.pack();
                     dialog.setVisible(true);
@@ -362,7 +361,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
             this.setProgress(0);
         }
     }
-
+    
     public void nextTask(String message) {
         nextTask();
         setMessage(message);
