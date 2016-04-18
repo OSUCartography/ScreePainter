@@ -37,14 +37,16 @@ public class ScreeGeneratorManager {
     /**
      * Generate scree and gully lines for all polygons inside a bounding box.
      * @param screeGenerator used to create scree and gully lines
-     * @param screeBB create scree and gully lines inside this optional bounding box. Can be null.
+     * @param screeBB create scree and gully lines inside this optional bounding
+     * box. Can be null.
      * @param progress a progress indicator that will be regularly updated.
-     * @param generateScreeStones if true, scree is generated, otherwise, only gully lines are generated.
+     * @param generateScreeStones if true, scree is generated, otherwise, only
+     * gully lines are generated.
      */
     public void generateScree(ScreeGenerator screeGenerator,
             Rectangle2D screeBB,
             ProgressIndicator progress,
-            boolean generateScreeStones)  {
+            boolean generateScreeStones) {
 
         this.stonesCounter = 0;
         this.generateScreeStones = generateScreeStones;
@@ -151,11 +153,11 @@ public class ScreeGeneratorManager {
      * screeGenerator.screeData.shadingGradationMaskImage
      * @param p scree generation settings
      * @param maskImage obstacles mask
-     * @param tempResampledShadingGrid the shading image to change 
+     * @param tempResampledShadingGrid the shading image to change
      */
     private void applyGradationCurves(ScreeParameters p, GeoImage maskImage,
             GeoGridShort tempResampledShadingGrid) {
-        
+
         int[] table1 = p.shadingGradationCurve1.makeTable();
         int[] table2 = p.shadingGradationCurve2.makeTable();
 

@@ -68,7 +68,6 @@ public class ScreeDataPanel extends javax.swing.JPanel {
     }
     private final GeoSet backgroundGeoSet;
     private final GeoSet foregroundGeoSet;
-   
 
     /**
      * store the owner of the dialog: a hack to pass the owner to
@@ -220,8 +219,11 @@ public class ScreeDataPanel extends javax.swing.JPanel {
             @Override
             protected void done() {
                 try {
+                    // hide progress dialog
+                    complete();
+                    
                     get(); // exceptions that occured in the backround tasks are thrown here
-
+                    
                     writeToGUI();
 
                     warnOfSmallCellSize(screeData.dem);
@@ -254,75 +256,70 @@ public class ScreeDataPanel extends javax.swing.JPanel {
             protected Object doInBackground() throws Exception {
                 ScreeDataLoader loader = new ScreeDataLoader(screeInputData, screeData);
 
-                try {
-
-                    if (loadShading) {
-                        nextTask();
-                        loader.loadShading(this);
-                        if (isCancelled()) {
-                            return null;
-                        }
+                if (loadShading) {
+                    nextTask();
+                    loader.loadShading(this);
+                    if (isCancelled()) {
+                        return null;
                     }
-
-                    if (loadLargeStoneMask) {
-                        nextTask();
-                        loader.loadLargeStonesMask(this);
-                        if (isCancelled()) {
-                            return null;
-                        }
-                    }
-
-                    if (loadGradationMask) {
-                        nextTask();
-                        loader.loadGradationMask(this);
-                        if (isCancelled()) {
-                            return null;
-                        }
-                    }
-
-                    if (loadObstaclesMask) {
-                        nextTask();
-                        loader.loadObstaclesMask(this);
-                        if (isCancelled()) {
-                            return null;
-                        }
-                    }
-
-                    if (loadRefImage) {
-                        nextTask();
-                        loader.loadReferenceImage(this);
-                        if (isCancelled()) {
-                            return null;
-                        }
-                    }
-
-                    if (loadDem) {
-                        nextTask();
-                        loader.loadDEM(this);
-                        if (isCancelled()) {
-                            return null;
-                        }
-                    }
-
-                    if (loadScreePolygons) {
-                        nextTask();
-                        loader.loadScreePolygons(this);
-                        if (isCancelled()) {
-                            return null;
-                        }
-                    }
-
-                    if (loadGullyLines) {
-                        nextTask();
-                        loader.loadGullyLines(this);
-                        if (isCancelled()) {
-                            return null;
-                        }
-                    }
-
-                } finally {
-                    complete();
                 }
+
+                if (loadLargeStoneMask) {
+                    nextTask();
+                    loader.loadLargeStonesMask(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                }
+
+                if (loadGradationMask) {
+                    nextTask();
+                    loader.loadGradationMask(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                }
+
+                if (loadObstaclesMask) {
+                    nextTask();
+                    loader.loadObstaclesMask(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                }
+
+                if (loadRefImage) {
+                    nextTask();
+                    loader.loadReferenceImage(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                }
+
+                if (loadDem) {
+                    nextTask();
+                    loader.loadDEM(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                }
+
+                if (loadScreePolygons) {
+                    nextTask();
+                    loader.loadScreePolygons(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                }
+
+                if (loadGullyLines) {
+                    nextTask();
+                    loader.loadGullyLines(this);
+                    if (isCancelled()) {
+                        return null;
+                    }
+                }
+
                 return null;
             }
         };
