@@ -525,7 +525,7 @@ public class ScreeWindow extends MainWindow {
     private void updateFileMenu() {
         this.loadInputDataMenuItem.setEnabled(true);
         this.closeMenuItem.setEnabled(true);
-        this.saveSettingsMenuItem.setEnabled(this.isDocumentDirty());
+        this.saveSettingsMenuItem.setEnabled(true);
         this.loadSettingsMenuItem.setEnabled(true);
         this.exportScreeMenuItem.setEnabled(screeGenerator.screeData.hasScreeStones());
         this.exportGullyLinesMenuItem.setEnabled(screeGenerator.screeData.hasGullyLines());
