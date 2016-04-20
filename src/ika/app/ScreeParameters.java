@@ -13,16 +13,16 @@ public class ScreeParameters {
      */
     private static final String FILE_FORMAT_IDENTIFIER = "Scree Painter Format";
 
-    private static final float FILE_FORMAT_VERSION = 1.1f;
-    
+    private static final float FILE_FORMAT_VERSION = 1.2f;
+
     /**
      * Scale of the map for conversion from mm in the user interface to m of the
      * input data.
      */
     public double mapScale = 25000;
     /**
-     * maximum stone diameter in meter at 25,000 scale
-     * mean diameter in swisstopo maps is about 0.017 cm
+     * maximum stone diameter in meter at 25,000 scale mean diameter in
+     * swisstopo maps is about 0.017 cm
      */
     public double stoneMaxDiameter = 5.5;
     /**
@@ -44,12 +44,13 @@ public class ScreeParameters {
      */
     public double stoneRadiusVariabilityPerc = 18;
     /**
-     * the angular distribution of corners in a stone may vary by this percentage
+     * the angular distribution of corners in a stone may vary by this
+     * percentage
      */
     public double stoneAngleVariabilityPerc = 28;
     /**
-     * scale the radius of stones on the large stones mask by a factor
-     * between 1 and LARGE_RADIUS_SCALE
+     * scale the radius of stones on the large stones mask by a factor between 1
+     * and LARGE_RADIUS_SCALE
      */
     public double stoneLargeMaxScale = 1.8;
     /**
@@ -64,6 +65,13 @@ public class ScreeParameters {
      * the position of a stone may randomly vary by this distance in meters
      */
     public double stoneMaxPosJitterFraction = 0.36;
+
+    /**
+     * Flag to indicate whether gully lines are extracted from the terrain
+     * model.
+     */
+    public boolean extractGullyLines = true;
+
     /**
      * gradation curve applied to shading before extracting gully lines
      */
@@ -120,6 +128,7 @@ public class ScreeParameters {
     /**
      * returns a string containing all parameters that can be saved to a file
      * and parsed by fromString().
+     *
      * @return
      */
     @Override
@@ -218,11 +227,20 @@ public class ScreeParameters {
         sb.append(lineSep);
         sb.append(f.format(lineMinCurvature));
         sb.append(lineSep);
+
+        // format 1.2 adds a flag to indicate whether gully lines are extracted 
+        // from the terrain model
+        sb.append("Extract gully lines from terrain model");
+        sb.append(lineSep);
+        sb.append(extractGullyLines);
+        sb.append(lineSep);
+
         return sb.toString();
     }
 
     /**
      * parses a string formatted by toString() and replaces all parameters
+     *
      * @param string The string to parse
      * @throws java.io.IOException Thrown when the string cannot be parsed.
      */
@@ -293,7 +311,7 @@ public class ScreeParameters {
             tokenizer.nextToken();
             this.lineToPointDistFraction = Double.parseDouble(tokenizer.nextToken());
         }
-        
+
         // overread "Lines: Minimum Distance between Stones"
         tokenizer.nextToken();
         this.lineMinDistance = Double.parseDouble(tokenizer.nextToken());
@@ -306,5 +324,13 @@ public class ScreeParameters {
         // overread "Lines: Minimum Curvature"
         tokenizer.nextToken();
         this.lineMinCurvature = Float.parseFloat(tokenizer.nextToken());
+
+        // format 1.2 adds a flag to indicate whether gully lines are extracted 
+        // from the terrain model
+        if (version >= 1.2) {
+            // overread "Extract gully lines from terrain model"
+            tokenizer.nextToken();
+            this.extractGullyLines = Boolean.parseBoolean(tokenizer.nextToken());
+        }
     }
 }

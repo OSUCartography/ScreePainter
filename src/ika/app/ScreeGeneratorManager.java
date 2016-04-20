@@ -36,6 +36,7 @@ public class ScreeGeneratorManager {
 
     /**
      * Generate scree and gully lines for all polygons inside a bounding box.
+     *
      * @param screeGenerator used to create scree and gully lines
      * @param screeBB create scree and gully lines inside this optional bounding
      * box. Can be null.
@@ -80,6 +81,7 @@ public class ScreeGeneratorManager {
                     BufferedImage.TYPE_BYTE_GRAY);
             // convert from image to grid
             GeoGridShort tempResampledShadingGrid = new ImageToGridOperator().operateToShort(resampledShading);
+            short[] minMax = tempResampledShadingGrid.getMinMax();
 
             // apply gradation curve
             if (screeGenerator.screeData.shadingGradationMaskImage != null) {
@@ -92,21 +94,22 @@ public class ScreeGeneratorManager {
 
             GeoGridShort tempShadingGridToDither = tempResampledShadingGrid.clone();
 
-            if (progress != null) {
-                progress.setMessage("Resampling shaded relief for gully lines generation...");
-            }
-            resampledShading = screeGenerator.screeData.shadingImage.getResampledCopy(
-                    screeGenerator.getGullyGridCellsize(),
-                    RenderingHints.VALUE_INTERPOLATION_BICUBIC,
-                    BufferedImage.TYPE_BYTE_GRAY);
-            screeGenerator.screeData.lineDensityGrid = new ImageToGridOperator().operateToShort(resampledShading);
-            screeGenerator.p.lineGradationCurve.applyToGrid(screeGenerator.screeData.lineDensityGrid.getGrid());
-            GeoGridShort tempLinesDensityGridToDither1 = screeGenerator.screeData.lineDensityGrid.clone();
-            GeoGridShort tempLinesDensityGridToDither2 = screeGenerator.screeData.lineDensityGrid.clone();
+            GeoGridShort tempLinesDensityGridToDither1 = null;
+            GeoGridShort tempLinesDensityGridToDither2 = null;
 
-            short[] minMax = tempResampledShadingGrid.getMinMax();
-            short minShading = minMax[0];
-            short maxShading = minMax[1];
+            if (screeGenerator.p.extractGullyLines) {
+                if (progress != null) {
+                    progress.setMessage("Resampling shaded relief for gully lines generation...");
+                }
+                resampledShading = screeGenerator.screeData.shadingImage.getResampledCopy(
+                        screeGenerator.getGullyGridCellsize(),
+                        RenderingHints.VALUE_INTERPOLATION_BICUBIC,
+                        BufferedImage.TYPE_BYTE_GRAY);
+                screeGenerator.screeData.lineDensityGrid = new ImageToGridOperator().operateToShort(resampledShading);
+                screeGenerator.p.lineGradationCurve.applyToGrid(screeGenerator.screeData.lineDensityGrid.getGrid());
+                tempLinesDensityGridToDither1 = screeGenerator.screeData.lineDensityGrid.clone();
+                tempLinesDensityGridToDither2 = screeGenerator.screeData.lineDensityGrid.clone();
+            }
 
             // prepare progress indicator for scree generation
             if (progress != null) {
@@ -128,7 +131,7 @@ public class ScreeGeneratorManager {
                 int nItems = screeGenerator.generateScreeForPolygon(screeBB,
                         (GeoPath) polygon,
                         tempResampledShadingGrid,
-                        minShading, maxShading,
+                        minMax[0], minMax[1],
                         tempShadingGridToDither,
                         tempLinesDensityGridToDither1,
                         tempLinesDensityGridToDither2,
@@ -151,6 +154,7 @@ public class ScreeGeneratorManager {
      * Apply the two gradations curves on tempResampledShadingGrid. The two
      * gradation curves are mixed based on the values stored in
      * screeGenerator.screeData.shadingGradationMaskImage
+     *
      * @param p scree generation settings
      * @param maskImage obstacles mask
      * @param tempResampledShadingGrid the shading image to change
@@ -192,6 +196,7 @@ public class ScreeGeneratorManager {
 
     /**
      * Updates the progress indicator with the current progress
+     *
      * @param progress indicator to update
      * @param currentPolygon the number of polygons filled so far
      * @param totalPolygons the total number of polygons to fill
@@ -225,6 +230,7 @@ public class ScreeGeneratorManager {
 
     /**
      * Returns a HTML string with statistics about last set of scree generated.
+     *
      * @return HTML string
      */
     public String getHTMLReportForLastGeneration() {
@@ -245,6 +251,7 @@ public class ScreeGeneratorManager {
 
     /**
      * Returns the number of scree stones generated so far.
+     *
      * @return the number of scree stones generated so far.
      */
     public int nbrGeneratedScreeStones() {

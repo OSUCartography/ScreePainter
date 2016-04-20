@@ -226,17 +226,15 @@ public class ScreeGenerator {
         fastContainsGeoPath.initContainsTest(shadingGrid.getCellSize() / POINT_IN_POLOGYON_TOLERANCE);
 
         // extract gully lines for the polygon
-        ArrayList<GeoPath> screeLines;
+        ArrayList<GeoPath> screeLines = new ArrayList<>();
         if (screeData.fixedScreeLines) {
             screeLines = getScreeLinesForPolygon(screeData.gullyLines, fastContainsGeoPath);
-        } else {
+        } else if (p.extractGullyLines) {
             screeLines = generateGullyLines(fastContainsGeoPath,
                     tempLinesDensityGridToDither1,
                     tempLinesDensityGridToDither2);
-        }
-
-        // add gully lines to the GeoSet
-        if (!screeData.fixedScreeLines) {
+            
+            // add the new gully lines to the GeoSet for display on the map
             for (GeoPath line : screeLines) {
                 line.setVectorSymbol(GULLIES_VECTOR_SYMBOL);
                 line.setSelectable(false);

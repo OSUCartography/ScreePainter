@@ -110,6 +110,7 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
             angleVariabilitySlider.setValue((int) p.stoneAngleVariabilityPerc);
 
             // gully lines
+            extractGullyLinesCheckBox.setSelected(p.extractGullyLines);
             lineGradationGraph.setCurve(p.lineGradationCurve.clone());
             lineStoneDistSlider.setValue((int) (p.lineStoneDistFraction * 100));
             gullyLinesScaleTopSlider.setValue((int) (p.lineSizeScaleTop * 100));
@@ -173,6 +174,7 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
             p.stoneAngleVariabilityPerc = this.angleVariabilitySlider.getValue();
 
             // gully lines
+            p.extractGullyLines = extractGullyLinesCheckBox.isSelected();
             p.lineGradationCurve = lineGradationGraph.getCurve(0).clone();
             p.lineStoneDistFraction = lineStoneDistSlider.getValue() / 100d;
             p.lineSizeScaleTop = gullyLinesScaleTopSlider.getValue() / 100d;
@@ -273,6 +275,7 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
         jPanel7 = new ika.gui.TransparentMacPanel();
         javax.swing.JPanel jPanel2 = new ika.gui.TransparentMacPanel();
         linePanel = new ika.gui.TransparentMacPanel();
+        extractGullyLinesCheckBox = new javax.swing.JCheckBox();
         javax.swing.JLabel jLabel32 = new javax.swing.JLabel();
         minLineDistLabel = new javax.swing.JLabel();
         javax.swing.JLabel jLabel34 = new javax.swing.JLabel();
@@ -389,7 +392,7 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(40, 0, 10, 0);
         stoneSizePanel.add(jLabel48, gridBagConstraints);
 
-        jLabel49.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel49.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel49.setText("<html>Stones on the Large Stones Mask<br>are enlarged by this factor.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -475,7 +478,7 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
             slider.setLabelTable(labels);
         }
 
-        jLabel52.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel52.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel52.setText("<html>The highest stones in gully lines<br>are enlarged by this factor.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -599,7 +602,7 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
             slider.setLabelTable(labels);
         }
 
-        jLabel53.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel53.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel53.setText("<html>The lowest stones in gully lines<br>are enlarged by this factor.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -775,7 +778,7 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel8.add(jitterLabel, gridBagConstraints);
 
-        jLabel16.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel16.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel16.setText("<html>All values are relative to the diameter <br>of a stone in the shadow.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1129,6 +1132,14 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
 
         linePanel.setLayout(new java.awt.GridBagLayout());
 
+        extractGullyLinesCheckBox.setSelected(true);
+        extractGullyLinesCheckBox.setText("Extract Gully Lines from Terrain Model");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 15, 0);
+        linePanel.add(extractGullyLinesCheckBox, gridBagConstraints);
+
         jLabel32.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel32.setText("Minimum Distance between Gullies");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -1277,7 +1288,7 @@ public class ScreeParametersPanel extends javax.swing.JPanel {
         gullyGradationPanel.add(lineGradationGraph, java.awt.BorderLayout.CENTER);
         gullyGradationPanel.setPreferredSize(lineGradationGraph.getPreferredSize());
 
-        jLabel15.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        jLabel15.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         jLabel15.setText("<html>This gradation curve adjusts the density of <br>gully lines. Where the shaded relief is darker, <br>more lines are generated.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1600,6 +1611,7 @@ private void densityHelpButtonActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.ButtonGroup curvesButtonGroup;
     private javax.swing.JButton densityHelpButton;
     private javax.swing.JPanel densityPanel;
+    private javax.swing.JCheckBox extractGullyLinesCheckBox;
     private javax.swing.JPanel gradationPanel1;
     private javax.swing.JPanel gradationPanel2;
     private javax.swing.JPanel gullyGradationPanel;

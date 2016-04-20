@@ -324,7 +324,8 @@ public class ScreeDataPanel extends javax.swing.JPanel {
             }
         };
         worker.setTotalTasksCount(tasks);
-        worker.setMaxTimeWithoutDialog(1);
+        worker.setMaxTimeWithoutDialog(0);
+        worker.progress(0);
         worker.execute();
     }
 

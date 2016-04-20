@@ -60,18 +60,18 @@ public class ScreePainterBatch {
     private static void printUsage() {
         System.out.println(
                 "Usage: ScreePainter parameters shading dem scree_polygons obstacles_mask output_file west south width height scale [large_stones_mask] [gradation_mask] [gullyLines] [reference_image]\n"
-                + "    parameters: scree parameter file in Scree Painter format 1.1.\n"
+                + "    parameters: scree parameter file in Scree Painter format 1.1 or higher.\n"
                 + "    shading: shaded relief file path (format: raster image with world file).\n"
                 + "    dem: elevation model file path (format: Esri ASCII grid).\n"
                 + "    scree_polygons: scree polygons shapefile file path (Esri shapefile).\n"
                 + "    obstacles_mask: obstacles mask file path (format: raster image with world file).\n"
                 + "    output_file: output file path.\n"
-                + "    output_format: output file format (\"Geospatial PDF (Swiss CH1903+ / LV95)\", Illustrator, PDF, Shape, SVG, TerraGoGeoPDF)\n"
-                + "    west: western border of map sheet in ground coordinates\n"
-                + "    south: shourthern border of map sheet in ground coordinates\n"
-                + "    width: width of map sheet in ground coordinates\n"
-                + "    height: height of map sheet in ground coordinates\n"
-                + "    scale: scale of map (such as 50000 for 1:50,000)\n"
+                + "    output_format: output file format (\"Geospatial PDF (Swiss CH1903+ / LV95)\", Illustrator, PDF, Shape, SVG, TerraGoGeoPDF).\n"
+                + "    west: western border of map sheet in ground coordinates.\n"
+                + "    south: southern border of map sheet in ground coordinates.\n"
+                + "    width: width of map sheet in ground coordinates.\n"
+                + "    height: height of map sheet in ground coordinates.\n"
+                + "    scale: scale of map (such as 50000 for 1:50,000).\n"
                 + "    large_stones_mask: large stones mask file path (format: raster image with world file). Optional.\n"
                 + "    gradation_mask: gradation mask file path (format: raster image with world file). Optional.\n"
                 + "    gully_lines: gully lines file path (Esri shapefile). Optional.\n"
@@ -189,22 +189,24 @@ public class ScreePainterBatch {
 
         // verbose info
         if (cmd.verbose) {
-            System.out.println("\tparameters file: " + cmd.parametersFilePath);
-            System.out.println("\tshading file: " + cmd.dataFilePaths.shadingFilePath);
-            System.out.println("\tdem file: " + cmd.dataFilePaths.demFilePath);
-            System.out.println("\tscree polygons file: " + cmd.dataFilePaths.screePolygonsFilePath);
-            System.out.println("\tobstacles mask file: " + cmd.dataFilePaths.obstaclesFilePath);
-            System.out.println("\tlarge stones mask file: " + cmd.dataFilePaths.largeStoneFilePath);
-            System.out.println("\tgradation mask file: " + cmd.dataFilePaths.gradationMaskFilePath);
-            System.out.println("\tgully lines file: " + cmd.dataFilePaths.gullyLinesFilePath);
-            System.out.println("\treference image file: " + cmd.dataFilePaths.referenceFilePath);
-            System.out.println("\toutput file: " + cmd.outputFilePath);
-            System.out.println("\toutput format: " + cmd.outputFormat);
-            System.out.println("\twest: " + cmd.west);
-            System.out.println("\tsouth: " + cmd.south);
-            System.out.println("\twidth: " + cmd.width);
-            System.out.println("\theight: " + cmd.height);
-            System.out.println("\tscale: " + cmd.scale);
+            System.out.format("\t%s: %s%n", parameters.longForm(), cmd.parametersFilePath);
+            System.out.format("\t%s: %s%n", shading.longForm(), cmd.dataFilePaths.shadingFilePath);
+            System.out.format("\t%s: %s%n", dem.longForm(), cmd.dataFilePaths.demFilePath);
+            System.out.format("\t%s: %s%n", screePolygons.longForm(), cmd.dataFilePaths.screePolygonsFilePath);
+            System.out.format("\t%s: %s%n", obstaclesMask.longForm(), cmd.dataFilePaths.obstaclesFilePath);
+            System.out.format("\t%s: %s%n", largeStonesMask.longForm(), cmd.dataFilePaths.largeStoneFilePath);
+            System.out.format("\t%s: %s%n", gradationMask.longForm(), cmd.dataFilePaths.gradationMaskFilePath);
+            System.out.format("\t%s: %s%n", gullyLines.longForm(), cmd.dataFilePaths.gullyLinesFilePath);
+            
+            System.out.format("\t%s: %s%n", referenceImage.longForm(), cmd.dataFilePaths.referenceFilePath);
+            System.out.format("\t%s: %s%n", output.longForm(), cmd.outputFilePath);
+            System.out.format("\t%s: %s%n", outputFormat.longForm(), cmd.outputFormat);
+            
+            System.out.format("\t%s: %f%n", west.longForm(), cmd.west);
+            System.out.format("\t%s: %f%n", south.longForm(), cmd.south);
+            System.out.format("\t%s: %f%n", width.longForm(), cmd.width);
+            System.out.format("\t%s: %f%n", height.longForm(), cmd.height);
+            System.out.format("\t%s: %f%n", scale.longForm(), cmd.scale);
         }
 
         // test if all required parameters have been provided. Exit otherwise. 
@@ -288,7 +290,7 @@ public class ScreePainterBatch {
         manager.generateScree(screeGenerator, null, prog, true);
         System.out.format("Generated %,d scree stones.%n", manager.nbrGeneratedScreeStones());
 
-        // needed are only the scree stones to export
+        // only the scree stones are needed for export
         GeoSet screeStones = screeGenerator.screeData.screeStones;
 
         System.out.format("Saving ouptut file to %s%n", commandLineArguments.outputFilePath);
