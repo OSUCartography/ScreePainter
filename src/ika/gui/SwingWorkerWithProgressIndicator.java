@@ -157,7 +157,8 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
 
     /**
      * Inform the dialog that the operation has completed and it can be hidden.
-     * If called from the event dispatch thread, the dialog is hidden immediately.
+     * If called from the event dispatch thread, the dialog is hidden
+     * immediately.
      */
     @Override
     public void complete() {
@@ -242,7 +243,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
     @Override
     protected void process(List<Integer> progressList) {
         assert (SwingUtilities.isEventDispatchThread());
-        
+
         if (isAborted()) {
             return;
         }
@@ -311,10 +312,22 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
         }
     }
 
+    /**
+     * Returns the milliseconds after which the progress dialog is shown if the
+     * worker does not update the progress information.
+     *
+     * @return
+     */
     public int getMaxTimeWithoutDialog() {
         return maxTimeWithoutDialog;
     }
 
+    /**
+     * A dialog is shown after some time if the worker does not update the
+     * progress information.
+     *
+     * @param maxTimeWithoutDialog show dialog after this many milliseconds.
+     */
     public void setMaxTimeWithoutDialog(int maxTimeWithoutDialog) {
         this.maxTimeWithoutDialog = maxTimeWithoutDialog;
     }
@@ -361,7 +374,7 @@ public abstract class SwingWorkerWithProgressIndicator<T> extends SwingWorker<T,
             this.setProgress(0);
         }
     }
-    
+
     public void nextTask(String message) {
         nextTask();
         setMessage(message);

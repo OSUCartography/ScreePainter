@@ -1312,14 +1312,15 @@ minimizeMenuItem.addActionListener(new java.awt.event.ActionListener() {
             return;
         }
 
-        PageFormat pageFormat = this.mapComponent.getPageFormat();
-        if (pageFormat.isAutomatic()) {
-            Rectangle2D bounds = mapComponent.getGeoSet().getBounds2D(GeoObject.UNDEFINED_SCALE);
-            pageFormat.setPageWorldCoordinates(bounds);
-        }
-
+        PageFormat pageFormat = mapComponent.getPageFormat();
         if (exporter instanceof VectorGraphicsExporter) {
-            pageFormat.setPageScale(this.screeGenerator.p.mapScale);
+            // first set scale
+            pageFormat.setPageScale(screeGenerator.p.mapScale);
+            // then update page extent
+            if (pageFormat.isAutomatic()) {
+                Rectangle2D bounds = mapComponent.getGeoSet().getBounds2D(GeoObject.UNDEFINED_SCALE);
+                pageFormat.setPageWorldCoordinates(bounds);
+            }
             PageFormatDialog.setPageFormat(this, pageFormat);
             pageFormat = PageFormatDialog.showDialog(this, false);
             if (pageFormat == null) {
@@ -1603,6 +1604,9 @@ private void zoomOnUpdateAreaMenuItemActionPerformed(java.awt.event.ActionEvent 
         sb.append(nl);
         sb.append(fileParameters);
         sb.append("--output_file \"*** replace with path to output file ***\"");
+        sb.append(nl);
+        sb.append("--extract_gully_lines ");
+        sb.append(screeGenerator.p.extractGullyLines);
         sb.append(nl);
         sb.append("--output_format \"");
         sb.append(new GeospatialPDFExporter().getFileFormatName());
