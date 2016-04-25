@@ -285,7 +285,7 @@ public class ScreePainterBatch {
         screeGenerator.p.fromString(new String(FileUtils.getBytesFromFile(f)));
 
         // generate scree
-        System.out.println("Starting scree generation");
+        System.out.println("Starting scree generation...");
         ScreeGeneratorManager manager = new ScreeGeneratorManager();
         manager.generateScree(screeGenerator, null, prog, true);
         System.out.format("Generated %,d scree stones.%n", manager.nbrGeneratedScreeStones());
@@ -293,7 +293,7 @@ public class ScreePainterBatch {
         // only the scree stones are needed for export
         GeoSet screeStones = screeGenerator.screeData.screeStones;
 
-        System.out.format("Saving ouptut file to %s%n", commandLineArguments.outputFilePath);
+        System.out.format("Saving ouptut file to %s...%n", commandLineArguments.outputFilePath);
 
         // export scree
         GeoSetExporter exporter = GeoExportGUI.getExporterByName(commandLineArguments.outputFormat);
