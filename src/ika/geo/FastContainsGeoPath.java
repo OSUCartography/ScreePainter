@@ -40,14 +40,20 @@ public class FastContainsGeoPath extends GeoPath {
 
     public void initContainsTest(double cellSize) {
 
+        Rectangle2D bounds = getBounds2D(GeoObject.UNDEFINED_SCALE);
+        long cols = (long) Math.ceil(bounds.getWidth() / cellSize);
+        long rows = (long) Math.ceil(bounds.getHeight() / cellSize);
+
+        while (cols * rows > Integer.MAX_VALUE) {
+            cellSize *= 2;
+            cols = (long) Math.ceil(bounds.getWidth() / cellSize);
+            rows = (long) Math.ceil(bounds.getHeight() / cellSize);
+        }
+        
         this.cellSize = cellSize;
 
-        Rectangle2D bounds = getBounds2D(GeoObject.UNDEFINED_SCALE);
-        int cols = (int) Math.ceil(bounds.getWidth() / cellSize);
-        int rows = (int) Math.ceil(bounds.getHeight() / cellSize);
-
         // setup image to rasterize objects
-        BufferedImage img = new BufferedImage(cols, rows, BufferedImage.TYPE_BYTE_BINARY);
+        BufferedImage img = new BufferedImage((int) cols, (int) rows, BufferedImage.TYPE_BYTE_BINARY);
         this.raster = img.getRaster();
         Graphics2D rasterizerG2d = img.createGraphics();
         rasterizerG2d.setColor(Color.white);
