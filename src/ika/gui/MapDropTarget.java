@@ -18,6 +18,8 @@ import javax.swing.*;
 import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * MapDropTarget handles drag and drop for a MapComponent.
@@ -159,8 +161,12 @@ public class MapDropTarget extends BorderedDropTarget {
                     }
                 });
                 
-                // import the data in this same thread.
-                importer.read(url, dataReceiver, GeoImporter.SAME_THREAD);
+                try {
+                    // import the data in this same thread.
+                    importer.read(url, dataReceiver);
+                } catch (IOException ex) {
+                    break; // TODO show error message
+                }
             }
         }
     }

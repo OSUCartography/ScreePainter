@@ -10,15 +10,16 @@ import java.awt.*;
 
 /**
  * A utility class with static methods to display simple error dialogs.
+ *
  * @author Bernhard Jenny, Institute of Cartography, ETH Zurich
  */
 public class ErrorDialog {
 
     /**
      * Displays a simple error dialog to let the user know about some bad
-     * situation.
-     * Makes sure the dialog is displayed in the event dispatch thread. Does not
-     * throw any exception.
+     * situation. Makes sure the dialog is displayed in the event dispatch
+     * thread. Does not throw any exception.
+     *
      * @param msg The message that is displayed by the dialog.
      * @param title The title of the dialog.
      * @param e If e is not null, its message is appended on a new line to msg.
@@ -44,7 +45,7 @@ public class ErrorDialog {
             final Component component = parentComponent;
 
             // make sure we run in the event dispatch thread.
-            SwingUtilities.invokeLater(new Runnable() {
+            Runnable runnable = new Runnable() {
 
                 @Override
                 public void run() {
@@ -55,18 +56,24 @@ public class ErrorDialog {
                     JOptionPane.showMessageDialog(component, message,
                             title, JOptionPane.ERROR_MESSAGE);
                 }
-            });
+            };
+
+            if (SwingUtilities.isEventDispatchThread()) {
+                runnable.run();
+            } else {
+                SwingUtilities.invokeLater(runnable);
+            }
 
         } catch (Exception exc) {
         }
 
     }
 
-
     /**
      * Displays a simple error dialog to let the user know about some bad
-     * situation.
-     * Makes sure the dialog is displayed in the event dispatch thread.
+     * situation. Makes sure the dialog is displayed in the event dispatch
+     * thread.
+     *
      * @param msg The message that is displayed by the dialog.
      * @param title The title of the dialog.
      */
@@ -76,8 +83,9 @@ public class ErrorDialog {
 
     /**
      * Displays a simple error dialog to let the user know about some bad
-     * situation. Uses a default title "Error".
-     * Makes sure the dialog is displayed in the event dispatch thread.
+     * situation. Uses a default title "Error". Makes sure the dialog is
+     * displayed in the event dispatch thread.
+     *
      * @param msg The message that is displayed by the dialog.
      */
     public static void showErrorDialog(String msg) {
@@ -86,10 +94,12 @@ public class ErrorDialog {
 
     /**
      * Displays a simple error dialog to let the user know about some bad
-     * situation. Uses a default title "Error".
-     * Makes sure the dialog is displayed in the event dispatch thread.
+     * situation. Uses a default title "Error". Makes sure the dialog is
+     * displayed in the event dispatch thread.
+     *
      * @param msg The message that is displayed by the dialog.
-     * @param parentComponent Determines the frame for which the dialog is displayed.
+     * @param parentComponent Determines the frame for which the dialog is
+     * displayed.
      */
     public static void showErrorDialog(String msg, Component parentComponent) {
         ErrorDialog.showErrorDialog(msg, "Error", null, parentComponent);
@@ -97,8 +107,9 @@ public class ErrorDialog {
 
     /**
      * Displays a simple error dialog to let the user know about some bad
-     * situation. Uses a default title "Error".
-     * Makes sure the dialog is displayed in the event dispatch thread.
+     * situation. Uses a default title "Error". Makes sure the dialog is
+     * displayed in the event dispatch thread.
+     *
      * @param msg The message that is displayed by the dialog.
      * @param e The Exception that occured.
      */

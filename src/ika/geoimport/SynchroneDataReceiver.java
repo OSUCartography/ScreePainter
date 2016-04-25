@@ -10,7 +10,7 @@ import ika.geo.GeoSet;
  */
 public class SynchroneDataReceiver extends DataReceiver {
 
-    private GeoSet geoSet;
+    private final GeoSet geoSet;
 
     public SynchroneDataReceiver() {
         this.geoSet = new GeoSet();
@@ -20,6 +20,7 @@ public class SynchroneDataReceiver extends DataReceiver {
         this.geoSet = destinationGeoSet != null ? destinationGeoSet : new GeoSet();
     }
 
+    @Override
     public GeoSet getDestinationGeoSet() {
         return this.geoSet;
     }

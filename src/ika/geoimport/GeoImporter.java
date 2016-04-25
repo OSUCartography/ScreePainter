@@ -18,7 +18,7 @@ import java.lang.reflect.*;
  * Abstract class for importing GeoSets.
  * @author Bernhard Jenny, Institute of Cartography, ETH Zurich.
  */
-public abstract class GeoImporter extends Thread {
+public abstract class GeoImporter {
     
     final static private String GEOIMPORTER_PROPERTIES = 
             "ika.geoimport.geoimport";
@@ -28,10 +28,6 @@ public abstract class GeoImporter extends Thread {
     final static private String GEOPATH_PROPERTY = "geopath";
     
     final static private String GEOSET_PROPERTY = "geoset";
-    
-    final static public boolean NEW_THREAD = true;
-    
-    final static public boolean SAME_THREAD = false;
 
      /**
      * A ProgressIndicator that is displayed during a long import.
@@ -253,12 +249,8 @@ public abstract class GeoImporter extends Thread {
      * occurs, DataReceiver.error() is called.
      * @param url The data source to read.
      * @param mapDataReceiver DataReceiver that is responsible for storing imported data.
-     * @param newOrSameThread If newOrSameThread equals GeoImporter.NEW_THREAD an 
-     * additional thread is started to read the data. If newOrSameThread equals 
-     * GeoImporter.SAME_THREAD no additional thread is started.
      */
-    public void read(java.net.URL url, DataReceiver mapDataReceiver, 
-            boolean newOrSameThread) {
+    public void read(java.net.URL url, DataReceiver mapDataReceiver) throws IOException {
         
         // initialize the progress indicator.
         // the run() method is responsible for closing the progress indicator.
@@ -267,10 +259,7 @@ public abstract class GeoImporter extends Thread {
         
         this.threadParams.url = url;
         this.threadParams.dataReceiver = mapDataReceiver;
-        if (newOrSameThread == GeoImporter.NEW_THREAD)
-            this.start();
-        else
-            this.run();
+        read();
     }
     
     /**
@@ -279,7 +268,7 @@ public abstract class GeoImporter extends Thread {
     public GeoObject read (String filePath ) throws IOException {
         java.net.URL url = ika.utils.URLUtils.filePathToURL(filePath);
         SynchroneDataReceiver dataReceiver = new SynchroneDataReceiver();
-        this.read(url, dataReceiver, GeoImporter.SAME_THREAD);
+        this.read(url, dataReceiver);
         return dataReceiver.getImportedData();
     }
 
@@ -289,7 +278,7 @@ public abstract class GeoImporter extends Thread {
     public GeoObject read (String filePath, GeoSet destinationGeoSet) throws IOException {
         java.net.URL url = ika.utils.URLUtils.filePathToURL(filePath);
         SynchroneDataReceiver dataReceiver = new SynchroneDataReceiver(destinationGeoSet);
-        this.read(url, dataReceiver, GeoImporter.SAME_THREAD);
+        this.read(url, dataReceiver);
         return dataReceiver.getImportedData();
     }
     
@@ -306,8 +295,7 @@ public abstract class GeoImporter extends Thread {
     /**
      * Read data.
      */
-    @Override
-    public void run() {
+    private void read() throws IOException {
         try {
             if (threadParams.dataReceiver == null
                     || threadParams.url == null)
@@ -326,14 +314,6 @@ public abstract class GeoImporter extends Thread {
             } else {
                 threadParams.dataReceiver.add(importedGeoObj);
             }
-        } catch (Exception e) {
-            // hide the progress dialog
-            if (this.progressIndicator != null && this.callProgressComplete)
-                this.progressIndicator.complete();
-            
-            // pass the exception to the DataReceiver, which is responsible for
-            // informing the user.
-            threadParams.dataReceiver.error(e, threadParams.url);
         } finally {
             if (this.progressIndicator != null && this.callProgressComplete)
                 this.progressIndicator.complete();

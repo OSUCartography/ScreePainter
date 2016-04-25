@@ -8,6 +8,7 @@ package ika.geoimport;
 
 import ika.geo.*;
 import ika.table.Table;
+import ika.utils.FileUtils;
 
 /**
  * DataReceiver receives imported GeoObjects from a GeoImporter and is
@@ -25,19 +26,19 @@ abstract public class DataReceiver {
 
     /**
      * Creates a new instance of DataReceiver.
-     *
-     * @param destGeoSet The GeoSet that will receive all imported GeoObjects.
      */
     public DataReceiver() {
     }
 
     /**
      * Derived classes must provide a GeoSet to store the imported GeoObjects.
+     * @return the GeoSet that collects all received objects
      */
     abstract protected GeoSet getDestinationGeoSet();
 
     /**
      * Add a GeoObject.
+     * @param geoObject object to add
      */
     public void add(GeoObject geoObject) {
         if (geoObject instanceof GeoSet) {
@@ -50,6 +51,8 @@ abstract public class DataReceiver {
 
     /**
      * Add a GeoSet.
+     * @param geoSet object to add
+     * @return true if successfully added
      */
     public boolean add(GeoSet geoSet) {
         GeoSet destGeoSet = this.getDestinationGeoSet();
@@ -62,6 +65,8 @@ abstract public class DataReceiver {
 
     /**
      * Add a GeoImage.
+     * @param geoImage image to add
+     * @return true if successfully added
      */
     public boolean add(GeoImage geoImage) {
         GeoSet destGeoSet = this.getDestinationGeoSet();
@@ -76,6 +81,8 @@ abstract public class DataReceiver {
      * Add a TableLink, which usually has references to a Table and a GeoSet.
      * DataReceiver does not store the Table, derived classes can overwrite this
      * method and take care of this.
+     * @param tableLink geometry and attributes to add
+     * @return true if successfully added
      */
     public boolean add(ika.table.TableLink tableLink) {
         GeoSet destGeoSet = this.getDestinationGeoSet();
@@ -107,7 +114,7 @@ abstract public class DataReceiver {
 
     public void error(Exception exc, java.net.URL url) {
 
-        hasReceivedError |= true;
+        hasReceivedError = true;
 
         // display a dialog with an error message.
         if (showMessageOnError) {
@@ -115,9 +122,11 @@ abstract public class DataReceiver {
             if (url == null) {
                 message = "The data could not be imported.";
             } else if ("file".equalsIgnoreCase(url.getProtocol())) {
-                message = "The file at \"" + url.getFile() + "\" could not be imported.";
+                String fileName = FileUtils.getFileName(url.getFile());
+                message = "The file \"" + fileName + "\" could not be imported.";
             } else {
-                message = "The data at \"" + url.toExternalForm() + "\" could not be imported.";
+                String fileName = FileUtils.getFileName(url.toExternalForm());
+                message = "The data  \"" + fileName + "\" could not be imported.";
             }
             ika.utils.ErrorDialog.showErrorDialog(message, "Import Error", exc, null);
         }
@@ -140,7 +149,4 @@ abstract public class DataReceiver {
         return hasReceivedError;
     }
 
-    public void setHasReceivedError(boolean hasReceivedError) {
-        this.hasReceivedError = hasReceivedError;
-    }
 }
