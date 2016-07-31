@@ -89,6 +89,7 @@ public class ScreeGenerator {
             for (int i = 1; i < cornerscount; i++) {
                 path.lineTo(corners[i * 2], corners[i * 2 + 1]);
             }
+            path.closePath();
         }
 
         /**
@@ -987,8 +988,9 @@ public class ScreeGenerator {
                 + (p.stoneMaxCornerCount - p.stoneMinCornerCount) * random.nextDouble());
         double corners[] = new double[nbrCorners * 2];
 
-        // the angle between two neighboring corners measured from the center
-        final double angleIncrement = Math.PI * 2 / nbrCorners;
+        // the angle increment between two neighboring corners measured from the center
+        // negative sign for clockwise direction
+        final double angleIncrement = -Math.PI * 2 / nbrCorners;
         double currAngle = Math.PI * random.nextDouble();
 
         for (int i = 0; i < nbrCorners; i++) {

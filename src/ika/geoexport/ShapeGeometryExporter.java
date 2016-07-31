@@ -214,7 +214,11 @@ public class ShapeGeometryExporter extends GeoSetExporter {
     }
 
     /**
-     * Writes a path to a stream.
+     * Writes a path to a stream. The points of a polygon without holes must be
+     * in clockwise direction. The first and last point of a polygon must be
+     * identical. A GeoPath must have a close command to create a valid closed
+     * polygon (otherwise an open polyline is written, which is fine for
+     * shapefiles of type polyline).
      */
     private void writePolyline(MixedEndianDataOutputStream mos, GeoPath geoPath)
             throws IOException {
