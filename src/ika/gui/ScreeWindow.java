@@ -951,7 +951,7 @@ closeMenuItem.addActionListener(new java.awt.event.ActionListener() {
     saveSettingsMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S,
         java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
         | java.awt.event.InputEvent.SHIFT_MASK));
-saveSettingsMenuItem.setText("Save Settings...");
+saveSettingsMenuItem.setText("Save Settings‚Ä¶");
 saveSettingsMenuItem.setEnabled(false);
 saveSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
     public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -962,7 +962,7 @@ saveSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
     loadSettingsMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O,
         java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-loadSettingsMenuItem.setText("Load Settings…");
+loadSettingsMenuItem.setText("Load Settings‚Ä¶");
 loadSettingsMenuItem.setEnabled(false);
 loadSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
     public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -972,7 +972,7 @@ loadSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
     fileMenu.add(loadSettingsMenuItem);
     fileMenu.add(jSeparator1);
 
-    exportScreeMenuItem.setText("Export Scree…");
+    exportScreeMenuItem.setText("Export Scree‚Ä¶");
     exportScreeMenuItem.setEnabled(false);
     exportScreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -981,7 +981,7 @@ loadSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
     });
     fileMenu.add(exportScreeMenuItem);
 
-    exportGullyLinesMenuItem.setText("Export Gully Lines…");
+    exportGullyLinesMenuItem.setText("Export Gully Lines‚Ä¶");
     exportGullyLinesMenuItem.setEnabled(false);
     exportGullyLinesMenuItem.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -991,7 +991,7 @@ loadSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
     fileMenu.add(exportGullyLinesMenuItem);
     fileMenu.add(jSeparator6);
 
-    exportCommandLineArgumentsMenuItem.setText("Export Command Line Arguments…");
+    exportCommandLineArgumentsMenuItem.setText("Export Command Line Arguments‚Ä¶");
     exportCommandLineArgumentsMenuItem.setEnabled(false);
     exportCommandLineArgumentsMenuItem.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1013,7 +1013,7 @@ loadSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
     screeMenu.setText("Scree");
 
-    loadInputDataMenuItem.setText("Scree Input Data…");
+    loadInputDataMenuItem.setText("Scree Input Data‚Ä¶");
     loadInputDataMenuItem.setEnabled(false);
     loadInputDataMenuItem.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1057,7 +1057,7 @@ adjustUpdateAreaScreeMenuItem.addActionListener(new java.awt.event.ActionListene
 
     reportMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I,
         java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-reportMenuItem.setText("Show Report…");
+reportMenuItem.setText("Show Report‚Ä¶");
 reportMenuItem.setEnabled(false);
 reportMenuItem.addActionListener(new java.awt.event.ActionListener() {
     public void actionPerformed(java.awt.event.ActionEvent evt) {
